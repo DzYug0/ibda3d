@@ -77,11 +77,6 @@ export function Header() {
                       <Heart className="h-5 w-5" />
                     </Button>
                   </Link>
-                  <Link to="/wishlist">
-                    <Button variant="ghost" size="icon" className="relative">
-                      <Heart className="h-5 w-5" />
-                    </Button>
-                  </Link>
                   <Link to="/orders">
                     <Button variant="ghost" size="sm">{t.nav.myOrders}</Button>
                   </Link>
@@ -146,6 +141,9 @@ export function Header() {
                   </Link>
                   <Link to="/profile" className="px-4 py-2 text-foreground hover:bg-muted rounded-lg transition-colors flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
                     <User className="h-4 w-4" /> {t.nav.myProfile}
+                  </Link>
+                  <Link to="/wishlist" className="px-4 py-2 text-foreground hover:bg-muted rounded-lg transition-colors flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
+                    <Heart className="h-4 w-4" /> {t.wishlist?.title || 'Wishlist'}
                   </Link>
                   <Link to="/orders" className="px-4 py-2 text-foreground hover:bg-muted rounded-lg transition-colors" onClick={() => setMobileMenuOpen(false)}>
                     {t.nav.myOrders}
