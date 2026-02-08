@@ -30,17 +30,23 @@ export function useWishlist() {
                 .eq('user_id', user.id);
 
             if (error) {
+                console.error('Error fetching wishlist:', error);
                 throw error;
             }
 
-            return data.map(item => item.product) as any[];
+            if (!data) return [];
+
+            return data
+                .map(item => item.product)
+                .filter((product: any) => product && product.id);
         },
         enabled: !!user,
     });
 
     // Check if a product is in wishlist
     const isInWishlist = (productId: string) => {
-        return wishlist.some((item: any) => item.id === productId);
+        if (!Array.isArray(wishlist)) return false;
+        return wishlist.some((item: any) => item && item.id === productId);
     };
 
     // Add to wishlist
