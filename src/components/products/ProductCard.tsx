@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { WishlistButton } from './WishlistButton';
 import type { Product } from '@/hooks/useProducts';
 
 interface ProductCardProps {
@@ -42,6 +43,9 @@ export function ProductCard({ product }: ProductCardProps) {
           <div className="absolute top-3 start-3 flex flex-col gap-2">
             {hasDiscount && <span className="badge-sale">-{discountPercent}%</span>}
             {product.is_featured && <span className="badge-new">{t.products.featured}</span>}
+          </div>
+          <div className="absolute top-3 end-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+            <WishlistButton productId={product.id} className="bg-white/80 hover:bg-white shadow-sm backdrop-blur-sm rounded-full h-8 w-8" size="icon" />
           </div>
           {user && product.stock_quantity > 0 && (
             <div className="absolute bottom-3 end-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">

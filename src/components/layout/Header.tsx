@@ -72,6 +72,16 @@ export function Header() {
                   <Link to="/profile">
                     <Button variant="ghost" size="icon"><User className="h-5 w-5" /></Button>
                   </Link>
+                  <Link to="/wishlist">
+                    <Button variant="ghost" size="icon" className="relative">
+                      <Heart className="h-5 w-5" />
+                    </Button>
+                  </Link>
+                  <Link to="/wishlist">
+                    <Button variant="ghost" size="icon" className="relative">
+                      <Heart className="h-5 w-5" />
+                    </Button>
+                  </Link>
                   <Link to="/orders">
                     <Button variant="ghost" size="sm">{t.nav.myOrders}</Button>
                   </Link>

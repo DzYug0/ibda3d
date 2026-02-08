@@ -65,6 +65,15 @@ export const en = {
     backToProducts: 'Back to Products',
     productNotFound: 'Product Not Found',
     pleaseSignInToAdd: 'Please sign in to add items to your cart',
+    selectColor: 'Select Color',
+    selectVersion: 'Select Version',
+    selectOptions: 'Select Options',
+  },
+
+  wishlist: {
+    title: 'My Wishlist',
+    emptyTitle: 'Your wishlist is empty',
+    emptyDescription: 'Browse products and add your favorites to see them here.',
   },
 
   // Categories
