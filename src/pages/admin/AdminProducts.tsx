@@ -50,6 +50,8 @@ export default function AdminProducts() {
     stock_quantity: '',
     is_featured: false,
     is_active: true,
+    colors: '' as string, // Comma separated for input
+    versions: '' as string, // Comma separated for input
   });
 
   const resetForm = () => {
@@ -65,6 +67,8 @@ export default function AdminProducts() {
       stock_quantity: '',
       is_featured: false,
       is_active: true,
+      colors: '',
+      versions: '',
     });
     setEditingProduct(null);
   };
@@ -88,6 +92,8 @@ export default function AdminProducts() {
       stock_quantity: product.stock_quantity.toString(),
       is_featured: product.is_featured,
       is_active: product.is_active,
+      colors: product.colors?.join(', ') || '',
+      versions: product.versions?.join(', ') || '',
     });
     setIsDialogOpen(true);
   };
@@ -117,6 +123,8 @@ export default function AdminProducts() {
       is_featured: formData.is_featured,
       is_active: formData.is_active,
       category_ids: formData.category_ids,
+      colors: formData.colors.split(',').map(c => c.trim()).filter(Boolean),
+      versions: formData.versions.split(',').map(v => v.trim()).filter(Boolean),
     };
 
     try {
@@ -230,6 +238,27 @@ export default function AdminProducts() {
                     min="0"
                     value={formData.stock_quantity}
                     onChange={(e) => setFormData({ ...formData, stock_quantity: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="colors">Colors</Label>
+                  <Input
+                    id="colors"
+                    value={formData.colors}
+                    onChange={(e) => setFormData({ ...formData, colors: e.target.value })}
+                    placeholder="Red, Blue, Green (comma separated)"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="versions">Versions</Label>
+                  <Input
+                    id="versions"
+                    value={formData.versions}
+                    onChange={(e) => setFormData({ ...formData, versions: e.target.value })}
+                    placeholder="V1, V2, Pro (comma separated)"
                   />
                 </div>
               </div>
