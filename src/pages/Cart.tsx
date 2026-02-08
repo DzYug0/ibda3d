@@ -81,6 +81,15 @@ export default function Cart() {
                       {name}
                     </Link>
                     {isPack && <span className="text-xs text-muted-foreground ml-2">({t.packs.title})</span>}
+
+                    {/* Display Options */}
+                    {(item.selected_color || item.selected_version) && (
+                      <div className="flex gap-2 mt-1 text-xs text-muted-foreground">
+                        {item.selected_color && <span>{t.products.color || 'Color'}: {item.selected_color}</span>}
+                        {item.selected_version && <span>{t.products.version || 'Version'}: {item.selected_version}</span>}
+                      </div>
+                    )}
+
                     <p className="text-lg font-bold text-foreground mt-1">{price.toFixed(0)} {t.common.da}</p>
                     <div className="flex items-center gap-4 mt-3">
                       <div className="flex items-center border border-border rounded-lg">

@@ -26,6 +26,8 @@ export interface Product {
     name: string;
     slug: string;
   }[];
+  colors?: string[];
+  versions?: string[];
 }
 
 export interface Category {
