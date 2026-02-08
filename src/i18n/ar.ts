@@ -69,6 +69,15 @@ export const ar: DeepPartial<TranslationKeys> = {
     backToProducts: 'العودة للمنتجات',
     productNotFound: 'المنتج غير موجود',
     pleaseSignInToAdd: 'يرجى تسجيل الدخول لإضافة عناصر إلى سلتك',
+    selectColor: 'اختر اللون',
+    selectVersion: 'اختر الإصدار',
+    selectOptions: 'اختر الخيارات',
+  },
+
+  wishlist: {
+    title: 'قائمة رغباتي',
+    emptyTitle: 'قائمة رغباتك فارغة',
+    emptyDescription: 'تصفح المنتجات وأضف مفضلاتك لرؤيتها هنا.',
   },
 
   // Categories

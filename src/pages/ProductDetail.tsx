@@ -7,6 +7,7 @@ import { useProduct } from '@/hooks/useProducts';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProductGallery } from '@/components/products/ProductGallery';
+import { WishlistButton } from '@/components/products/WishlistButton';
 import { useLanguage } from '@/i18n/LanguageContext';
 
 export default function ProductDetail() {
@@ -207,6 +208,7 @@ export default function ProductDetail() {
                 <Zap className="h-5 w-5 me-2" />
                 {t.products.buyNow}
               </Button>
+              <WishlistButton productId={product.id} size="lg" className="h-14 w-14 rounded-xl border-2" variant="outline" />
             </div>
           </div>
         </div>
