@@ -81,7 +81,13 @@ export function useCreateOrder() {
       shippingInfo,
       notes,
     }: {
-      items: { product_id: string | null; pack_id?: string | null; quantity: number }[];
+      items: {
+        product_id: string | null;
+        pack_id?: string | null;
+        quantity: number;
+        selected_color?: string | null;
+        selected_version?: string | null;
+      }[];
       shippingInfo: {
         address: string;
         city: string;
@@ -90,25 +96,27 @@ export function useCreateOrder() {
       };
       notes?: string;
     }) => {
-      const { data, error } = await supabase.functions.invoke('create-order', {
-        body: {
-          items: items.map(item => ({
-            product_id: item.product_id,
-            pack_id: item.pack_id || null,
-            quantity: item.quantity
-          })),
-          shippingInfo,
-          notes
-        }
+      // Use RPC instead of Edge Function
+      const { data, error } = await supabase.rpc('create_new_order', {
+        p_items: items.map(item => ({
+          product_id: item.product_id,
+          pack_id: item.pack_id || null,
+          quantity: item.quantity,
+          selected_color: item.selected_color || null,
+          selected_version: item.selected_version || null
+        })),
+        p_shipping_info: shippingInfo,
+        p_notes: notes || '',
       });
 
       if (error) throw error;
-      
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to create order');
+
+      // data is { success: boolean, order_id: string }
+      if (!data || !data.success) {
+        throw new Error('Failed to create order');
       }
 
-      return data.order;
+      return { id: data.order_id };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });

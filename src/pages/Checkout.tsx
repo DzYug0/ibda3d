@@ -25,6 +25,8 @@ interface CheckoutItem {
   name: string;
   price: number;
   image_url: string | null;
+  selected_color?: string | null;
+  selected_version?: string | null;
 }
 
 const shippingSchema = z.object({
@@ -70,6 +72,8 @@ export default function Checkout() {
   // Handle Buy Now URL params (for guests)
   const buyNowProductId = searchParams.get('buyNow');
   const buyNowQty = parseInt(searchParams.get('qty') || '1', 10);
+  const buyNowColor = searchParams.get('color');
+  const buyNowVersion = searchParams.get('version');
 
   useEffect(() => {
     if (!buyNowProductId) return;
@@ -89,11 +93,13 @@ export default function Checkout() {
             name: data.name,
             price: data.price,
             image_url: data.image_url,
+            selected_color: buyNowColor,
+            selected_version: buyNowVersion,
           });
         }
         setBuyNowLoading(false);
       });
-  }, [buyNowProductId, buyNowQty]);
+  }, [buyNowProductId, buyNowQty, buyNowColor, buyNowVersion]);
 
   // Pre-fill from user profile if logged in
   useEffect(() => {
@@ -127,6 +133,8 @@ export default function Checkout() {
           name: isPack ? (item.pack?.name || '') : (item.product?.name || ''),
           price: isPack ? (item.pack?.price || 0) : (item.product?.price || 0),
           image_url: isPack ? (item.pack?.image_url || null) : (item.product?.image_url || null),
+          selected_color: item.selected_color,
+          selected_version: item.selected_version,
         };
       });
     }
@@ -229,6 +237,8 @@ export default function Checkout() {
         product_id: item.product_id,
         pack_id: item.pack_id,
         quantity: item.quantity,
+        selected_color: item.selected_color,
+        selected_version: item.selected_version,
       }));
 
       const deliveryNote = shippingInfo.deliveryType === 'desk'
@@ -340,7 +350,7 @@ export default function Checkout() {
               {/* Shipping Company */}
               <div className="bg-card rounded-xl border border-border p-6">
                 <div className="flex items-center gap-3 mb-6">
-                   <Truck className="h-5 w-5 text-primary" />
+                  <Truck className="h-5 w-5 text-primary" />
                   <h2 className="text-xl font-bold text-foreground">{t.checkout.shippingCompany}</h2>
                 </div>
 
@@ -364,11 +374,10 @@ export default function Checkout() {
                         <label
                           key={company.id}
                           htmlFor={`company-${company.id}`}
-                          className={`relative flex flex-col items-center gap-2 p-4 rounded-lg border-2 cursor-pointer text-center transition-all duration-200 hover:scale-105 hover:shadow-md ${
-                            shippingInfo.companyId === company.id
-                              ? 'border-primary bg-primary/5 shadow-sm'
-                              : 'border-border hover:border-primary/50'
-                          }`}
+                          className={`relative flex flex-col items-center gap-2 p-4 rounded-lg border-2 cursor-pointer text-center transition-all duration-200 hover:scale-105 hover:shadow-md ${shippingInfo.companyId === company.id
+                            ? 'border-primary bg-primary/5 shadow-sm'
+                            : 'border-border hover:border-primary/50'
+                            }`}
                         >
                           <RadioGroupItem value={company.id} id={`company-${company.id}`} className="absolute top-2 right-2" />
                           {company.logo_url ? (
@@ -408,11 +417,10 @@ export default function Checkout() {
                   }
                   className="space-y-4"
                 >
-                  <div className={`flex items-start gap-4 p-4 rounded-lg border-2 transition-colors cursor-pointer ${
-                    shippingInfo.deliveryType === 'desk'
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border hover:border-primary/50'
-                  }`}>
+                  <div className={`flex items-start gap-4 p-4 rounded-lg border-2 transition-colors cursor-pointer ${shippingInfo.deliveryType === 'desk'
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border hover:border-primary/50'
+                    }`}>
                     <RadioGroupItem value="desk" id="desk" className="mt-1" />
                     <div className="flex-1">
                       <Label htmlFor="desk" className="flex items-center gap-2 cursor-pointer">
@@ -428,11 +436,10 @@ export default function Checkout() {
                     </div>
                   </div>
 
-                  <div className={`flex items-start gap-4 p-4 rounded-lg border-2 transition-colors cursor-pointer ${
-                    shippingInfo.deliveryType === 'home'
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border hover:border-primary/50'
-                  }`}>
+                  <div className={`flex items-start gap-4 p-4 rounded-lg border-2 transition-colors cursor-pointer ${shippingInfo.deliveryType === 'home'
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border hover:border-primary/50'
+                    }`}>
                     <RadioGroupItem value="home" id="home" className="mt-1" />
                     <div className="flex-1">
                       <Label htmlFor="home" className="flex items-center gap-2 cursor-pointer">
