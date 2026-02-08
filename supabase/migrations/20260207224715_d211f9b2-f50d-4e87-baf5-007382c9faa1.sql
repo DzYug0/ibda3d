@@ -1,0 +1,4 @@
+
+ALTER TABLE cart_items ALTER COLUMN product_id DROP NOT NULL;
+ALTER TABLE cart_items ADD COLUMN pack_id uuid REFERENCES packs(id) ON DELETE CASCADE;
+ALTER TABLE order_items ADD COLUMN pack_id uuid REFERENCES packs(id) ON DELETE SET NULL;

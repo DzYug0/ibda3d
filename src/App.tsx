@@ -1,0 +1,80 @@
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { LanguageProvider } from "@/i18n/LanguageContext";
+import { ThemeProvider } from "next-themes";
+import Index from "./pages/Index";
+import Auth from "./pages/Auth";
+import Products from "./pages/Products";
+import Categories from "./pages/Categories";
+import ProductDetail from "./pages/ProductDetail";
+import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
+import Packs from "./pages/Packs";
+import PackDetail from "./pages/PackDetail";
+import Orders from "./pages/Orders";
+import Profile from "./pages/Profile";
+import AdminLayout from "./pages/admin/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminProducts from "./pages/admin/AdminProducts";
+import AdminCategories from "./pages/admin/AdminCategories";
+import AdminOrders from "./pages/admin/AdminOrders";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminActivityLog from "./pages/admin/AdminActivityLog";
+import AdminShipping from "./pages/admin/AdminShipping";
+import AdminPacks from "./pages/admin/AdminPacks";
+import NotFound from "./pages/NotFound";
+import { ScrollToTop } from "./components/ScrollToTop";
+
+const queryClient = new QueryClient();
+
+const App = () => (
+  <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <LanguageProvider>
+            <ScrollToTop />
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/products" element={<Products />} />
+              <Route path="/categories" element={<Categories />} />
+              <Route path="/products/:slug" element={<ProductDetail />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/packs" element={<Packs />} />
+              <Route path="/packs/:slug" element={<PackDetail />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/orders" element={<Orders />} />
+              <Route path="/profile" element={<Profile />} />
+              
+              {/* Admin routes */}
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<AdminDashboard />} />
+                <Route path="products" element={<AdminProducts />} />
+                <Route path="categories" element={<AdminCategories />} />
+                <Route path="orders" element={<AdminOrders />} />
+                <Route path="users" element={<AdminUsers />} />
+                <Route path="shipping" element={<AdminShipping />} />
+                <Route path="packs" element={<AdminPacks />} />
+                <Route path="activity" element={<AdminActivityLog />} />
+              </Route>
+              
+              {/* Catch-all */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </LanguageProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+  </ThemeProvider>
+);
+
+export default App;

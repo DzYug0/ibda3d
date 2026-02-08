@@ -1,0 +1,260 @@
+export const en = {
+  // Navigation
+  nav: {
+    home: 'Home',
+    allProducts: 'All Products',
+    categories: 'Categories',
+    packs: 'Packs',
+    cart: 'Cart',
+    myProfile: 'My Profile',
+    myOrders: 'My Orders',
+    admin: 'Admin',
+    adminDashboard: 'Admin Dashboard',
+    signIn: 'Sign In',
+    signUp: 'Sign Up',
+    signOut: 'Sign Out',
+    backToStore: 'Back to Store',
+  },
+
+  // Hero / Index
+  hero: {
+    badge: '3D Printing Solutions',
+    title1: 'Bring Your Ideas',
+    title2: 'To Life in 3D',
+    subtitle: 'Discover our complete range of 3D printed products. Professional quality, fast delivery across Algeria.',
+    discover: 'Discover',
+    ourCategories: 'Our Categories',
+    wilayas: 'Wilayas',
+    support: 'Support',
+  },
+
+  // Features
+  features: {
+    fastDelivery: 'Fast Delivery',
+    fastDeliveryDesc: 'All across Algeria',
+    securePayment: 'Secure Payment',
+    securePaymentDesc: 'Cash on delivery',
+    qualityGuaranteed: 'Quality Guaranteed',
+    qualityGuaranteedDesc: 'Certified products',
+    support247: '24/7 Support',
+    support247Desc: 'Dedicated assistance',
+  },
+
+  // Products
+  products: {
+    featuredProducts: 'Featured Products',
+    handpicked: 'Handpicked just for you',
+    viewAll: 'View All',
+    allProducts: 'All Products',
+    filteredProducts: 'Filtered Products',
+    productsFound: '{count} product(s) found',
+    filters: 'Filters',
+    activeFilters: 'Active filters:',
+    clearAll: 'Clear all',
+    clear: 'Clear',
+    noImage: 'No Image',
+    featured: 'Featured',
+    outOfStock: 'Out of Stock',
+    inStock: 'In Stock',
+    available: 'available',
+    quantity: 'Quantity:',
+    addToCart: 'Add to Cart',
+    adding: 'Adding...',
+    signInToShop: 'Sign In to Shop',
+    buyNow: 'Buy Now',
+    backToProducts: 'Back to Products',
+    productNotFound: 'Product Not Found',
+    pleaseSignInToAdd: 'Please sign in to add items to your cart',
+  },
+
+  // Categories
+  categories: {
+    title: 'Categories',
+    shopByCategory: 'Shop by Category',
+    browseCategories: 'Browse our product categories',
+    noCategories: 'No categories found.',
+  },
+
+  // Packs
+  packs: {
+    title: 'Packs & Bundles',
+    subtitle: 'Save more with our curated product bundles',
+    featuredPacks: 'Featured Packs',
+    featuredPacksDesc: 'Bundle & save on our best deals',
+    viewAllPacks: 'View All Packs',
+    save: 'Save',
+    includes: 'Includes:',
+    whatsIncluded: "What's Included",
+    each: 'each',
+    qty: 'Qty:',
+    total: 'Total:',
+    addPackToCart: 'Add Pack to Cart',
+    addPacksToCart: 'Add {count} Packs to Cart',
+    noPacksYet: 'No packs available yet',
+    checkBackSoon: 'Check back soon for exciting bundles!',
+    packNotFound: 'Pack Not Found',
+    backToPacks: 'Back to Packs',
+    individualTotal: 'Individual items total:',
+    more: 'more',
+  },
+
+  // Cart
+  cart: {
+    title: 'Shopping Cart',
+    emptyCart: 'Your Cart is Empty',
+    startShopping: 'Start shopping to add items to your cart',
+    browseProducts: 'Browse Products',
+    pleaseSignIn: 'Please Sign In',
+    signInToView: 'Sign in to view your shopping cart',
+    orderSummary: 'Order Summary',
+    subtotal: 'Subtotal',
+    shipping: 'Shipping',
+    calculatedAtCheckout: 'Calculated at checkout',
+    total: 'Total',
+    placeOrder: 'Place Order',
+    algeriaOnly: '🇩🇿 Delivery in Algeria only',
+  },
+
+  // Checkout
+  checkout: {
+    title: 'Checkout',
+    deliveryInfo: 'Delivery Information',
+    fullName: 'Full Name',
+    enterFullName: 'Enter your full name',
+    selectWilaya: 'Select your wilaya',
+    chooseWilaya: 'Choose a wilaya...',
+    phoneNumber: 'Phone Number',
+    shippingCompany: 'Shipping Company',
+    loadingShipping: 'Loading shipping options...',
+    noCompanies: 'No shipping companies available for this wilaya yet.',
+    selectWilayaFirst: 'Please select a wilaya first.',
+    deliveryType: 'Delivery Type',
+    deskDelivery: 'Desk Delivery (Desk Stop)',
+    deskDeliveryDesc: 'Pick up your order at the collection point in your wilaya',
+    homeDelivery: 'Home Delivery',
+    homeDeliveryDesc: 'Receive your order directly at your home',
+    deliveryAddress: 'Delivery Address',
+    addressPlaceholder: 'Street, number, neighborhood...',
+    payment: 'Payment',
+    cashOnDelivery: 'Cash on Delivery',
+    cashOnDeliveryDesc: 'Pay when you receive your order',
+    itemsSummary: 'Items Summary',
+    shippingCost: 'Shipping',
+    totalAmount: 'Total',
+    confirmOrder: 'Confirm Order',
+    processing: 'Processing...',
+    orderConfirmed: 'Order Confirmed!',
+    thankYou: 'Thank you for your order. You will be contacted to confirm delivery.',
+    viewMyOrders: 'View My Orders',
+    continueShopping: 'Continue Shopping',
+    cartEmpty: 'Your cart is empty',
+    viewProducts: 'View Products',
+  },
+
+  // Orders
+  orders: {
+    title: 'My Orders',
+    noOrders: 'No Orders Yet',
+    startShoppingOrders: 'Start shopping to see your orders here',
+    order: 'Order',
+    placedOn: 'Placed on',
+    items: 'item(s)',
+    shipsTo: 'Ships to:',
+    pending: 'Pending',
+    confirmed: 'Confirmed',
+    processing: 'Processing',
+    shipped: 'Shipped',
+    delivered: 'Delivered',
+    cancelled: 'Order Cancelled',
+    signInOrders: 'Sign in to view your orders',
+  },
+
+  // Profile
+  profile: {
+    title: 'My Profile',
+    fullName: 'Full Name',
+    email: 'Email',
+    phone: 'Phone',
+    address: 'Address',
+    saveChanges: 'Save Changes',
+    profileUpdated: 'Profile updated',
+    changesSaved: 'Your changes have been saved.',
+    updateError: 'Failed to update profile.',
+  },
+
+  // Auth
+  auth: {
+    createAccount: 'Create an account',
+    welcomeBack: 'Welcome back',
+    startShopping: 'Start shopping with us today',
+    signInContinue: 'Sign in to continue shopping',
+    fullName: 'Full Name',
+    email: 'Email',
+    password: 'Password',
+    createAccountBtn: 'Create Account',
+    signInBtn: 'Sign In',
+    pleaseWait: 'Please wait...',
+    orContinueWith: 'Or continue with',
+    continueWithGoogle: 'Continue with Google',
+    connecting: 'Connecting...',
+    alreadyHaveAccount: 'Already have an account?',
+    dontHaveAccount: "Don't have an account?",
+    heroTitle: '3D Printing Made Easy',
+    heroSubtitle: 'Quality 3D printed products, fast delivery across Algeria.',
+  },
+
+  // CTA Section
+  cta: {
+    badge: 'Join Ibda3D',
+    title: 'Ready to Create?',
+    subtitle: 'Join hundreds of satisfied customers and discover our quality 3D printed products.',
+    createAccount: 'Create Account',
+  },
+
+  // Footer
+  footer: {
+    tagline: '3D Printing Solutions - Algeria. Quality guaranteed.',
+    shop: 'Shop',
+    allProducts: 'All Products',
+    featured: 'Featured',
+    newArrivals: 'New Arrivals',
+    sale: 'Sale',
+    account: 'Account',
+    signIn: 'Sign In',
+    createAccount: 'Create Account',
+    orderHistory: 'Order History',
+    shoppingCart: 'Shopping Cart',
+    contact: 'Contact',
+    deliveryAll58: 'Delivery across all 58 wilayas',
+    allRightsReserved: 'All rights reserved.',
+  },
+
+  // 404
+  notFound: {
+    title: '404',
+    message: 'Oops! Page not found',
+    returnHome: 'Return to Home',
+  },
+
+  // Common
+  common: {
+    loading: 'Loading...',
+    error: 'Error',
+    save: 'Save',
+    cancel: 'Cancel',
+    delete: 'Delete',
+    edit: 'Edit',
+    search: 'Search',
+    searchPlaceholder: 'Search products...',
+    searchNoResults: 'No products found',
+    searchViewAll: 'View all results',
+    da: 'DA',
+  },
+
+  // Language
+  language: {
+    switchTo: 'العربية',
+  },
+};
+
+export type TranslationKeys = typeof en;

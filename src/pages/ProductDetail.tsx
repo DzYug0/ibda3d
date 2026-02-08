@@ -1,0 +1,155 @@
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { ChevronLeft, ShoppingCart, Minus, Plus, Check, Zap } from 'lucide-react';
+import { useState } from 'react';
+import { Layout } from '@/components/layout/Layout';
+import { Button } from '@/components/ui/button';
+import { useProduct } from '@/hooks/useProducts';
+import { useCart } from '@/hooks/useCart';
+import { useAuth } from '@/contexts/AuthContext';
+import { ProductGallery } from '@/components/products/ProductGallery';
+import { useLanguage } from '@/i18n/LanguageContext';
+
+export default function ProductDetail() {
+  const { slug } = useParams<{ slug: string }>();
+  const { data: product, isLoading } = useProduct(slug || '');
+  const { user } = useAuth();
+  const { addToCart } = useCart();
+  const [quantity, setQuantity] = useState(1);
+  const { t } = useLanguage();
+  const navigate = useNavigate();
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="aspect-square skeleton rounded-2xl" />
+            <div className="space-y-4">
+              <div className="h-8 w-32 skeleton rounded" />
+              <div className="h-12 w-full skeleton rounded" />
+              <div className="h-24 w-full skeleton rounded" />
+              <div className="h-10 w-40 skeleton rounded" />
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!product) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-16 text-center">
+          <h1 className="text-2xl font-bold text-foreground mb-4">{t.products.productNotFound}</h1>
+          <Link to="/products"><Button>{t.products.backToProducts}</Button></Link>
+        </div>
+      </Layout>
+    );
+  }
+
+  const images = [product.image_url, ...(product.images || [])].filter(Boolean) as string[];
+  const hasDiscount = product.compare_at_price && product.compare_at_price > product.price;
+  const discountPercent = hasDiscount ? Math.round(((product.compare_at_price! - product.price) / product.compare_at_price!) * 100) : 0;
+
+  const handleAddToCart = () => {
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+    addToCart.mutate({ productId: product.id, quantity });
+  };
+
+  const handleBuyNow = () => {
+    if (user) {
+      addToCart.mutate({ productId: product.id, quantity }, {
+        onSuccess: () => navigate('/checkout'),
+      });
+    } else {
+      navigate(`/checkout?buyNow=${product.id}&qty=${quantity}`);
+    }
+  };
+
+  return (
+    <Layout>
+      <div className="container mx-auto px-4 py-8">
+        <nav className="mb-6">
+          <Link to="/products" className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors">
+            <ChevronLeft className="h-4 w-4 me-1" />
+            {t.products.backToProducts}
+          </Link>
+        </nav>
+
+        <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
+          <ProductGallery images={images} productName={product.name} />
+
+          <div className="space-y-6">
+            {product.categories && product.categories.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {product.categories.map(cat => (
+                  <Link key={cat.id} to={`/products?category=${cat.slug}`} className="text-sm text-primary font-medium uppercase tracking-wide hover:underline">
+                    {cat.name}
+                  </Link>
+                ))}
+              </div>
+            ) : product.category ? (
+              <Link to={`/products?category=${product.category.slug}`} className="text-sm text-primary font-medium uppercase tracking-wide hover:underline">
+                {product.category.name}
+              </Link>
+            ) : null}
+
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground">{product.name}</h1>
+
+            <div className="flex items-baseline gap-3">
+              <span className="text-3xl font-bold text-foreground">{product.price.toFixed(0)} {t.common.da}</span>
+              {hasDiscount && (
+                <>
+                  <span className="text-xl text-muted-foreground line-through">{product.compare_at_price!.toFixed(0)} {t.common.da}</span>
+                  <span className="badge-sale">-{discountPercent}%</span>
+                </>
+              )}
+            </div>
+
+            {product.description && <p className="text-muted-foreground leading-relaxed">{product.description}</p>}
+
+            <div className="flex items-center gap-2">
+              {product.stock_quantity > 0 ? (
+                <>
+                  <Check className="h-5 w-5 text-success" />
+                  <span className="text-success font-medium">{t.products.inStock} ({product.stock_quantity} {t.products.available})</span>
+                </>
+              ) : (
+                <span className="text-destructive font-medium">{t.products.outOfStock}</span>
+              )}
+            </div>
+
+            {product.stock_quantity > 0 && (
+              <div className="flex items-center gap-4">
+                <span className="font-medium text-foreground">{t.products.quantity}</span>
+                <div className="flex items-center border border-border rounded-lg">
+                  <Button variant="ghost" size="icon" onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}>
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <span className="w-12 text-center font-semibold">{quantity}</span>
+                  <Button variant="ghost" size="icon" onClick={() => setQuantity(Math.min(product.stock_quantity, quantity + 1))} disabled={quantity >= product.stock_quantity}>
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              <Button size="xl" className="flex-1" onClick={handleAddToCart} disabled={product.stock_quantity === 0 || addToCart.isPending}>
+                <ShoppingCart className="h-5 w-5 me-2" />
+                {addToCart.isPending ? t.products.adding : t.products.addToCart}
+              </Button>
+              <Button size="xl" className="flex-1" variant="outline" onClick={handleBuyNow} disabled={product.stock_quantity === 0}>
+                <Zap className="h-5 w-5 me-2" />
+                {t.products.buyNow}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Layout>
+  );
+}

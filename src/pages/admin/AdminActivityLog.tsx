@@ -1,0 +1,257 @@
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Search, Shield, Package, FolderOpen, ShoppingBag, UserCog } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+
+interface ActivityLog {
+  id: string;
+  user_id: string;
+  action: string;
+  target_type: string;
+  target_id: string | null;
+  details: Record<string, unknown> | null;
+  created_at: string;
+  actor_email?: string;
+  actor_name?: string;
+}
+
+const actionLabels: Record<string, string> = {
+  role_change: 'Changed Role',
+  product_create: 'Created Product',
+  product_update: 'Updated Product',
+  product_delete: 'Deleted Product',
+  category_create: 'Created Category',
+  category_update: 'Updated Category',
+  category_delete: 'Deleted Category',
+  order_update: 'Updated Order',
+};
+
+const targetIcons: Record<string, typeof Shield> = {
+  user: UserCog,
+  product: Package,
+  category: FolderOpen,
+  order: ShoppingBag,
+};
+
+const actionColors: Record<string, string> = {
+  role_change: 'bg-amber-500/10 text-amber-600 border-amber-500/20',
+  product_create: 'bg-green-500/10 text-green-600 border-green-500/20',
+  product_update: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
+  product_delete: 'bg-red-500/10 text-red-600 border-red-500/20',
+  category_create: 'bg-green-500/10 text-green-600 border-green-500/20',
+  category_update: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
+  category_delete: 'bg-red-500/10 text-red-600 border-red-500/20',
+  order_update: 'bg-purple-500/10 text-purple-600 border-purple-500/20',
+};
+
+export default function AdminActivityLog() {
+  const [search, setSearch] = useState('');
+  const [actionFilter, setActionFilter] = useState<string>('all');
+
+  const { data: logs = [], isLoading } = useQuery({
+    queryKey: ['activity-logs'],
+    queryFn: async () => {
+      // Get activity logs
+      const { data: activityLogs, error } = await supabase
+        .from('activity_logs')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(100);
+
+      if (error) throw error;
+
+      // Get profiles to map user IDs to emails
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, email, full_name');
+
+      const profileMap = new Map(
+        profiles?.map((p) => [p.user_id, { email: p.email, name: p.full_name }]) || []
+      );
+
+      // Enrich logs with actor info
+      const enrichedLogs: ActivityLog[] = (activityLogs || []).map((log) => ({
+        ...log,
+        details: log.details as Record<string, unknown> | null,
+        actor_email: profileMap.get(log.user_id)?.email || 'Unknown',
+        actor_name: profileMap.get(log.user_id)?.name || null,
+      }));
+
+      return enrichedLogs;
+    },
+  });
+
+  // Filter logs
+  const filteredLogs = logs.filter((log) => {
+    const matchesSearch =
+      log.actor_email?.toLowerCase().includes(search.toLowerCase()) ||
+      log.actor_name?.toLowerCase().includes(search.toLowerCase()) ||
+      (log.details?.target_email as string)?.toLowerCase().includes(search.toLowerCase());
+    const matchesAction = actionFilter === 'all' || log.action === actionFilter;
+    return matchesSearch && matchesAction;
+  });
+
+  const formatDetails = (log: ActivityLog) => {
+    if (!log.details) return '—';
+
+    switch (log.action) {
+      case 'role_change':
+        return (
+          <span>
+            Changed <span className="font-medium">{log.details.target_email as string}</span> from{' '}
+            <Badge variant="outline" className="mx-1">
+              {log.details.old_role as string}
+            </Badge>
+            to
+            <Badge variant="outline" className="mx-1">
+              {log.details.new_role as string}
+            </Badge>
+          </span>
+        );
+      case 'product_create':
+      case 'product_update':
+      case 'product_delete':
+        return (
+          <span>
+            Product: <span className="font-medium">{log.details.product_name as string}</span>
+          </span>
+        );
+      case 'category_create':
+      case 'category_update':
+      case 'category_delete':
+        return (
+          <span>
+            Category: <span className="font-medium">{log.details.category_name as string}</span>
+          </span>
+        );
+      case 'order_update':
+        return (
+          <span>
+            Order #{(log.target_id || '').slice(0, 8)} → {log.details.new_status as string}
+          </span>
+        );
+      default:
+        return JSON.stringify(log.details);
+    }
+  };
+
+  return (
+    <div className="p-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-foreground">Activity Log</h1>
+        <p className="text-muted-foreground">Track all admin actions and changes</p>
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by user..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <Select value={actionFilter} onValueChange={setActionFilter}>
+          <SelectTrigger className="w-full sm:w-48">
+            <SelectValue placeholder="Filter by action" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Actions</SelectItem>
+            <SelectItem value="role_change">Role Changes</SelectItem>
+            <SelectItem value="product_create">Product Created</SelectItem>
+            <SelectItem value="product_update">Product Updated</SelectItem>
+            <SelectItem value="product_delete">Product Deleted</SelectItem>
+            <SelectItem value="category_create">Category Created</SelectItem>
+            <SelectItem value="category_update">Category Updated</SelectItem>
+            <SelectItem value="category_delete">Category Deleted</SelectItem>
+            <SelectItem value="order_update">Order Updated</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Activity table */}
+      <div className="bg-card rounded-xl border border-border overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Action</TableHead>
+              <TableHead>Performed By</TableHead>
+              <TableHead>Details</TableHead>
+              <TableHead className="text-right">When</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center py-8">
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : filteredLogs.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                  No activity logs found
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredLogs.map((log) => {
+                const TargetIcon = targetIcons[log.target_type] || Shield;
+                return (
+                  <TableRow key={log.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <TargetIcon className="h-4 w-4 text-muted-foreground" />
+                        <Badge
+                          variant="outline"
+                          className={actionColors[log.action] || 'bg-muted text-muted-foreground'}
+                        >
+                          {actionLabels[log.action] || log.action}
+                        </Badge>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium text-foreground">
+                          {log.actor_name || 'Unknown'}
+                        </p>
+                        <p className="text-sm text-muted-foreground">{log.actor_email}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell className="max-w-md">
+                      <div className="text-sm text-foreground">{formatDetails(log)}</div>
+                    </TableCell>
+                    <TableCell className="text-right text-muted-foreground text-sm">
+                      {formatDistanceToNow(new Date(log.created_at), { addSuffix: true })}
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+}
