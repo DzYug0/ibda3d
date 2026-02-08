@@ -8,12 +8,16 @@ interface CartItem {
   product_id: string | null;
   pack_id: string | null;
   quantity: number;
+  selected_color: string | null;
+  selected_version: string | null;
   product: {
     id: string;
     name: string;
     price: number;
     image_url: string | null;
     stock_quantity: number;
+    colors?: string[];
+    versions?: string[];
   } | null;
   pack: {
     id: string;
@@ -32,7 +36,7 @@ export function useCart() {
     queryKey: ['cart', user?.id],
     queryFn: async () => {
       if (!user) return [];
-      
+
       const { data, error } = await supabase
         .from('cart_items')
         .select(`
@@ -40,12 +44,16 @@ export function useCart() {
           product_id,
           pack_id,
           quantity,
+          selected_color,
+          selected_version,
           product:products (
             id,
             name,
             price,
             image_url,
-            stock_quantity
+            stock_quantity,
+            colors,
+            versions
           ),
           pack:packs (
             id,
@@ -64,16 +72,33 @@ export function useCart() {
   });
 
   const addToCart = useMutation({
-    mutationFn: async ({ productId, quantity = 1 }: { productId: string; quantity?: number }) => {
+    mutationFn: async ({
+      productId,
+      quantity = 1,
+      selectedColor,
+      selectedVersion
+    }: {
+      productId: string;
+      quantity?: number;
+      selectedColor?: string;
+      selectedVersion?: string;
+    }) => {
       if (!user) throw new Error('Must be logged in');
 
-      // Check if item exists
-      const { data: existing } = await supabase
+      // Check if item exists with same options
+      let query = supabase
         .from('cart_items')
         .select('id, quantity')
         .eq('user_id', user.id)
-        .eq('product_id', productId)
-        .maybeSingle();
+        .eq('product_id', productId);
+
+      if (selectedColor) query = query.eq('selected_color', selectedColor);
+      else query = query.is('selected_color', null);
+
+      if (selectedVersion) query = query.eq('selected_version', selectedVersion);
+      else query = query.is('selected_version', null);
+
+      const { data: existing } = await query.maybeSingle();
 
       if (existing) {
         // Update quantity
@@ -86,7 +111,13 @@ export function useCart() {
         // Insert new
         const { error } = await supabase
           .from('cart_items')
-          .insert({ user_id: user.id, product_id: productId, quantity });
+          .insert({
+            user_id: user.id,
+            product_id: productId,
+            quantity,
+            selected_color: selectedColor || null,
+            selected_version: selectedVersion || null
+          });
         if (error) throw error;
       }
     },

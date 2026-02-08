@@ -15,6 +15,8 @@ export default function ProductDetail() {
   const { user } = useAuth();
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [selectedVersion, setSelectedVersion] = useState<string | null>(null);
   const { t } = useLanguage();
   const navigate = useNavigate();
 
@@ -51,21 +53,39 @@ export default function ProductDetail() {
   const hasDiscount = product.compare_at_price && product.compare_at_price > product.price;
   const discountPercent = hasDiscount ? Math.round(((product.compare_at_price! - product.price) / product.compare_at_price!) * 100) : 0;
 
+  // Check if options are required but not selected
+  const hasColors = product.colors && product.colors.length > 0;
+  const hasVersions = product.versions && product.versions.length > 0;
+  const isSelectionMissing = (hasColors && !selectedColor) || (hasVersions && !selectedVersion);
+
   const handleAddToCart = () => {
     if (!user) {
       navigate('/auth');
       return;
     }
-    addToCart.mutate({ productId: product.id, quantity });
+    addToCart.mutate({
+      productId: product.id,
+      quantity,
+      selectedColor: selectedColor || undefined,
+      selectedVersion: selectedVersion || undefined
+    });
   };
 
   const handleBuyNow = () => {
     if (user) {
-      addToCart.mutate({ productId: product.id, quantity }, {
+      addToCart.mutate({
+        productId: product.id,
+        quantity,
+        selectedColor: selectedColor || undefined,
+        selectedVersion: selectedVersion || undefined
+      }, {
         onSuccess: () => navigate('/checkout'),
       });
     } else {
-      navigate(`/checkout?buyNow=${product.id}&qty=${quantity}`);
+      let url = `/checkout?buyNow=${product.id}&qty=${quantity}`;
+      if (selectedColor) url += `&color=${encodeURIComponent(selectedColor)}`;
+      if (selectedVersion) url += `&version=${encodeURIComponent(selectedVersion)}`;
+      navigate(url);
     }
   };
 
@@ -111,6 +131,47 @@ export default function ProductDetail() {
 
             {product.description && <p className="text-muted-foreground leading-relaxed">{product.description}</p>}
 
+            {/* Product Options */}
+            <div className="space-y-4">
+              {product.colors && product.colors.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-medium text-foreground mb-2">{t.products.selectColor || 'Select Color'}:</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {product.colors.map((color) => (
+                      <Button
+                        key={color}
+                        variant={selectedColor === color ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setSelectedColor(color)}
+                        className={`min-w-[3rem] ${selectedColor === color ? 'ring-2 ring-primary ring-offset-2' : ''}`}
+                      >
+                        {color}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {product.versions && product.versions.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-medium text-foreground mb-2">{t.products.selectVersion || 'Select Version'}:</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {product.versions.map((version) => (
+                      <Button
+                        key={version}
+                        variant={selectedVersion === version ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setSelectedVersion(version)}
+                        className={`min-w-[3rem] ${selectedVersion === version ? 'ring-2 ring-primary ring-offset-2' : ''}`}
+                      >
+                        {version}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
             <div className="flex items-center gap-2">
               {product.stock_quantity > 0 ? (
                 <>
@@ -138,11 +199,11 @@ export default function ProductDetail() {
             )}
 
             <div className="flex gap-3">
-              <Button size="xl" className="flex-1" onClick={handleAddToCart} disabled={product.stock_quantity === 0 || addToCart.isPending}>
+              <Button size="xl" className="flex-1" onClick={handleAddToCart} disabled={product.stock_quantity === 0 || addToCart.isPending || isSelectionMissing}>
                 <ShoppingCart className="h-5 w-5 me-2" />
-                {addToCart.isPending ? t.products.adding : t.products.addToCart}
+                {addToCart.isPending ? t.products.adding : (isSelectionMissing ? t.products.selectOptions || 'Select Options' : t.products.addToCart)}
               </Button>
-              <Button size="xl" className="flex-1" variant="outline" onClick={handleBuyNow} disabled={product.stock_quantity === 0}>
+              <Button size="xl" className="flex-1" variant="outline" onClick={handleBuyNow} disabled={product.stock_quantity === 0 || isSelectionMissing}>
                 <Zap className="h-5 w-5 me-2" />
                 {t.products.buyNow}
               </Button>
