@@ -176,53 +176,65 @@ export default function Index() {
                 {featuredPacks.map(pack => {
                   const individualTotal = pack.items?.reduce((sum, item) => sum + (item.product?.price || 0) * item.quantity, 0) || 0;
                   const savings = individualTotal > pack.price ? individualTotal - pack.price : 0;
+                  const packImage = pack.image_url || pack.items?.[0]?.product?.image_url;
+
                   return (
                     <CarouselItem key={pack.id} className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
-                      <div className="group bg-card rounded-2xl overflow-hidden shadow-card border border-border h-full flex flex-col">
-                        <div className="relative aspect-video overflow-hidden bg-muted flex-shrink-0">
-                          {pack.image_url ? (
-                            <img src={pack.image_url} alt={pack.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <Package className="h-12 w-12 text-muted-foreground" />
-                            </div>
-                          )}
-                          {savings > 0 && (
-                            <div className="absolute top-3 start-3">
-                              <Badge className="bg-success text-success-foreground">{t.packs.save} {savings.toFixed(0)} {t.common.da}</Badge>
-                            </div>
-                          )}
-                        </div>
-                        <div className="p-5 space-y-3 flex flex-col flex-1">
-                          <h3 className="text-xl font-bold text-foreground">{pack.name}</h3>
-                          {pack.items && pack.items.length > 0 && (
-                            <div className="flex flex-wrap gap-1">
-                              {pack.items.map(item => (
-                                <Badge key={item.id} variant="secondary" className="text-xs">
-                                  {item.product?.name} ×{item.quantity}
-                                </Badge>
-                              ))}
-                            </div>
-                          )}
-                          <div className="mt-auto pt-3">
-                            <div className="flex items-baseline gap-2 mb-3">
-                              <span className="text-2xl font-bold text-foreground">{pack.price.toFixed(0)} {t.common.da}</span>
-                              {pack.compare_at_price && pack.compare_at_price > pack.price && (
-                                <span className="text-sm text-muted-foreground line-through">{pack.compare_at_price.toFixed(0)} {t.common.da}</span>
-                              )}
-                            </div>
-                            {user ? (
-                              <Button className="w-full" onClick={() => handleAddPackToCart(pack, 1)} disabled={addToCart.isPending}>
-                                <ShoppingCart className="h-4 w-4 me-2" /> {t.products.addToCart}
-                              </Button>
+                      <Link to={`/packs/${pack.slug}`} className="block h-full">
+                        <div className="group bg-card rounded-2xl overflow-hidden shadow-card border border-border h-full flex flex-col hover:shadow-lg transition-shadow">
+                          <div className="relative aspect-video overflow-hidden bg-muted flex-shrink-0">
+                            {packImage ? (
+                              <img src={packImage} alt={pack.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                             ) : (
-                              <Link to="/auth" className="block">
-                                <Button className="w-full">{t.products.signInToShop}</Button>
-                              </Link>
+                              <div className="w-full h-full flex items-center justify-center">
+                                <Package className="h-12 w-12 text-muted-foreground" />
+                              </div>
+                            )}
+                            {savings > 0 && (
+                              <div className="absolute top-3 start-3">
+                                <Badge className="bg-success text-success-foreground">{t.packs.save} {savings.toFixed(0)} {t.common.da}</Badge>
+                              </div>
                             )}
                           </div>
+                          <div className="p-5 space-y-3 flex flex-col flex-1">
+                            <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">{pack.name}</h3>
+                            {pack.items && pack.items.length > 0 && (
+                              <div className="flex flex-wrap gap-1">
+                                {pack.items.map(item => (
+                                  <Badge key={item.id} variant="secondary" className="text-xs">
+                                    {item.product?.name} ×{item.quantity}
+                                  </Badge>
+                                ))}
+                              </div>
+                            )}
+                            <div className="mt-auto pt-3">
+                              <div className="flex items-baseline gap-2 mb-3">
+                                <span className="text-2xl font-bold text-foreground">{pack.price.toFixed(0)} {t.common.da}</span>
+                                {pack.compare_at_price && pack.compare_at_price > pack.price && (
+                                  <span className="text-sm text-muted-foreground line-through">{pack.compare_at_price.toFixed(0)} {t.common.da}</span>
+                                )}
+                              </div>
+                              {user ? (
+                                <Button
+                                  className="w-full"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    handleAddPackToCart(pack, 1);
+                                  }}
+                                  disabled={addToCart.isPending}
+                                >
+                                  <ShoppingCart className="h-4 w-4 me-2" /> {t.products.addToCart}
+                                </Button>
+                              ) : (
+                                <Link to="/auth" onClick={(e) => e.stopPropagation()} className="block">
+                                  <Button className="w-full">{t.products.signInToShop}</Button>
+                                </Link>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      </Link>
                     </CarouselItem>
                   );
                 })}
