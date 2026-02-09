@@ -16,7 +16,6 @@ interface FilterSidebarProps {
     onPriceChange: (range: [number, number]) => void;
     inStock: boolean;
     onInStockChange: (checked: boolean) => void;
-    onInStockChange: (checked: boolean) => void;
     onClear: () => void;
     onClearCategories?: () => void;
     className?: string;
@@ -28,7 +27,6 @@ export function FilterSidebar({
     priceRange,
     onPriceChange,
     inStock,
-    onInStockChange,
     onInStockChange,
     onClear,
     onClearCategories,
