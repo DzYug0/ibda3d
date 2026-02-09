@@ -31,6 +31,7 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { Plus, Pencil, Trash2, Layout, Image as ImageIcon, Link as LinkIcon } from 'lucide-react';
+import { ImageUpload } from '@/components/admin/ImageUpload';
 
 interface Banner {
     id: string;
@@ -264,19 +265,12 @@ export default function AdminContent() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="image">Image URL</Label>
-                            <div className="flex gap-2">
-                                <Input
-                                    id="image"
-                                    placeholder="https://..."
-                                    value={formData.image_url}
-                                    onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                                    required
-                                />
-                                <Button type="button" variant="outline" size="icon">
-                                    <ImageIcon className="h-4 w-4" />
-                                </Button>
-                            </div>
+                            <Label>Banner Image</Label>
+                            <ImageUpload
+                                value={formData.image_url}
+                                onChange={(url) => setFormData({ ...formData, image_url: url })}
+                                folder="banners"
+                            />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">

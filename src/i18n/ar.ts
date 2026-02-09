@@ -168,6 +168,7 @@ export const ar: DeepPartial<TranslationKeys> = {
     continueShopping: 'متابعة التسوق',
     cartEmpty: 'سلتك فارغة',
     viewProducts: 'عرض المنتجات',
+    enterPromoCode: 'أدخل رمز العرض',
   },
 
   // Orders
@@ -273,6 +274,8 @@ export const ar: DeepPartial<TranslationKeys> = {
     da: 'د.ج',
     filters: 'تصفية',
     clearAll: 'مسح الكل',
+    apply: 'تطبيق',
+    discount: 'خصم',
   },
 
   // Language

@@ -90,6 +90,7 @@ export function useCreateOrder() {
       items,
       shippingInfo,
       notes,
+      couponCode,
     }: {
       items: {
         product_id: string | null;
@@ -106,6 +107,7 @@ export function useCreateOrder() {
         zip: string;
       };
       notes?: string;
+      couponCode?: string | null;
     }) => {
       // Use RPC instead of Edge Function
       const { data, error } = await supabase.rpc('create_new_order' as any, {
@@ -119,6 +121,7 @@ export function useCreateOrder() {
         })),
         p_shipping_info: shippingInfo,
         p_notes: notes || '',
+        p_coupon_code: couponCode || null,
       });
 
       if (error) throw error;
@@ -184,6 +187,29 @@ export function useBulkUpdateOrderStatus() {
     },
     onError: (error) => {
       toast.error('Failed to update orders: ' + error.message);
+    },
+  });
+}
+
+export function useDeleteOrder() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (orderId: string) => {
+      const { error } = await supabase
+        .from('orders')
+        .delete()
+        .eq('id', orderId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
+      toast.success('Order deleted successfully');
+    },
+    onError: (error) => {
+      toast.error('Failed to delete order: ' + error.message);
     },
   });
 }
