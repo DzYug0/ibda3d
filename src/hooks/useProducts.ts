@@ -30,6 +30,7 @@ export interface Product {
   }[];
   colors?: string[];
   versions?: string[];
+  product_options?: any;
 }
 
 export interface Category {

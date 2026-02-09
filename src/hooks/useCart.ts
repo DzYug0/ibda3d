@@ -10,6 +10,7 @@ interface CartItem {
   quantity: number;
   selected_color: string | null;
   selected_version: string | null;
+  selected_options: Record<string, string> | null;
   product: {
     id: string;
     name: string;
@@ -19,6 +20,7 @@ interface CartItem {
     stock_quantity: number;
     colors?: string[];
     versions?: string[];
+    product_options?: any;
   } | null;
   pack: {
     id: string;
@@ -48,6 +50,7 @@ export function useCart() {
           quantity,
           selected_color,
           selected_version,
+          selected_options,
           product:products (
             id,
             name,
@@ -56,7 +59,8 @@ export function useCart() {
             image_url,
             stock_quantity,
             colors,
-            versions
+            versions,
+            product_options
           ),
           pack:packs (
             id,
@@ -80,12 +84,14 @@ export function useCart() {
       productId,
       quantity = 1,
       selectedColor,
-      selectedVersion
+      selectedVersion,
+      selectedOptions
     }: {
       productId: string;
       quantity?: number;
       selectedColor?: string;
       selectedVersion?: string;
+      selectedOptions?: Record<string, string>;
     }) => {
       if (!user) throw new Error('Must be logged in');
 
@@ -97,12 +103,25 @@ export function useCart() {
         .eq('product_id', productId);
 
       if (selectedColor) query = query.eq('selected_color', selectedColor);
-      else query = query.is('selected_color', null);
 
       if (selectedVersion) query = query.eq('selected_version', selectedVersion);
-      else query = query.is('selected_version', null);
 
-      const { data: existing } = await (query as any).maybeSingle();
+      // JSONB equality check is tricky in Supabase/PostgREST. 
+      // For now, let's fetch matching product items and filter in JS if needed,
+      // OR use the 'contains' operator if structure is consistent.
+      // A better approach for exact match is calculating a hash, but for now:
+      if (selectedOptions) {
+        query = query.contains('selected_options', selectedOptions);
+      } else {
+        query = query.is('selected_options', null);
+      }
+
+      // Execute query to find candidates
+      const { data: candidates } = await query;
+
+      // Filter candidates for exact match (especially if contains returns partial matches or if we need strict null checks for other fields)
+      // Since we already filtered by color/version/id, we just need to be sure about options equality
+      let existing = candidates && candidates.length > 0 ? candidates[0] : null;
 
       if (existing) {
         // Update quantity
@@ -120,7 +139,8 @@ export function useCart() {
             product_id: productId,
             quantity,
             selected_color: selectedColor || null,
-            selected_version: selectedVersion || null
+            selected_version: selectedVersion || null,
+            selected_options: selectedOptions || null
           });
         if (error) throw error;
       }

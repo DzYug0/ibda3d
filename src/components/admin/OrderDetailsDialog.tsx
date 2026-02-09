@@ -121,8 +121,8 @@ export function OrderDetailsDialog({ order, trigger }: OrderDetailsDialogProps) 
                                                 <p className="text-xs text-muted-foreground">
                                                     Qty: {item.quantity} × {item.product_price} DA
                                                 </p>
-                                                {(item.selected_color || item.selected_version) && (
-                                                    <div className="flex gap-2 text-xs text-muted-foreground mt-1">
+                                                {(item.selected_color || item.selected_version || (item.selected_options && Object.keys(item.selected_options).length > 0)) && (
+                                                    <div className="flex flex-col gap-1 text-xs text-muted-foreground mt-1">
                                                         {item.selected_color && (
                                                             <span className="flex items-center gap-1">
                                                                 Color: <span className="w-3 h-3 rounded-full border" style={{ backgroundColor: item.selected_color }} />
@@ -131,6 +131,9 @@ export function OrderDetailsDialog({ order, trigger }: OrderDetailsDialogProps) 
                                                         {item.selected_version && (
                                                             <span>Version: {item.selected_version}</span>
                                                         )}
+                                                        {item.selected_options && Object.entries(item.selected_options).map(([key, value]) => (
+                                                            <span key={key}>{key}: {String(value)}</span>
+                                                        ))}
                                                     </div>
                                                 )}
                                             </div>

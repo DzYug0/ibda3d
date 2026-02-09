@@ -30,6 +30,7 @@ export interface OrderItem {
   quantity: number;
   selected_color?: string | null;
   selected_version?: string | null;
+  selected_options?: Record<string, string> | null;
   product?: { name_ar: string | null };
   pack?: { name_ar: string | null };
 }
@@ -96,6 +97,7 @@ export function useCreateOrder() {
         quantity: number;
         selected_color?: string | null;
         selected_version?: string | null;
+        selected_options?: Record<string, string> | null;
       }[];
       shippingInfo: {
         address: string;
@@ -112,7 +114,8 @@ export function useCreateOrder() {
           pack_id: item.pack_id || null,
           quantity: item.quantity,
           selected_color: item.selected_color || null,
-          selected_version: item.selected_version || null
+          selected_version: item.selected_version || null,
+          selected_options: item.selected_options || null
         })),
         p_shipping_info: shippingInfo,
         p_notes: notes || '',

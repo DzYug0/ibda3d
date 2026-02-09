@@ -11,6 +11,7 @@ import { WishlistButton } from '@/components/products/WishlistButton';
 import { RelatedProducts } from '@/components/products/RelatedProducts';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { SEO } from '@/components/SEO';
+import type { ProductOption } from '@/components/admin/ProductOptionsEditor';
 
 export default function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -18,8 +19,12 @@ export default function ProductDetail() {
   const { user } = useAuth();
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
+
+  // Legacy support
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedVersion, setSelectedVersion] = useState<string | null>(null);
+
   const { t, language } = useLanguage();
   const navigate = useNavigate();
 
@@ -57,9 +62,19 @@ export default function ProductDetail() {
   const discountPercent = hasDiscount ? Math.round(((product.compare_at_price! - product.price) / product.compare_at_price!) * 100) : 0;
 
   // Check if options are required but not selected
+  const productOptions = ((product as any).product_options as unknown as ProductOption[]) || [];
+  const hasOptions = productOptions.length > 0;
+
+  // Check if all required options are selected
+  const allOptionsSelected = productOptions.every(opt => selectedOptions[opt.name]);
+
+  // Legacy checks
   const hasColors = product.colors && product.colors.length > 0;
   const hasVersions = product.versions && product.versions.length > 0;
-  const isSelectionMissing = (hasColors && !selectedColor) || (hasVersions && !selectedVersion);
+
+  const isSelectionMissing = hasOptions
+    ? !allOptionsSelected
+    : (hasColors && !selectedColor) || (hasVersions && !selectedVersion);
 
   const handleAddToCart = () => {
     if (!user) {
@@ -70,7 +85,8 @@ export default function ProductDetail() {
       productId: product.id,
       quantity,
       selectedColor: selectedColor || undefined,
-      selectedVersion: selectedVersion || undefined
+      selectedVersion: selectedVersion || undefined,
+      selectedOptions: Object.keys(selectedOptions).length > 0 ? selectedOptions : undefined
     });
   };
 
@@ -80,7 +96,8 @@ export default function ProductDetail() {
         productId: product.id,
         quantity,
         selectedColor: selectedColor || undefined,
-        selectedVersion: selectedVersion || undefined
+        selectedVersion: selectedVersion || undefined,
+        selectedOptions: Object.keys(selectedOptions).length > 0 ? selectedOptions : undefined
       }, {
         onSuccess: () => navigate('/checkout'),
       });
@@ -88,6 +105,9 @@ export default function ProductDetail() {
       let url = `/checkout?buyNow=${product.id}&qty=${quantity}`;
       if (selectedColor) url += `&color=${encodeURIComponent(selectedColor)}`;
       if (selectedVersion) url += `&version=${encodeURIComponent(selectedVersion)}`;
+      if (Object.keys(selectedOptions).length > 0) {
+        url += `&options=${encodeURIComponent(JSON.stringify(selectedOptions))}`;
+      }
       navigate(url);
     }
   };
@@ -147,8 +167,61 @@ export default function ProductDetail() {
             )}
 
             {/* Product Options */}
-            <div className="space-y-4">
-              {product.colors && product.colors.length > 0 && (
+            <div className="space-y-6">
+              {/* New Dynamic Options */}
+              {productOptions.map((option) => (
+                <div key={option.id}>
+                  <h3 className="text-sm font-medium text-foreground mb-3">
+                    {(t.products as any).select || 'Select'} {option.name}:
+                    {selectedOptions[option.name] && (
+                      <span className="ml-2 text-muted-foreground font-normal">
+                        {selectedOptions[option.name]}
+                      </span>
+                    )}
+                  </h3>
+                  <div className="flex flex-wrap gap-3">
+                    {option.values.map((val) => {
+                      const isSelected = selectedOptions[option.name] === val.name;
+
+                      if (option.type === 'color') {
+                        return (
+                          <button
+                            key={val.name}
+                            onClick={() => setSelectedOptions(prev => ({ ...prev, [option.name]: val.name }))}
+                            className={`group relative h-10 w-10 rounded-full border shadow-sm hover:scale-110 transition-transform focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${isSelected ? 'ring-2 ring-primary ring-offset-2 scale-110' : ''}`}
+                            title={val.name}
+                          >
+                            <span
+                              className="absolute inset-0.5 rounded-full border border-black/5"
+                              style={{ backgroundColor: val.value }}
+                            />
+                            {isSelected && (
+                              <span className="absolute inset-0 flex items-center justify-center">
+                                <Check className={`h-4 w-4 ${['#ffffff', '#fff', 'white'].includes(val.value.toLowerCase()) ? 'text-black' : 'text-white'}`} />
+                              </span>
+                            )}
+                          </button>
+                        );
+                      }
+
+                      return (
+                        <Button
+                          key={val.name}
+                          variant={isSelected ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setSelectedOptions(prev => ({ ...prev, [option.name]: val.name }))}
+                          className={`min-w-[3rem] ${isSelected ? 'ring-2 ring-primary ring-offset-2' : ''}`}
+                        >
+                          {val.name}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+
+              {/* Legacy Options (Fallback) */}
+              {productOptions.length === 0 && product.colors && product.colors.length > 0 && (
                 <div>
                   <h3 className="text-sm font-medium text-foreground mb-2">{t.products.selectColor || 'Select Color'}:</h3>
                   <div className="flex flex-wrap gap-2">
@@ -167,7 +240,7 @@ export default function ProductDetail() {
                 </div>
               )}
 
-              {product.versions && product.versions.length > 0 && (
+              {productOptions.length === 0 && product.versions && product.versions.length > 0 && (
                 <div>
                   <h3 className="text-sm font-medium text-foreground mb-2">{t.products.selectVersion || 'Select Version'}:</h3>
                   <div className="flex flex-wrap gap-2">
