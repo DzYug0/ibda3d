@@ -16,6 +16,8 @@ import {
 import { useProducts, useCategories } from '@/hooks/useProducts';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { SEO } from '@/components/SEO';
+import { useBanners } from '@/hooks/useContent';
+import { SidebarBanner } from '@/components/products/SidebarBanner';
 
 export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -34,6 +36,8 @@ export default function Products() {
 
   const { data: allProducts = [], isLoading } = useProducts();
   const { data: categories = [] } = useCategories();
+  const { data: banners = [] } = useBanners();
+  const sidebarBanners = banners.filter(b => b.location === 'sidebar');
 
   // Filter & Sort Logic
   const filteredProducts = useMemo(() => {
@@ -188,6 +192,7 @@ export default function Products() {
                 onClear={clearFilters}
                 onClearCategories={() => updateParams({ category: null })}
               />
+              <SidebarBanner banners={sidebarBanners} />
             </div>
           </aside>
 
