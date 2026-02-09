@@ -28,6 +28,8 @@ export interface OrderItem {
   product_name: string;
   product_price: number;
   quantity: number;
+  product?: { name_ar: string | null };
+  pack?: { name_ar: string | null };
 }
 
 export function useUserOrders() {
@@ -42,13 +44,17 @@ export function useUserOrders() {
         .from('orders')
         .select(`
           *,
-          items:order_items (*)
+          items:order_items (
+            *,
+            product:products(name_ar),
+            pack:packs(name_ar)
+          )
         `)
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as Order[];
+      return data as unknown as Order[];
     },
     enabled: !!user,
   });
@@ -97,7 +103,7 @@ export function useCreateOrder() {
       notes?: string;
     }) => {
       // Use RPC instead of Edge Function
-      const { data, error } = await supabase.rpc('create_new_order', {
+      const { data, error } = await supabase.rpc('create_new_order' as any, {
         p_items: items.map(item => ({
           product_id: item.product_id,
           pack_id: item.pack_id || null,
@@ -112,11 +118,12 @@ export function useCreateOrder() {
       if (error) throw error;
 
       // data is { success: boolean, order_id: string }
-      if (!data || !data.success) {
+      const result = data as any;
+      if (!result || !result.success) {
         throw new Error('Failed to create order');
       }
 
-      return { id: data.order_id };
+      return { id: result.order_id };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });

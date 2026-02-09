@@ -72,6 +72,8 @@ export const en = {
     selectColor: 'Select Color',
     selectVersion: 'Select Version',
     selectOptions: 'Select Options',
+    color: 'Color',
+    version: 'Version',
   },
 
   wishlist: {

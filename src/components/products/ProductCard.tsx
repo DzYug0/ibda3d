@@ -15,7 +15,7 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const { user } = useAuth();
   const { addToCart } = useCart();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const hasDiscount = product.compare_at_price && product.compare_at_price > product.price;
   const discountPercent = hasDiscount
     ? Math.round(((product.compare_at_price! - product.price) / product.compare_at_price!) * 100)
@@ -63,7 +63,9 @@ export function ProductCard({ product }: ProductCardProps) {
               ))}
             </div>
           )}
-          <h3 className="font-semibold text-sm sm:text-base text-foreground group-hover:text-primary transition-colors line-clamp-2">{product.name}</h3>
+          <h3 className="font-semibold text-sm sm:text-base text-foreground group-hover:text-primary transition-colors line-clamp-2">
+            {language === 'ar' ? (product.name_ar || product.name) : product.name}
+          </h3>
           <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
             <span className="text-base sm:text-lg font-bold text-foreground">{product.price.toFixed(0)} {t.common.da}</span>
             {hasDiscount && (

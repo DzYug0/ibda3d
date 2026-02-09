@@ -67,7 +67,7 @@ function OrderTracker({ status }: { status: string }) {
 export default function Orders() {
   const { user } = useAuth();
   const { data: orders = [], isLoading } = useUserOrders();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   if (!user) {
     return (
@@ -144,11 +144,17 @@ export default function Orders() {
               {order.items && order.items.length > 0 && (
                 <div className="border-t border-border pt-4">
                   <div className="flex flex-wrap gap-2">
-                    {order.items.slice(0, 3).map((item) => (
-                      <span key={item.id} className="px-3 py-1 bg-muted rounded-full text-sm text-muted-foreground">
-                        {item.product_name} × {item.quantity}
-                      </span>
-                    ))}
+                    {order.items.slice(0, 3).map((item) => {
+                      const itemName = language === 'ar'
+                        ? (item.pack?.name_ar || item.product?.name_ar || item.product_name)
+                        : item.product_name;
+
+                      return (
+                        <span key={item.id} className="px-3 py-1 bg-muted rounded-full text-sm text-muted-foreground">
+                          {itemName} × {item.quantity}
+                        </span>
+                      );
+                    })}
                     {order.items.length > 3 && (
                       <span className="px-3 py-1 bg-muted rounded-full text-sm text-muted-foreground">
                         +{order.items.length - 3} {t.packs.more}

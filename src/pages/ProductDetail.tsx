@@ -20,7 +20,7 @@ export default function ProductDetail() {
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedVersion, setSelectedVersion] = useState<string | null>(null);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
 
   if (isLoading) {
@@ -126,7 +126,9 @@ export default function ProductDetail() {
               </Link>
             ) : null}
 
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground">{product.name}</h1>
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground">
+              {language === 'ar' ? (product.name_ar || product.name) : product.name}
+            </h1>
 
             <div className="flex items-baseline gap-3">
               <span className="text-3xl font-bold text-foreground">{product.price.toFixed(0)} {t.common.da}</span>
@@ -138,7 +140,11 @@ export default function ProductDetail() {
               )}
             </div>
 
-            {product.description && <p className="text-muted-foreground leading-relaxed">{product.description}</p>}
+            {(language === 'ar' ? (product.description_ar || product.description) : product.description) && (
+              <p className="text-muted-foreground leading-relaxed">
+                {language === 'ar' ? (product.description_ar || product.description) : product.description}
+              </p>
+            )}
 
             {/* Product Options */}
             <div className="space-y-4">

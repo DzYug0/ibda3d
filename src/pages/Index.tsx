@@ -25,7 +25,7 @@ export default function Index() {
   const { data: allPacks = [] } = usePacks();
   const { user } = useAuth();
   const { addToCart, addPackToCart } = useCart();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const featuredPacks = allPacks.filter(p => p.is_featured).slice(0, 3);
 
@@ -210,12 +210,14 @@ export default function Index() {
                             )}
                           </div>
                           <div className="p-5 space-y-3 flex flex-col flex-1">
-                            <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">{pack.name}</h3>
+                            <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
+                              {language === 'ar' ? (pack.name_ar || pack.name) : pack.name}
+                            </h3>
                             {pack.items && pack.items.length > 0 && (
                               <div className="flex flex-wrap gap-1">
                                 {pack.items.map(item => (
                                   <Badge key={item.id} variant="secondary" className="text-xs">
-                                    {item.product?.name} ×{item.quantity}
+                                    {(language === 'ar' && item.product && (item.product as any).name_ar) ? (item.product as any).name_ar : item.product?.name} ×{item.quantity}
                                   </Badge>
                                 ))}
                               </div>

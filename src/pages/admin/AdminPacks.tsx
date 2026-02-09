@@ -40,8 +40,10 @@ export default function AdminPacks() {
   const [editingPack, setEditingPack] = useState<Pack | null>(null);
   const [formData, setFormData] = useState({
     name: '',
+    name_ar: '',
     slug: '',
     description: '',
+    description_ar: '',
     price: '',
     compare_at_price: '',
     image_url: '',
@@ -52,7 +54,7 @@ export default function AdminPacks() {
 
   const resetForm = () => {
     setFormData({
-      name: '', slug: '', description: '', price: '', compare_at_price: '',
+      name: '', name_ar: '', slug: '', description: '', description_ar: '', price: '', compare_at_price: '',
       image_url: '', is_active: true, is_featured: false, items: [],
     });
     setEditingPack(null);
@@ -64,8 +66,10 @@ export default function AdminPacks() {
     setEditingPack(pack);
     setFormData({
       name: pack.name,
+      name_ar: pack.name_ar || '',
       slug: pack.slug,
       description: pack.description || '',
+      description_ar: pack.description_ar || '',
       price: pack.price.toString(),
       compare_at_price: pack.compare_at_price?.toString() || '',
       image_url: pack.image_url || '',
@@ -101,8 +105,10 @@ export default function AdminPacks() {
     e.preventDefault();
     const packData = {
       name: formData.name,
+      name_ar: formData.name_ar || null,
       slug: formData.slug || formData.name.toLowerCase().replace(/\s+/g, '-'),
       description: formData.description || null,
+      description_ar: formData.description_ar || null,
       price: parseFloat(formData.price),
       compare_at_price: formData.compare_at_price ? parseFloat(formData.compare_at_price) : null,
       image_url: formData.image_url || null,
@@ -153,18 +159,60 @@ export default function AdminPacks() {
             <form onSubmit={handleSubmit} className="space-y-4 mt-4">
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="pack-name">Pack Name *</Label>
+                  <Label htmlFor="pack-name">Pack Name (EN) *</Label>
                   <Input id="pack-name" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required />
                 </div>
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <Label htmlFor="pack-name-ar">Pack Name (AR)</Label>
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, name_ar: formData.name })}
+                      className="text-xs text-primary hover:underline"
+                    >
+                      Auto Translate
+                    </button>
+                  </div>
+                  <Input
+                    id="pack-name-ar"
+                    value={formData.name_ar}
+                    onChange={(e) => setFormData({ ...formData, name_ar: e.target.value })}
+                    dir="rtl"
+                  />
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="pack-slug">Slug</Label>
                   <Input id="pack-slug" value={formData.slug} onChange={e => setFormData({ ...formData, slug: e.target.value })} placeholder="auto-generated" />
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="pack-desc">Description</Label>
-                <Textarea id="pack-desc" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} rows={2} />
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="pack-desc">Description (EN)</Label>
+                  <Textarea id="pack-desc" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} rows={2} />
+                </div>
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <Label htmlFor="pack-desc-ar">Description (AR)</Label>
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, description_ar: formData.description })}
+                      className="text-xs text-primary hover:underline"
+                    >
+                      Auto Translate
+                    </button>
+                  </div>
+                  <Textarea
+                    id="pack-desc-ar"
+                    value={formData.description_ar}
+                    onChange={(e) => setFormData({ ...formData, description_ar: e.target.value })}
+                    rows={2}
+                    dir="rtl"
+                  />
+                </div>
               </div>
 
               <div className="grid sm:grid-cols-2 gap-4">
