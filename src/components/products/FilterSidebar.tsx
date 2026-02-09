@@ -16,7 +16,9 @@ interface FilterSidebarProps {
     onPriceChange: (range: [number, number]) => void;
     inStock: boolean;
     onInStockChange: (checked: boolean) => void;
+    onInStockChange: (checked: boolean) => void;
     onClear: () => void;
+    onClearCategories?: () => void;
     className?: string;
 }
 
@@ -27,7 +29,9 @@ export function FilterSidebar({
     onPriceChange,
     inStock,
     onInStockChange,
+    onInStockChange,
     onClear,
+    onClearCategories,
     className = "",
 }: FilterSidebarProps) {
     const { data: categories = [] } = useCategories();
@@ -97,6 +101,23 @@ export function FilterSidebar({
                 <h4 className="font-medium text-sm text-foreground/80">{t.categories?.title || "Categories"}</h4>
                 <ScrollArea className="h-[300px] w-full rounded-md pr-4">
                     <div className="space-y-3">
+                        {/* 'All' Option */}
+                        <div className="flex items-center space-x-2">
+                            <Checkbox
+                                id="category-all"
+                                checked={selectedCategories.length === 0}
+                                onCheckedChange={(checked) => {
+                                    // Use onClear for now which resets everything, including categories.
+                                    // If strict "only clear categories" is needed, we'd need a new prop.
+                                    // Given "All" usually means default state, full reset is often expected or acceptable.
+                                    if (checked) onClear();
+                                }}
+                            />
+                            <Label htmlFor="category-all" className="text-sm cursor-pointer font-normal leading-none filter-all-label">
+                                {t.products?.allProducts || "All Products"}
+                            </Label>
+                        </div>
+
                         {categories.map((category) => (
                             <div key={category.id} className="flex items-center space-x-2">
                                 <Checkbox

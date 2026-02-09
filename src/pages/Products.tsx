@@ -180,7 +180,9 @@ export default function Products() {
                 onPriceChange={handlePriceChange}
                 inStock={inStockParam}
                 onInStockChange={(val) => updateParams({ inStock: val ? 'true' : null })}
+                onInStockChange={(val) => updateParams({ inStock: val ? 'true' : null })}
                 onClear={clearFilters}
+                onClearCategories={() => updateParams({ category: null })}
               />
             </div>
           </aside>
