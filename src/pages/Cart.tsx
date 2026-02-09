@@ -10,7 +10,7 @@ export default function Cart() {
   const { user } = useAuth();
   const { cartItems, cartTotal, isLoading, updateQuantity, removeFromCart } = useCart();
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   if (!user) {
     return (
@@ -62,7 +62,9 @@ export default function Cart() {
           <div className="lg:col-span-2 space-y-4">
             {cartItems.map((item) => {
               const isPack = !!item.pack_id;
-              const name = isPack ? item.pack?.name : item.product?.name;
+              const name = isPack
+                ? (language === 'ar' ? (item.pack?.name_ar || item.pack?.name) : item.pack?.name)
+                : (language === 'ar' ? (item.product?.name_ar || item.product?.name) : item.product?.name);
               const price = isPack ? (item.pack?.price || 0) : (item.product?.price || 0);
               const imageUrl = isPack ? item.pack?.image_url : item.product?.image_url;
               const linkTo = isPack ? `/packs/${item.pack?.slug}` : `/products/${item.product_id}`;

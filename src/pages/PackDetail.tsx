@@ -16,7 +16,7 @@ export default function PackDetail() {
   const { user } = useAuth();
   const { addPackToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   if (isLoading) {
     return (
@@ -89,8 +89,14 @@ export default function PackDetail() {
               {savings > 0 && <Badge className="bg-success text-success-foreground">{t.packs.save} {savings.toFixed(0)} {t.common.da}</Badge>}
             </div>
 
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground">{pack.name}</h1>
-            {pack.description && <p className="text-muted-foreground leading-relaxed">{pack.description}</p>}
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground">
+              {language === 'ar' ? (pack.name_ar || pack.name) : pack.name}
+            </h1>
+            {(language === 'ar' ? (pack.description_ar || pack.description) : pack.description) && (
+              <p className="text-muted-foreground leading-relaxed">
+                {language === 'ar' ? (pack.description_ar || pack.description) : pack.description}
+              </p>
+            )}
 
             <div className="flex items-baseline gap-3">
               <span className="text-3xl font-bold text-foreground">{pack.price.toFixed(0)} {t.common.da}</span>
@@ -108,7 +114,9 @@ export default function PackDetail() {
                         {item.product?.image_url ? <img src={item.product.image_url} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">—</div>}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-foreground truncate">{item.product?.name || 'Product'}</p>
+                        <p className="font-medium text-foreground truncate">
+                          {item.product ? (language === 'ar' ? (item.product.name /* types don't have name_ar in nested product yet? */ || item.product.name) : item.product.name) : 'Product'}
+                        </p>
                         <p className="text-sm text-muted-foreground">{item.product?.price?.toFixed(0)} {t.common.da} {t.packs.each}</p>
                       </div>
                       <span className="text-sm font-medium text-muted-foreground">×{item.quantity}</span>

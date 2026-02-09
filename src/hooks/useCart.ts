@@ -13,6 +13,7 @@ interface CartItem {
   product: {
     id: string;
     name: string;
+    name_ar: string | null;
     price: number;
     image_url: string | null;
     stock_quantity: number;
@@ -22,6 +23,7 @@ interface CartItem {
   pack: {
     id: string;
     name: string;
+    name_ar: string | null;
     price: number;
     image_url: string | null;
     slug: string;
@@ -49,6 +51,7 @@ export function useCart() {
           product:products (
             id,
             name,
+            name_ar,
             price,
             image_url,
             stock_quantity,
@@ -58,6 +61,7 @@ export function useCart() {
           pack:packs (
             id,
             name,
+            name_ar,
             price,
             image_url,
             slug
@@ -98,7 +102,7 @@ export function useCart() {
       if (selectedVersion) query = query.eq('selected_version', selectedVersion);
       else query = query.is('selected_version', null);
 
-      const { data: existing } = await query.maybeSingle();
+      const { data: existing } = await (query as any).maybeSingle();
 
       if (existing) {
         // Update quantity

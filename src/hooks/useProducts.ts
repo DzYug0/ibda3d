@@ -5,8 +5,10 @@ import { toast } from 'sonner';
 export interface Product {
   id: string;
   name: string;
+  name_ar: string | null;
   slug: string;
   description: string | null;
+  description_ar: string | null;
   price: number;
   compare_at_price: number | null;
   category_id: string | null;
@@ -71,7 +73,7 @@ export function useProducts(categorySlug?: string) {
       const { data, error } = await query;
       if (error) throw error;
 
-      let products = data as Product[];
+      let products = data as unknown as Product[];
 
       // Fetch categories from junction table
       const catMap = await fetchProductCategories(products.map(p => p.id));
@@ -135,7 +137,7 @@ export function useProduct(slug: string) {
         ...data,
         categories: catMap[data.id] || [],
         category: catMap[data.id]?.[0] || undefined,
-      } as Product;
+      } as unknown as Product;
     },
     enabled: !!slug,
   });

@@ -5,8 +5,10 @@ import { toast } from 'sonner';
 export interface Pack {
   id: string;
   name: string;
+  name_ar: string | null;
   slug: string;
   description: string | null;
+  description_ar: string | null;
   price: number;
   compare_at_price: number | null;
   image_url: string | null;
@@ -44,7 +46,7 @@ export function usePack(slug: string) {
       if (!data) return null;
       if (error) throw error;
 
-      const pack = data as Pack;
+      const pack = data as unknown as Pack;
       const { data: items, error: iError } = await supabase
         .from('pack_items')
         .select('*, product:products(id, name, slug, price, image_url)')
@@ -68,7 +70,7 @@ export function usePacks() {
         .order('created_at', { ascending: false });
       if (error) throw error;
 
-      const packs = data as Pack[];
+      const packs = data as unknown as Pack[];
       if (packs.length === 0) return packs;
 
       // Fetch pack items with products
@@ -99,7 +101,7 @@ export function useAdminPacks() {
         .order('created_at', { ascending: false });
       if (error) throw error;
 
-      const packs = data as Pack[];
+      const packs = data as unknown as Pack[];
       if (packs.length === 0) return packs;
 
       const { data: items, error: iError } = await supabase

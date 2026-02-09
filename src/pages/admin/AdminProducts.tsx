@@ -27,6 +27,8 @@ import { ImageUpload } from '@/components/admin/ImageUpload';
 import { MultiImageUpload } from '@/components/admin/MultiImageUpload';
 import { ProductsTable } from '@/components/admin/ProductsTable';
 
+import { translateToArabic } from '@/services/translationService';
+
 export default function AdminProducts() {
   const { data: products = [], isLoading } = useAdminProducts();
   const { data: categories = [] } = useCategories();
@@ -40,8 +42,10 @@ export default function AdminProducts() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState({
     name: '',
+    name_ar: '',
     slug: '',
     description: '',
+    description_ar: '',
     price: '',
     compare_at_price: '',
     category_ids: [] as string[],
@@ -57,8 +61,10 @@ export default function AdminProducts() {
   const resetForm = () => {
     setFormData({
       name: '',
+      name_ar: '',
       slug: '',
       description: '',
+      description_ar: '',
       price: '',
       compare_at_price: '',
       category_ids: [],
@@ -82,8 +88,10 @@ export default function AdminProducts() {
     setEditingProduct(product);
     setFormData({
       name: product.name,
+      name_ar: product.name_ar || '',
       slug: product.slug,
       description: product.description || '',
+      description_ar: product.description_ar || '',
       price: product.price.toString(),
       compare_at_price: product.compare_at_price?.toString() || '',
       category_ids: product.categories?.map(c => c.id) || (product.category_id ? [product.category_id] : []),
@@ -110,10 +118,23 @@ export default function AdminProducts() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    let finalNameAr = formData.name_ar;
+    let finalDescriptionAr = formData.description_ar;
+
+    // Auto-translate if empty
+    if (!finalNameAr && formData.name) {
+      finalNameAr = await translateToArabic(formData.name);
+    }
+    if (!finalDescriptionAr && formData.description) {
+      finalDescriptionAr = await translateToArabic(formData.description);
+    }
+
     const productData = {
       name: formData.name,
+      name_ar: finalNameAr || null,
       slug: formData.slug || formData.name.toLowerCase().replace(/\s+/g, '-'),
       description: formData.description || null,
+      description_ar: finalDescriptionAr || null,
       price: parseFloat(formData.price),
       compare_at_price: formData.compare_at_price ? parseFloat(formData.compare_at_price) : null,
       category_id: formData.category_ids[0] || null,
@@ -177,7 +198,7 @@ export default function AdminProducts() {
             <form onSubmit={handleSubmit} className="space-y-4 mt-4">
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="name">Product Name *</Label>
+                  <Label htmlFor="name">Product Name (EN) *</Label>
                   <Input
                     id="name"
                     value={formData.name}
@@ -185,6 +206,30 @@ export default function AdminProducts() {
                     required
                   />
                 </div>
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <Label htmlFor="name_ar">Product Name (AR)</Label>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const translated = await translateToArabic(formData.name);
+                        setFormData({ ...formData, name_ar: translated });
+                      }}
+                      className="text-xs text-primary hover:underline"
+                    >
+                      Auto Translate
+                    </button>
+                  </div>
+                  <Input
+                    id="name_ar"
+                    value={formData.name_ar}
+                    onChange={(e) => setFormData({ ...formData, name_ar: e.target.value })}
+                    dir="rtl"
+                  />
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="slug">Slug</Label>
                   <Input
@@ -196,14 +241,38 @@ export default function AdminProducts() {
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  rows={3}
-                />
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="description">Description (EN)</Label>
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    rows={3}
+                  />
+                </div>
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <Label htmlFor="description_ar">Description (AR)</Label>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const translated = await translateToArabic(formData.description);
+                        setFormData({ ...formData, description_ar: translated });
+                      }}
+                      className="text-xs text-primary hover:underline"
+                    >
+                      Auto Translate
+                    </button>
+                  </div>
+                  <Textarea
+                    id="description_ar"
+                    value={formData.description_ar}
+                    onChange={(e) => setFormData({ ...formData, description_ar: e.target.value })}
+                    rows={3}
+                    dir="rtl"
+                  />
+                </div>
               </div>
 
               <div className="grid sm:grid-cols-3 gap-4">
