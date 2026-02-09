@@ -4,6 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Layout } from '@/components/layout/Layout';
 import { ProductGrid } from '@/components/products/ProductGrid';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
 import { useFeaturedProducts, useCategories } from '@/hooks/useProducts';
 import { usePacks } from '@/hooks/usePacks';
 import { useCart } from '@/hooks/useCart';
@@ -143,7 +150,91 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Featured Products */}
+      {/* Featured Packs - CAROUSEL & FIRST */}
+      {featuredPacks.length > 0 && (
+        <section className="py-16">
+          <div className="container mx-auto px-4">
+            <div className="flex justify-between items-center mb-8">
+              <div>
+                <h2 className="text-3xl font-bold text-foreground">{t.packs.featuredPacks}</h2>
+                <p className="text-muted-foreground mt-2">{t.packs.featuredPacksDesc}</p>
+              </div>
+              <Link to="/packs">
+                <Button variant="outline">
+                  {t.packs.viewAllPacks} <ArrowRight className="ms-2 h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+
+            <Carousel
+              opts={{
+                align: "start",
+              }}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-4">
+                {featuredPacks.map(pack => {
+                  const individualTotal = pack.items?.reduce((sum, item) => sum + (item.product?.price || 0) * item.quantity, 0) || 0;
+                  const savings = individualTotal > pack.price ? individualTotal - pack.price : 0;
+                  return (
+                    <CarouselItem key={pack.id} className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
+                      <div className="group bg-card rounded-2xl overflow-hidden shadow-card border border-border h-full flex flex-col">
+                        <div className="relative aspect-video overflow-hidden bg-muted flex-shrink-0">
+                          {pack.image_url ? (
+                            <img src={pack.image_url} alt={pack.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Package className="h-12 w-12 text-muted-foreground" />
+                            </div>
+                          )}
+                          {savings > 0 && (
+                            <div className="absolute top-3 start-3">
+                              <Badge className="bg-success text-success-foreground">{t.packs.save} {savings.toFixed(0)} {t.common.da}</Badge>
+                            </div>
+                          )}
+                        </div>
+                        <div className="p-5 space-y-3 flex flex-col flex-1">
+                          <h3 className="text-xl font-bold text-foreground">{pack.name}</h3>
+                          {pack.items && pack.items.length > 0 && (
+                            <div className="flex flex-wrap gap-1">
+                              {pack.items.map(item => (
+                                <Badge key={item.id} variant="secondary" className="text-xs">
+                                  {item.product?.name} ×{item.quantity}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                          <div className="mt-auto pt-3">
+                            <div className="flex items-baseline gap-2 mb-3">
+                              <span className="text-2xl font-bold text-foreground">{pack.price.toFixed(0)} {t.common.da}</span>
+                              {pack.compare_at_price && pack.compare_at_price > pack.price && (
+                                <span className="text-sm text-muted-foreground line-through">{pack.compare_at_price.toFixed(0)} {t.common.da}</span>
+                              )}
+                            </div>
+                            {user ? (
+                              <Button className="w-full" onClick={() => handleAddPackToCart(pack, 1)} disabled={addToCart.isPending}>
+                                <ShoppingCart className="h-4 w-4 me-2" /> {t.products.addToCart}
+                              </Button>
+                            ) : (
+                              <Link to="/auth" className="block">
+                                <Button className="w-full">{t.products.signInToShop}</Button>
+                              </Link>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </CarouselItem>
+                  );
+                })}
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
+          </div>
+        </section>
+      )}
+
+      {/* Featured Products - Grid & SECOND */}
       <section className="py-16 bg-muted/50">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
@@ -161,9 +252,9 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Categories */}
+      {/* Categories - CAROUSEL & THIRD */}
       {categories.length > 0 && (
-        <section className="py-16">
+        <section className="py-16 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-3xl font-bold text-foreground">{t.categories.shopByCategory}</h2>
@@ -173,111 +264,55 @@ export default function Index() {
                 </Button>
               </Link>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {categories.slice(0, 4).map((category) => (
-                <Link key={category.id} to={`/products?category=${category.slug}`} className="group relative aspect-[4/3] rounded-2xl overflow-hidden bg-muted">
-                  {category.image_url ? (
-                    <img src={category.image_url} alt={category.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-dark" />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 to-transparent" />
-                  <div className="absolute bottom-4 start-4">
-                    <h3 className="text-xl font-bold text-secondary-foreground">{category.name}</h3>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
-      {/* Featured Packs */}
-      {featuredPacks.length > 0 && (
-        <section className="py-16">
-          <div className="container mx-auto px-4">
-            <div className="flex justify-between items-center mb-8">
-              <div>
-                <h2 className="text-3xl font-bold text-foreground">{t.packs.featuredPacks}</h2>
-                <p className="text-muted-foreground mt-2">{t.packs.featuredPacksDesc}</p>
-              </div>
-              <Link to="/packs">
-                <Button variant="outline">
-                  {t.packs.viewAllPacks} <ArrowRight className="ms-2 h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredPacks.map(pack => {
-                const individualTotal = pack.items?.reduce((sum, item) => sum + (item.product?.price || 0) * item.quantity, 0) || 0;
-                const savings = individualTotal > pack.price ? individualTotal - pack.price : 0;
-                return (
-                  <div key={pack.id} className="group bg-card rounded-2xl overflow-hidden shadow-card border border-border">
-                    <div className="relative aspect-video overflow-hidden bg-muted">
-                      {pack.image_url ? (
-                        <img src={pack.image_url} alt={pack.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+            <Carousel
+              opts={{
+                align: "start",
+              }}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-4">
+                {categories.map((category) => (
+                  <CarouselItem key={category.id} className="pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4">
+                    <Link to={`/products?category=${category.slug}`} className="block group relative aspect-[4/3] rounded-2xl overflow-hidden bg-muted">
+                      {category.image_url ? (
+                        <img src={category.image_url} alt={category.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <Package className="h-12 w-12 text-muted-foreground" />
-                        </div>
+                        <div className="w-full h-full bg-gradient-dark" />
                       )}
-                      {savings > 0 && (
-                        <div className="absolute top-3 start-3">
-                          <Badge className="bg-success text-success-foreground">{t.packs.save} {savings.toFixed(0)} {t.common.da}</Badge>
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-5 space-y-3">
-                      <h3 className="text-xl font-bold text-foreground">{pack.name}</h3>
-                      {pack.items && pack.items.length > 0 && (
-                        <div className="flex flex-wrap gap-1">
-                          {pack.items.map(item => (
-                            <Badge key={item.id} variant="secondary" className="text-xs">
-                              {item.product?.name} ×{item.quantity}
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-2xl font-bold text-foreground">{pack.price.toFixed(0)} {t.common.da}</span>
-                        {pack.compare_at_price && pack.compare_at_price > pack.price && (
-                          <span className="text-sm text-muted-foreground line-through">{pack.compare_at_price.toFixed(0)} {t.common.da}</span>
-                        )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 to-transparent" />
+                      <div className="absolute bottom-4 start-4">
+                        <h3 className="text-xl font-bold text-secondary-foreground">{category.name}</h3>
                       </div>
-                      {user ? (
-                        <Button className="w-full" onClick={() => handleAddPackToCart(pack, 1)} disabled={addToCart.isPending}>
-                          <ShoppingCart className="h-4 w-4 me-2" /> {t.products.addToCart}
-                        </Button>
-                      ) : (
-                        <Link to="/auth" className="block">
-                          <Button className="w-full">{t.products.signInToShop}</Button>
-                        </Link>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+                    </Link>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
           </div>
         </section>
       )}
 
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-secondary via-primary to-secondary text-white">
-        <div className="container mx-auto px-4 text-center">
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-6">
-            <Printer className="h-4 w-4 text-accent" />
-            <span className="text-sm font-medium">{t.cta.badge}</span>
+      {/* CTA Section - Only for guests */}
+      {!user && (
+        <section className="py-20 bg-gradient-to-r from-secondary via-primary to-secondary text-white">
+          <div className="container mx-auto px-4 text-center">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-6">
+              <Printer className="h-4 w-4 text-accent" />
+              <span className="text-sm font-medium">{t.cta.badge}</span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t.cta.title}</h2>
+            <p className="text-white/70 max-w-md mx-auto mb-8">{t.cta.subtitle}</p>
+            <Link to="/auth?tab=signup">
+              <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-8 shadow-lg">
+                {t.cta.createAccount}
+              </Button>
+            </Link>
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">{t.cta.title}</h2>
-          <p className="text-white/70 max-w-md mx-auto mb-8">{t.cta.subtitle}</p>
-          <Link to="/auth?tab=signup">
-            <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-8 shadow-lg">
-              {t.cta.createAccount}
-            </Button>
-          </Link>
-        </div>
-      </section>
+        </section>
+      )}
     </Layout>
   );
 }
