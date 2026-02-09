@@ -29,6 +29,18 @@ interface CheckoutItem {
   selected_version?: string | null;
 }
 
+interface UserAddress {
+  id: string;
+  label: string;
+  full_name: string;
+  phone: string;
+  address_line1: string;
+  city: string;
+  state: string;
+  zip_code: string;
+  is_default: boolean;
+}
+
 const shippingSchema = z.object({
   fullName: z.string().trim().min(3, 'Please enter your full name').max(100, 'Name must be less than 100 characters'),
   wilaya: z.string().min(1, 'Please select a wilaya'),
@@ -59,6 +71,7 @@ export default function Checkout() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [buyNowItem, setBuyNowItem] = useState<CheckoutItem | null>(null);
   const [buyNowLoading, setBuyNowLoading] = useState(false);
+  const [savedAddresses, setSavedAddresses] = useState<UserAddress[]>([]);
   const [shippingInfo, setShippingInfo] = useState({
     fullName: '',
     wilaya: '',
@@ -101,16 +114,18 @@ export default function Checkout() {
       });
   }, [buyNowProductId, buyNowQty, buyNowColor, buyNowVersion]);
 
-  // Pre-fill from user profile if logged in
+  // Fetch saved addresses and pre-fill default
   useEffect(() => {
     if (!user) return;
+
+    // Fetch profile first for fallback
     supabase
       .from('profiles')
       .select('full_name, phone, address')
       .eq('user_id', user.id)
       .single()
       .then(({ data }) => {
-        if (data) {
+        if (data && !shippingInfo.fullName) {
           setShippingInfo((prev) => ({
             ...prev,
             fullName: data.full_name || prev.fullName,
@@ -119,7 +134,36 @@ export default function Checkout() {
           }));
         }
       });
+
+    // Fetch addresses
+    supabase
+      .from('user_addresses' as any)
+      .select('*')
+      .eq('user_id', user.id)
+      .order('is_default', { ascending: false })
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          // Cast data to UserAddress[] since types aren't generated yet
+          const addresses = data as unknown as UserAddress[];
+          setSavedAddresses(addresses);
+          const defaultAddr = addresses.find(a => a.is_default);
+          if (defaultAddr && !shippingInfo.fullName) {
+            selectAddress(defaultAddr);
+          }
+        }
+      });
   }, [user]);
+
+  const selectAddress = (addr: UserAddress) => {
+    setShippingInfo(prev => ({
+      ...prev,
+      fullName: addr.full_name,
+      phone: addr.phone,
+      address: addr.address_line1,
+      wilaya: addr.zip_code || prev.wilaya, // Assuming zip_code stores wilaya code in this context
+      deliveryType: 'home', // Default to home if selecting an address
+    }));
+  };
 
   // Determine checkout items: cart items for logged-in, buyNow item for guests
   const checkoutItems: CheckoutItem[] = useMemo(() => {
@@ -263,7 +307,7 @@ export default function Checkout() {
         await clearCart.mutateAsync();
       }
 
-      // Save checkout info back to user profile
+      // Save checkout info back to user profile (optional now that we have addresses)
       if (user) {
         await supabase
           .from('profiles')
@@ -292,6 +336,34 @@ export default function Checkout() {
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Shipping info */}
             <div className="lg:col-span-2 space-y-6">
+
+              {/* Saved Addresses Selector */}
+              {user && savedAddresses.length > 0 && (
+                <div className="bg-card rounded-xl border border-border p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Home className="h-5 w-5 text-primary" />
+                    <h2 className="text-xl font-bold text-foreground">Saved Addresses</h2>
+                  </div>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    {savedAddresses.map(addr => (
+                      <div
+                        key={addr.id}
+                        onClick={() => selectAddress(addr)}
+                        className="border border-border rounded-lg p-3 cursor-pointer hover:border-primary hover:bg-muted/50 transition-colors"
+                      >
+                        <div className="flex justify-between items-start">
+                          <span className="font-semibold">{addr.label}</span>
+                          {/* Simple visual check if this address matches current form state */}
+                          {(shippingInfo.address === addr.address_line1 && shippingInfo.wilaya === addr.zip_code) && <CheckCircle className="h-4 w-4 text-primary" />}
+                        </div>
+                        <p className="text-sm text-muted-foreground">{addr.full_name}</p>
+                        <p className="text-xs text-muted-foreground truncate">{addr.address_line1}, {addr.city}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Personal & Wilaya */}
               <div className="bg-card rounded-xl border border-border p-6">
                 <div className="flex items-center gap-3 mb-6">
