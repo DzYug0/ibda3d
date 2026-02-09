@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ProductGallery } from '@/components/products/ProductGallery';
 import { WishlistButton } from '@/components/products/WishlistButton';
 import { RelatedProducts } from '@/components/products/RelatedProducts';
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { SEO } from '@/components/SEO';
 import type { ProductOption } from '@/components/admin/ProductOptionsEditor';

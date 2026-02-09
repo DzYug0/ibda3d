@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ShoppingCart } from 'lucide-react';
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/hooks/useCart';
@@ -34,12 +35,13 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <Link to={`/products/${product.slug}`}>
       <div className="group bg-card rounded-2xl overflow-hidden shadow-card product-card border border-border">
-        <div className="relative aspect-square overflow-hidden bg-muted">
-          {product.image_url ? (
-            <img src={product.image_url} alt={product.name} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-muted-foreground">{t.products.noImage}</div>
-          )}
+        <div className="relative aspect-square overflow-hidden bg-gray-100">
+          <OptimizedImage
+            src={product.image_url || '/placeholder.svg'}
+            alt={product.name}
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+            width={400} // Reasonable size for card
+          />
           <div className="absolute top-3 start-3 flex flex-col gap-2">
             {hasDiscount && <span className="badge-sale">-{discountPercent}%</span>}
             {product.is_featured && <span className="badge-new">{t.products.featured}</span>}

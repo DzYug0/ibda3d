@@ -9,6 +9,7 @@ import { usePack } from '@/hooks/usePacks';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
 
 export default function PackDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -77,6 +78,16 @@ export default function PackDetail() {
         <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
           {galleryImages.length > 0 ? (
             <ProductGallery images={galleryImages} productName={pack.name} />
+          ) : pack.items && pack.items.length > 0 && pack.items[0].product?.image_url ? (
+            <div className="aspect-square rounded-2xl overflow-hidden bg-gray-100">
+              <OptimizedImage
+                src={pack.items[0].product.image_url}
+                alt={pack.name}
+                className="w-full h-full object-cover"
+                width={800}
+                priority
+              />
+            </div>
           ) : (
             <div className="aspect-square rounded-2xl bg-muted flex items-center justify-center">
               <Package className="h-20 w-20 text-muted-foreground" />
@@ -111,7 +122,10 @@ export default function PackDetail() {
                   {pack.items.map(item => (
                     <Link key={item.id} to={`/products/${item.product?.slug}`} className="flex items-center gap-3 hover:bg-muted/50 rounded-lg p-2 -mx-2 transition-colors">
                       <div className="w-14 h-14 rounded-lg bg-muted overflow-hidden flex-shrink-0">
-                        {item.product?.image_url ? <img src={item.product.image_url} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">—</div>}
+                        {item.product?.image_url ?
+                          <OptimizedImage src={item.product.image_url} alt="" className="w-full h-full object-cover" width={64} />
+                          : <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">—</div>
+                        }
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-foreground truncate">

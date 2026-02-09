@@ -18,6 +18,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/i18n/LanguageContext';
 import logo from '@/assets/logo.png';
 import { SEO } from '@/components/SEO';
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
 
 export default function Index() {
   const { data: featuredProducts = [], isLoading: productsLoading } = useFeaturedProducts();
@@ -189,7 +190,12 @@ export default function Index() {
                               <div className="w-full h-full flex">
                                 {allImages.slice(0, 4).map((img, i) => (
                                   <div key={i} className="relative flex-1 overflow-hidden" style={{ borderRight: i < Math.min(allImages.length, 4) - 1 ? '2px solid hsl(var(--border))' : 'none' }}>
-                                    <img src={img} alt="" loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                    <OptimizedImage
+                                      src={img}
+                                      alt=""
+                                      width={300}
+                                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                    />
                                   </div>
                                 ))}
                                 {allImages.length > 4 && (
@@ -303,7 +309,12 @@ export default function Index() {
                   <CarouselItem key={category.id} className="pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4">
                     <Link to={`/products?category=${category.slug}`} className="block group relative aspect-[4/3] rounded-2xl overflow-hidden bg-muted">
                       {category.image_url ? (
-                        <img src={category.image_url} alt={category.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <OptimizedImage
+                          src={category.image_url}
+                          alt={category.name}
+                          width={400}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
                       ) : (
                         <div className="w-full h-full bg-gradient-dark" />
                       )}
