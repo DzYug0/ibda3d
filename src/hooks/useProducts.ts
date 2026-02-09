@@ -431,3 +431,48 @@ export function useDeleteCategory() {
     },
   });
 }
+
+export function useRelatedProducts(currentProductId: string, categoryIds: string[]) {
+  return useQuery({
+    queryKey: ['related-products', currentProductId, categoryIds],
+    queryFn: async () => {
+      if (!categoryIds || categoryIds.length === 0) return [];
+
+      // 1. Get product IDs from the same categories
+      const { data: relatedCats, error: catError } = await supabase
+        .from('product_categories')
+        .select('product_id')
+        .in('category_id', categoryIds)
+        .neq('product_id', currentProductId)
+        .limit(20);
+
+      if (catError) throw catError;
+
+      if (!relatedCats || relatedCats.length === 0) return [];
+
+      // Extract IDs and remove duplicates
+      const ids = [...new Set(relatedCats.map(r => r.product_id))].slice(0, 4);
+
+      if (ids.length === 0) return [];
+
+      // 2. Fetch full product details
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .in('id', ids)
+        .eq('is_active', true);
+
+      if (error) throw error;
+
+      const products = data as Product[];
+      const catMap = await fetchProductCategories(products.map(p => p.id));
+
+      return products.map(p => ({
+        ...p,
+        categories: catMap[p.id] || [],
+        category: catMap[p.id]?.[0] || undefined,
+      }));
+    },
+    enabled: !!currentProductId && categoryIds.length > 0,
+  });
+}

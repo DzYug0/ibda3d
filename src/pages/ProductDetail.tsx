@@ -8,6 +8,7 @@ import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProductGallery } from '@/components/products/ProductGallery';
 import { WishlistButton } from '@/components/products/WishlistButton';
+import { RelatedProducts } from '@/components/products/RelatedProducts';
 import { useLanguage } from '@/i18n/LanguageContext';
 
 export default function ProductDetail() {
@@ -212,6 +213,11 @@ export default function ProductDetail() {
             </div>
           </div>
         </div>
+
+        <RelatedProducts
+          currentProductId={product.id}
+          categories={product.categories || (product.category ? [product.category] : [])}
+        />
       </div>
     </Layout>
   );
