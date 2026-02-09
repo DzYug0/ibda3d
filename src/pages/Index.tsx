@@ -176,15 +176,35 @@ export default function Index() {
                 {featuredPacks.map(pack => {
                   const individualTotal = pack.items?.reduce((sum, item) => sum + (item.product?.price || 0) * item.quantity, 0) || 0;
                   const savings = individualTotal > pack.price ? individualTotal - pack.price : 0;
-                  const packImage = pack.image_url || pack.items?.[0]?.product?.image_url;
+
+                  const allImages: string[] = [];
+                  if (pack.image_url) allImages.push(pack.image_url);
+                  if (pack.items) {
+                    for (const item of pack.items) {
+                      if (item.product?.image_url && !allImages.includes(item.product.image_url)) {
+                        allImages.push(item.product.image_url);
+                      }
+                    }
+                  }
 
                   return (
                     <CarouselItem key={pack.id} className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
                       <Link to={`/packs/${pack.slug}`} className="block h-full">
                         <div className="group bg-card rounded-2xl overflow-hidden shadow-card border border-border h-full flex flex-col hover:shadow-lg transition-shadow">
                           <div className="relative aspect-video overflow-hidden bg-muted flex-shrink-0">
-                            {packImage ? (
-                              <img src={packImage} alt={pack.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                            {allImages.length > 0 ? (
+                              <div className="w-full h-full flex">
+                                {allImages.slice(0, 4).map((img, i) => (
+                                  <div key={i} className="relative flex-1 overflow-hidden" style={{ borderRight: i < Math.min(allImages.length, 4) - 1 ? '2px solid hsl(var(--border))' : 'none' }}>
+                                    <img src={img} alt="" loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                  </div>
+                                ))}
+                                {allImages.length > 4 && (
+                                  <div className="absolute bottom-2 end-2 bg-background/80 backdrop-blur-sm text-foreground text-xs font-medium px-2 py-1 rounded-full">
+                                    +{allImages.length - 4} {t.packs.more}
+                                  </div>
+                                )}
+                              </div>
                             ) : (
                               <div className="w-full h-full flex items-center justify-center">
                                 <Package className="h-12 w-12 text-muted-foreground" />
