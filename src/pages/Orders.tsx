@@ -152,6 +152,13 @@ export default function Orders() {
                       return (
                         <span key={item.id} className="px-3 py-1 bg-muted rounded-full text-sm text-muted-foreground">
                           {itemName} × {item.quantity}
+                          {(item.selected_color || item.selected_version || (item.selected_options && Object.keys(item.selected_options).length > 0)) && (
+                            <span className="ml-2 text-xs opacity-75">
+                              {item.selected_color && `(${item.selected_color}) `}
+                              {item.selected_version && `[${item.selected_version}] `}
+                              {item.selected_options && Object.entries(item.selected_options).map(([k, v]) => `${k}:${v}`).join(', ')}
+                            </span>
+                          )}
                         </span>
                       );
                     })}

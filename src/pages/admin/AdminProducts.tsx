@@ -26,8 +26,8 @@ import {
 } from '@/hooks/useProducts';
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import { MultiImageUpload } from '@/components/admin/MultiImageUpload';
+import { ProductOptionsEditor, type ProductOption } from '@/components/admin/ProductOptionsEditor';
 import { ProductsTable } from '@/components/admin/ProductsTable';
-
 import { translateToArabic } from '@/services/translationService';
 
 export default function AdminProducts() {
@@ -56,8 +56,9 @@ export default function AdminProducts() {
     stock_quantity: '',
     is_featured: false,
     is_active: true,
-    colors: '' as string, // Comma separated for input
-    versions: '' as string, // Comma separated for input
+    colors: '' as string,
+    versions: '' as string,
+    product_options: [] as ProductOption[],
   });
 
   const resetForm = () => {
@@ -77,6 +78,7 @@ export default function AdminProducts() {
       is_active: true,
       colors: '',
       versions: '',
+      product_options: [],
     });
     setEditingProduct(null);
   };
@@ -104,6 +106,7 @@ export default function AdminProducts() {
       is_active: product.is_active,
       colors: product.colors?.join(', ') || '',
       versions: product.versions?.join(', ') || '',
+      product_options: (product.product_options as ProductOption[]) || [],
     });
     setIsDialogOpen(true);
   };
@@ -148,6 +151,7 @@ export default function AdminProducts() {
       category_ids: formData.category_ids,
       colors: formData.colors.split(',').map(c => c.trim()).filter(Boolean),
       versions: formData.versions.split(',').map(v => v.trim()).filter(Boolean),
+      product_options: formData.product_options,
     };
 
     try {
@@ -187,6 +191,7 @@ export default function AdminProducts() {
       is_active: false, // Default to inactive for copies
       colors: product.colors?.join(', ') || '',
       versions: product.versions?.join(', ') || '',
+      product_options: (product.product_options as ProductOption[]) || [],
     });
     setIsDialogOpen(true);
   };
@@ -339,7 +344,15 @@ export default function AdminProducts() {
                 </div>
               </div>
 
-              <div className="grid sm:grid-cols-2 gap-4">
+              <div className="border border-border rounded-lg p-4 bg-muted/20">
+                <ProductOptionsEditor
+                  options={formData.product_options}
+                  onChange={(options) => setFormData({ ...formData, product_options: options })}
+                />
+              </div>
+
+              {/* Legacy Options (Hidden or Collapsed if you prefer, keeping for now as fallback plan) */}
+              <div className="grid sm:grid-cols-2 gap-4 hidden">
                 <div>
                   <Label htmlFor="colors">Colors</Label>
                   <Input

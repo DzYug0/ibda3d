@@ -27,6 +27,7 @@ interface CheckoutItem {
   image_url: string | null;
   selected_color?: string | null;
   selected_version?: string | null;
+  selected_options?: Record<string, string> | null;
 }
 
 interface UserAddress {
@@ -87,10 +88,21 @@ export default function Checkout() {
   const buyNowQty = parseInt(searchParams.get('qty') || '1', 10);
   const buyNowColor = searchParams.get('color');
   const buyNowVersion = searchParams.get('version');
+  const buyNowOptionsParam = searchParams.get('options');
 
   useEffect(() => {
     if (!buyNowProductId) return;
     setBuyNowLoading(true);
+
+    let buyNowOptions: Record<string, string> | null = null;
+    if (buyNowOptionsParam) {
+      try {
+        buyNowOptions = JSON.parse(decodeURIComponent(buyNowOptionsParam));
+      } catch (e) {
+        console.error('Failed to parse options', e);
+      }
+    }
+
     supabase
       .from('products')
       .select('id, name, price, image_url, stock_quantity')
@@ -108,11 +120,12 @@ export default function Checkout() {
             image_url: data.image_url,
             selected_color: buyNowColor,
             selected_version: buyNowVersion,
+            selected_options: buyNowOptions,
           });
         }
         setBuyNowLoading(false);
       });
-  }, [buyNowProductId, buyNowQty, buyNowColor, buyNowVersion]);
+  }, [buyNowProductId, buyNowQty, buyNowColor, buyNowVersion, buyNowOptionsParam]);
 
   // Fetch saved addresses and pre-fill default
   useEffect(() => {
@@ -179,6 +192,7 @@ export default function Checkout() {
           image_url: isPack ? (item.pack?.image_url || null) : (item.product?.image_url || null),
           selected_color: item.selected_color,
           selected_version: item.selected_version,
+          selected_options: item.selected_options,
         };
       });
     }
@@ -283,6 +297,7 @@ export default function Checkout() {
         quantity: item.quantity,
         selected_color: item.selected_color,
         selected_version: item.selected_version,
+        selected_options: item.selected_options,
       }));
 
       const deliveryNote = shippingInfo.deliveryType === 'desk'

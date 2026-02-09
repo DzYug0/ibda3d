@@ -87,6 +87,9 @@ export type Database = {
           pack_id: string | null
           product_id: string | null
           quantity: number
+          selected_color: string | null
+          selected_options: Json | null
+          selected_version: string | null
           updated_at: string
           user_id: string
         }
@@ -96,6 +99,9 @@ export type Database = {
           pack_id?: string | null
           product_id?: string | null
           quantity?: number
+          selected_color?: string | null
+          selected_options?: Json | null
+          selected_version?: string | null
           updated_at?: string
           user_id: string
         }
@@ -105,6 +111,9 @@ export type Database = {
           pack_id?: string | null
           product_id?: string | null
           quantity?: number
+          selected_color?: string | null
+          selected_options?: Json | null
+          selected_version?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -207,6 +216,9 @@ export type Database = {
           product_name: string
           product_price: number
           quantity: number
+          selected_color: string | null
+          selected_options: Json | null
+          selected_version: string | null
         }
         Insert: {
           created_at?: string
@@ -217,6 +229,9 @@ export type Database = {
           product_name: string
           product_price: number
           quantity?: number
+          selected_color?: string | null
+          selected_options?: Json | null
+          selected_version?: string | null
         }
         Update: {
           created_at?: string
@@ -227,6 +242,9 @@ export type Database = {
           product_name?: string
           product_price?: number
           quantity?: number
+          selected_color?: string | null
+          selected_options?: Json | null
+          selected_version?: string | null
         }
         Relationships: [
           {
@@ -421,44 +439,56 @@ export type Database = {
           image_url: string | null
           images: string[] | null
           is_active: boolean
-          is_featured: boolean
           name: string
+          name_ar: string | null
           price: number
+          product_options: Json | null
           slug: string
           stock_quantity: number
           updated_at: string
+          versions: string[] | null
         }
         Insert: {
           category_id?: string | null
+          colors?: string[] | null
           compare_at_price?: number | null
           created_at?: string
           description?: string | null
+          description_ar?: string | null
           id?: string
           image_url?: string | null
           images?: string[] | null
           is_active?: boolean
           is_featured?: boolean
           name: string
+          name_ar?: string | null
           price: number
+          product_options?: Json | null
           slug: string
           stock_quantity?: number
           updated_at?: string
+          versions?: string[] | null
         }
         Update: {
           category_id?: string | null
+          colors?: string[] | null
           compare_at_price?: number | null
           created_at?: string
           description?: string | null
+          description_ar?: string | null
           id?: string
           image_url?: string | null
           images?: string[] | null
           is_active?: boolean
           is_featured?: boolean
           name?: string
+          name_ar?: string | null
           price?: number
+          product_options?: Json | null
           slug?: string
           stock_quantity?: number
           updated_at?: string
+          versions?: string[] | null
         }
         Relationships: [
           {

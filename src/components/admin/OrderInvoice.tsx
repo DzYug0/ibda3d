@@ -85,6 +85,15 @@ export const OrderInvoice = React.forwardRef<HTMLDivElement, OrderInvoiceProps>(
                                 <tr key={item.id}>
                                     <td className="py-4">
                                         <p className="font-medium text-gray-900">{item.product_name}</p>
+                                        {(item.selected_color || item.selected_version || (item.selected_options && Object.keys(item.selected_options).length > 0)) && (
+                                            <div className="text-xs text-gray-500 mt-1 space-y-0.5">
+                                                {item.selected_color && <div>Color: {item.selected_color} </div>}
+                                                {item.selected_version && <div>Version: {item.selected_version}</div>}
+                                                {item.selected_options && Object.entries(item.selected_options).map(([key, value]) => (
+                                                    <div key={key}>{key}: {String(value)}</div>
+                                                ))}
+                                            </div>
+                                        )}
                                     </td>
                                     <td className="text-center py-4 text-gray-600">{item.quantity}</td>
                                     <td className="text-right py-4 text-gray-600">
