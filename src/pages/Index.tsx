@@ -24,7 +24,7 @@ export default function Index() {
   const { data: categories = [] } = useCategories();
   const { data: allPacks = [] } = usePacks();
   const { user } = useAuth();
-  const { addToCart } = useCart();
+  const { addToCart, addPackToCart } = useCart();
   const { t } = useLanguage();
 
   const featuredPacks = allPacks.filter(p => p.is_featured).slice(0, 3);
@@ -36,14 +36,7 @@ export default function Index() {
     { icon: Headphones, title: t.features.support247, description: t.features.support247Desc },
   ];
 
-  const handleAddPackToCart = (pack: typeof allPacks[0], qty: number) => {
-    if (!user || !pack.items) return;
-    for (let i = 0; i < qty; i++) {
-      for (const item of pack.items) {
-        addToCart.mutate({ productId: item.product_id, quantity: item.quantity });
-      }
-    }
-  };
+
 
   return (
     <Layout>
@@ -240,9 +233,9 @@ export default function Index() {
                                   onClick={(e) => {
                                     e.preventDefault();
                                     e.stopPropagation();
-                                    handleAddPackToCart(pack, 1);
+                                    addPackToCart.mutate({ packId: pack.id });
                                   }}
-                                  disabled={addToCart.isPending}
+                                  disabled={addPackToCart.isPending}
                                 >
                                   <ShoppingCart className="h-4 w-4 me-2" /> {t.products.addToCart}
                                 </Button>
