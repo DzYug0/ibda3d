@@ -72,6 +72,7 @@ export const ar: DeepPartial<TranslationKeys> = {
     selectColor: 'اختر اللون',
     selectVersion: 'اختر الإصدار',
     selectOptions: 'اختر الخيارات',
+    relatedProducts: 'قد يعجبك أيضاً',
   },
 
   wishlist: {
