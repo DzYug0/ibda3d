@@ -71,14 +71,20 @@ export function OrderStatusChart({ data }: OrderStatusChartProps) {
     );
 }
 
+
 interface TopProductsChartProps {
-    data: { name: string; quantity: number }[];
+    data: { name: string; value: number }[];
+    type: 'quantity' | 'revenue';
 }
 
-export function TopProductsChart({ data }: TopProductsChartProps) {
+export function TopProductsChart({ data, type }: TopProductsChartProps) {
+    const isRevenue = type === 'revenue';
+    const title = isRevenue ? 'Top 5 Best Selling Products (Revenue)' : 'Top 5 Best Selling Products (Quantity)';
+    const color = isRevenue ? '#8884d8' : '#82ca9d';
+
     return (
         <div className="h-[300px] w-full">
-            <h3 className="text-lg font-semibold mb-4">Top 5 Best Selling Products</h3>
+            <h3 className="text-lg font-semibold mb-4">{title}</h3>
             <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                     data={data}
@@ -88,8 +94,14 @@ export function TopProductsChart({ data }: TopProductsChartProps) {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis type="number" />
                     <YAxis dataKey="name" type="category" width={100} />
-                    <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', color: 'hsl(var(--foreground))' }} />
-                    <Bar dataKey="quantity" fill="#82ca9d" radius={[0, 4, 4, 0]} />
+                    <Tooltip
+                        formatter={(value: number) => [
+                            isRevenue ? `${value.toFixed(0)} DA` : value,
+                            isRevenue ? 'Revenue' : 'Quantity'
+                        ]}
+                        contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', color: 'hsl(var(--foreground))' }}
+                    />
+                    <Bar dataKey="value" fill={color} radius={[0, 4, 4, 0]} />
                 </BarChart>
             </ResponsiveContainer>
         </div>

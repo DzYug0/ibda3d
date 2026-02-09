@@ -108,7 +108,7 @@ export function useFeaturedProducts() {
         .limit(8);
 
       if (error) throw error;
-      const products = data as Product[];
+      const products = data as unknown as Product[];
       const catMap = await fetchProductCategories(products.map(p => p.id));
       return products.map(p => ({
         ...p,
@@ -168,7 +168,7 @@ export function useAdminProducts() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      const products = data as Product[];
+      const products = data as unknown as Product[];
       const catMap = await fetchProductCategories(products.map(p => p.id));
       return products.map(p => ({
         ...p,
@@ -324,6 +324,29 @@ export function useBulkUpdateProductStatus() {
   });
 }
 
+export function useBulkUpdateProductFields() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ ids, data }: { ids: string[]; data: Partial<Product> }) => {
+      const { error } = await supabase
+        .from('products')
+        .update(data)
+        .in('id', ids);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+      toast.success('Products updated successfully');
+    },
+    onError: (error) => {
+      toast.error('Failed to update products: ' + error.message);
+    },
+  });
+}
+
 export function useCreateCategory() {
   const queryClient = useQueryClient();
 
@@ -466,7 +489,7 @@ export function useRelatedProducts(currentProductId: string, categoryIds: string
 
       if (error) throw error;
 
-      const products = data as Product[];
+      const products = data as unknown as Product[];
       const catMap = await fetchProductCategories(products.map(p => p.id));
 
       return products.map(p => ({

@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { Plus, Pencil, Trash2, Package, Minus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
@@ -21,9 +20,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ImageUpload } from '@/components/admin/ImageUpload';
+import { PacksTable } from '@/components/admin/PacksTable';
 import { useAdminPacks, useCreatePack, useUpdatePack, useDeletePack, type Pack } from '@/hooks/usePacks';
 import { useAdminProducts } from '@/hooks/useProducts';
 import { translateToArabic } from '@/services/translationService';
+import { Minus, Trash2 } from 'lucide-react'; // Kept for form items
 
 interface PackItemForm {
   product_id: string;
@@ -139,10 +140,6 @@ export default function AdminPacks() {
       setIsDialogOpen(false);
       resetForm();
     } catch { /* handled */ }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (confirm('Delete this pack?')) await deletePack.mutateAsync(id);
   };
 
   // Calculate total value of items in pack
@@ -327,87 +324,12 @@ export default function AdminPacks() {
         </Dialog>
       </div>
 
-      {/* Packs list */}
-      <div className="bg-card rounded-xl border border-border overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-muted/50">
-              <tr>
-                <th className="text-left p-4 font-semibold text-foreground">Pack</th>
-                <th className="text-left p-4 font-semibold text-foreground">Products</th>
-                <th className="text-left p-4 font-semibold text-foreground">Price</th>
-                <th className="text-left p-4 font-semibold text-foreground">Status</th>
-                <th className="text-right p-4 font-semibold text-foreground">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {isLoading ? (
-                Array.from({ length: 3 }).map((_, i) => (
-                  <tr key={i}><td colSpan={5} className="p-4"><div className="h-12 skeleton rounded" /></td></tr>
-                ))
-              ) : packs.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="p-8 text-center text-muted-foreground">
-                    No packs yet. Click "Add Pack" to create one.
-                  </td>
-                </tr>
-              ) : packs.map(pack => (
-                <tr key={pack.id} className="hover:bg-muted/30">
-                  <td className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted flex-shrink-0">
-                        {pack.image_url ? (
-                          <img src={pack.image_url} alt="" className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center"><Package className="h-5 w-5 text-muted-foreground" /></div>
-                        )}
-                      </div>
-                      <div>
-                        <p className="font-medium text-foreground">{pack.name}</p>
-                        <p className="text-sm text-muted-foreground">{pack.slug}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <div className="flex flex-wrap gap-1">
-                      {pack.items?.map(item => (
-                        <Badge key={item.id} variant="secondary" className="text-xs">
-                          {item.product?.name} ×{item.quantity}
-                        </Badge>
-                      ))}
-                      {(!pack.items || pack.items.length === 0) && <span className="text-muted-foreground">—</span>}
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <span className="font-medium text-foreground">{pack.price.toFixed(0)} DA</span>
-                    {pack.compare_at_price && (
-                      <span className="text-sm text-muted-foreground line-through ml-2">{pack.compare_at_price.toFixed(0)} DA</span>
-                    )}
-                  </td>
-                  <td className="p-4">
-                    <div className="flex gap-2">
-                      {pack.is_active ? (
-                        <span className="px-2 py-1 rounded-full text-xs bg-success/10 text-success">Active</span>
-                      ) : (
-                        <span className="px-2 py-1 rounded-full text-xs bg-muted text-muted-foreground">Inactive</span>
-                      )}
-                      {pack.is_featured && (
-                        <span className="px-2 py-1 rounded-full text-xs bg-primary/10 text-primary">Featured</span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <div className="flex justify-end gap-2">
-                      <Button variant="ghost" size="icon" onClick={() => openEdit(pack)}><Pencil className="h-4 w-4" /></Button>
-                      <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => handleDelete(pack.id)}><Trash2 className="h-4 w-4" /></Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <PacksTable
+        packs={packs}
+        isLoading={isLoading}
+        onEdit={openEdit}
+        onDelete={(id) => deletePack.mutateAsync(id)}
+      />
     </div>
   );
 }

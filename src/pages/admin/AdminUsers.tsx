@@ -56,6 +56,7 @@ interface UserWithRole {
   role: AppRole;
   role_id: string | null;
   is_banned: boolean;
+  ltv?: number;
 }
 
 const roleIcons: Record<AppRole, typeof Crown> = {
@@ -99,6 +100,20 @@ export default function AdminUsers() {
 
       if (rolesError) throw rolesError;
 
+      // Get LTV (Total Spend)
+      const { data: orders, error: ordersError } = await supabase
+        .from('orders')
+        .select('user_id, total_amount');
+
+      if (ordersError) throw ordersError;
+
+      const ltvMap: Record<string, number> = {};
+      orders?.forEach((o) => {
+        if (o.user_id) {
+          ltvMap[o.user_id] = (ltvMap[o.user_id] || 0) + (o.total_amount || 0);
+        }
+      });
+
       // Map profiles to users with roles
       const usersWithRoles: UserWithRole[] = profiles.map((profile: any) => {
         const userRole = roles.find((r) => r.user_id === profile.user_id);
@@ -110,6 +125,7 @@ export default function AdminUsers() {
           role: (userRole?.role as AppRole) || 'user',
           role_id: userRole?.id || null,
           is_banned: profile.is_banned || false,
+          ltv: ltvMap[profile.user_id] || 0,
         };
       });
 
@@ -269,6 +285,35 @@ export default function AdminUsers() {
             <SelectItem value="user">User</SelectItem>
           </SelectContent>
         </Select>
+        <Button variant="outline" onClick={() => {
+          const headers = ['ID', 'Email', 'Name', 'Role', 'Status', 'Joined', 'LTV (DA)'];
+          const rows = filteredUsers.map(u => [
+            u.id,
+            u.email,
+            u.full_name || '',
+            u.role,
+            u.is_banned ? 'Banned' : 'Active',
+            new Date(u.created_at).toLocaleDateString(),
+            u.ltv?.toFixed(2) || '0.00'
+          ]);
+
+          const csvContent = [
+            headers.join(','),
+            ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+          ].join('\n');
+
+          const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+          const link = document.createElement('a');
+          const url = URL.createObjectURL(blob);
+          link.setAttribute('href', url);
+          link.setAttribute('download', `customers_${new Date().toISOString().split('T')[0]}.csv`);
+          link.style.visibility = 'hidden';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }}>
+          Export CSV
+        </Button>
       </div>
 
       {/* Users table */}
@@ -279,6 +324,7 @@ export default function AdminUsers() {
               <TableHead>User</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Role</TableHead>
+              <TableHead>LTV</TableHead>
               <TableHead>Joined</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -329,6 +375,9 @@ export default function AdminUsers() {
                         <RoleIcon className="h-3 w-3 mr-1" />
                         {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                       </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {user.ltv ? `${user.ltv.toFixed(0)} DA` : '0 DA'}
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {new Date(user.created_at).toLocaleDateString()}
