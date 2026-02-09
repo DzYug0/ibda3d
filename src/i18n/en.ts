@@ -57,6 +57,10 @@ export const en = {
     outOfStock: 'Out of Stock',
     inStock: 'In Stock',
     available: 'available',
+    priceRange: 'Price Range',
+    availability: 'Availability',
+    inStockOnly: 'In Stock Only',
+    relatedProducts: 'You might also like',
     quantity: 'Quantity:',
     addToCart: 'Add to Cart',
     adding: 'Adding...',
@@ -258,6 +262,8 @@ export const en = {
     searchNoResults: 'No products found',
     searchViewAll: 'View all results',
     da: 'DA',
+    filters: 'Filters',
+    clearAll: 'Clear all',
   },
 
   // Language

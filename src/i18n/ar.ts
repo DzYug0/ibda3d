@@ -61,6 +61,9 @@ export const ar: DeepPartial<TranslationKeys> = {
     outOfStock: 'نفذ المخزون',
     inStock: 'متوفر',
     available: 'متاح',
+    priceRange: 'نطاق السعر',
+    availability: 'التوفر',
+    inStockOnly: 'متوفر في المخزون فقط',
     quantity: 'الكمية:',
     addToCart: 'أضف إلى السلة',
     adding: 'جاري الإضافة...',
@@ -263,6 +266,8 @@ export const ar: DeepPartial<TranslationKeys> = {
     searchNoResults: 'لم يتم العثور على منتجات',
     searchViewAll: 'عرض كل النتائج',
     da: 'د.ج',
+    filters: 'تصفية',
+    clearAll: 'مسح الكل',
   },
 
   // Language
