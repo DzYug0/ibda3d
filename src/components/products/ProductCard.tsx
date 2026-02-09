@@ -42,9 +42,9 @@ export function ProductCard({ product }: ProductCardProps) {
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
             width={400} // Reasonable size for card
           />
-          <div className="absolute top-3 start-3 flex flex-col gap-2">
-            {hasDiscount && <span className="badge-sale">-{discountPercent}%</span>}
-            {product.is_featured && <span className="badge-new">{t.products.featured}</span>}
+          <div className="absolute top-2 start-2 flex flex-col gap-1.5 sm:gap-2 sm:top-3 sm:start-3">
+            {hasDiscount && <span className="badge-sale text-[10px] px-1.5 py-0.5 sm:text-xs sm:px-2 sm:py-1">-{discountPercent}%</span>}
+            {product.is_featured && <span className="badge-new text-[10px] px-1.5 py-0.5 sm:text-xs sm:px-2 sm:py-1">{t.products.featured}</span>}
           </div>
           <div className="absolute top-3 end-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
             <WishlistButton productId={product.id} className="bg-white/80 hover:bg-white shadow-sm backdrop-blur-sm rounded-full h-8 w-8" size="icon" />
