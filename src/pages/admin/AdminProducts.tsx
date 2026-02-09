@@ -27,6 +27,8 @@ import { ImageUpload } from '@/components/admin/ImageUpload';
 import { MultiImageUpload } from '@/components/admin/MultiImageUpload';
 import { ProductsTable } from '@/components/admin/ProductsTable';
 
+import { translateToArabic } from '@/services/translationService';
+
 export default function AdminProducts() {
   const { data: products = [], isLoading } = useAdminProducts();
   const { data: categories = [] } = useCategories();
@@ -116,12 +118,23 @@ export default function AdminProducts() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    let finalNameAr = formData.name_ar;
+    let finalDescriptionAr = formData.description_ar;
+
+    // Auto-translate if empty
+    if (!finalNameAr && formData.name) {
+      finalNameAr = await translateToArabic(formData.name);
+    }
+    if (!finalDescriptionAr && formData.description) {
+      finalDescriptionAr = await translateToArabic(formData.description);
+    }
+
     const productData = {
       name: formData.name,
-      name_ar: formData.name_ar || null,
+      name_ar: finalNameAr || null,
       slug: formData.slug || formData.name.toLowerCase().replace(/\s+/g, '-'),
       description: formData.description || null,
-      description_ar: formData.description_ar || null,
+      description_ar: finalDescriptionAr || null,
       price: parseFloat(formData.price),
       compare_at_price: formData.compare_at_price ? parseFloat(formData.compare_at_price) : null,
       category_id: formData.category_ids[0] || null,
@@ -198,7 +211,10 @@ export default function AdminProducts() {
                     <Label htmlFor="name_ar">Product Name (AR)</Label>
                     <button
                       type="button"
-                      onClick={() => setFormData({ ...formData, name_ar: formData.name })}
+                      onClick={async () => {
+                        const translated = await translateToArabic(formData.name);
+                        setFormData({ ...formData, name_ar: translated });
+                      }}
                       className="text-xs text-primary hover:underline"
                     >
                       Auto Translate
@@ -240,7 +256,10 @@ export default function AdminProducts() {
                     <Label htmlFor="description_ar">Description (AR)</Label>
                     <button
                       type="button"
-                      onClick={() => setFormData({ ...formData, description_ar: formData.description })}
+                      onClick={async () => {
+                        const translated = await translateToArabic(formData.description);
+                        setFormData({ ...formData, description_ar: translated });
+                      }}
                       className="text-xs text-primary hover:underline"
                     >
                       Auto Translate

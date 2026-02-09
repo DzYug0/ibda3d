@@ -23,6 +23,7 @@ import {
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import { useAdminPacks, useCreatePack, useUpdatePack, useDeletePack, type Pack } from '@/hooks/usePacks';
 import { useAdminProducts } from '@/hooks/useProducts';
+import { translateToArabic } from '@/services/translationService';
 
 interface PackItemForm {
   product_id: string;
@@ -103,12 +104,24 @@ export default function AdminPacks() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    let finalNameAr = formData.name_ar;
+    let finalDescriptionAr = formData.description_ar;
+
+    // Auto-translate if empty
+    if (!finalNameAr && formData.name) {
+      finalNameAr = await translateToArabic(formData.name);
+    }
+    if (!finalDescriptionAr && formData.description) {
+      finalDescriptionAr = await translateToArabic(formData.description);
+    }
+
     const packData = {
       name: formData.name,
-      name_ar: formData.name_ar || null,
+      name_ar: finalNameAr || null,
       slug: formData.slug || formData.name.toLowerCase().replace(/\s+/g, '-'),
       description: formData.description || null,
-      description_ar: formData.description_ar || null,
+      description_ar: finalDescriptionAr || null,
       price: parseFloat(formData.price),
       compare_at_price: formData.compare_at_price ? parseFloat(formData.compare_at_price) : null,
       image_url: formData.image_url || null,
@@ -167,7 +180,10 @@ export default function AdminPacks() {
                     <Label htmlFor="pack-name-ar">Pack Name (AR)</Label>
                     <button
                       type="button"
-                      onClick={() => setFormData({ ...formData, name_ar: formData.name })}
+                      onClick={async () => {
+                        const translated = await translateToArabic(formData.name);
+                        setFormData({ ...formData, name_ar: translated });
+                      }}
                       className="text-xs text-primary hover:underline"
                     >
                       Auto Translate
@@ -199,7 +215,10 @@ export default function AdminPacks() {
                     <Label htmlFor="pack-desc-ar">Description (AR)</Label>
                     <button
                       type="button"
-                      onClick={() => setFormData({ ...formData, description_ar: formData.description })}
+                      onClick={async () => {
+                        const translated = await translateToArabic(formData.description);
+                        setFormData({ ...formData, description_ar: translated });
+                      }}
                       className="text-xs text-primary hover:underline"
                     >
                       Auto Translate
