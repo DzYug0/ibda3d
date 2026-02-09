@@ -121,6 +121,18 @@ export function OrderDetailsDialog({ order, trigger }: OrderDetailsDialogProps) 
                                                 <p className="text-xs text-muted-foreground">
                                                     Qty: {item.quantity} × {item.product_price} DA
                                                 </p>
+                                                {(item.selected_color || item.selected_version) && (
+                                                    <div className="flex gap-2 text-xs text-muted-foreground mt-1">
+                                                        {item.selected_color && (
+                                                            <span className="flex items-center gap-1">
+                                                                Color: <span className="w-3 h-3 rounded-full border" style={{ backgroundColor: item.selected_color }} />
+                                                            </span>
+                                                        )}
+                                                        {item.selected_version && (
+                                                            <span>Version: {item.selected_version}</span>
+                                                        )}
+                                                    </div>
+                                                )}
                                             </div>
                                             <p className="font-medium">
                                                 {(item.quantity * item.product_price).toFixed(0)} DA

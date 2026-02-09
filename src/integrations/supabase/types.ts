@@ -87,6 +87,8 @@ export type Database = {
           pack_id: string | null
           product_id: string | null
           quantity: number
+          selected_color: string | null
+          selected_version: string | null
           updated_at: string
           user_id: string
         }
@@ -96,6 +98,8 @@ export type Database = {
           pack_id?: string | null
           product_id?: string | null
           quantity?: number
+          selected_color?: string | null
+          selected_version?: string | null
           updated_at?: string
           user_id: string
         }
@@ -105,6 +109,8 @@ export type Database = {
           pack_id?: string | null
           product_id?: string | null
           quantity?: number
+          selected_color?: string | null
+          selected_version?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -207,6 +213,8 @@ export type Database = {
           product_name: string
           product_price: number
           quantity: number
+          selected_color: string | null
+          selected_version: string | null
         }
         Insert: {
           created_at?: string
@@ -217,6 +225,8 @@ export type Database = {
           product_name: string
           product_price: number
           quantity?: number
+          selected_color?: string | null
+          selected_version?: string | null
         }
         Update: {
           created_at?: string
@@ -227,6 +237,8 @@ export type Database = {
           product_name?: string
           product_price?: number
           quantity?: number
+          selected_color?: string | null
+          selected_version?: string | null
         }
         Relationships: [
           {

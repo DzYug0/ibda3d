@@ -152,6 +152,12 @@ export default function Orders() {
                       return (
                         <span key={item.id} className="px-3 py-1 bg-muted rounded-full text-sm text-muted-foreground">
                           {itemName} × {item.quantity}
+                          {(item.selected_color || item.selected_version) && (
+                            <span className="ml-2 text-xs opacity-75">
+                              {item.selected_color && `(${item.selected_color}) `}
+                              {item.selected_version && `[${item.selected_version}]`}
+                            </span>
+                          )}
                         </span>
                       );
                     })}

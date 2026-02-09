@@ -28,6 +28,8 @@ export interface OrderItem {
   product_name: string;
   product_price: number;
   quantity: number;
+  selected_color?: string | null;
+  selected_version?: string | null;
   product?: { name_ar: string | null };
   pack?: { name_ar: string | null };
 }

@@ -85,6 +85,12 @@ export const OrderInvoice = React.forwardRef<HTMLDivElement, OrderInvoiceProps>(
                                 <tr key={item.id}>
                                     <td className="py-4">
                                         <p className="font-medium text-gray-900">{item.product_name}</p>
+                                        {(item.selected_color || item.selected_version) && (
+                                            <div className="text-xs text-gray-500 mt-1">
+                                                {item.selected_color && <span>Color: {item.selected_color} </span>}
+                                                {item.selected_version && <span>Version: {item.selected_version}</span>}
+                                            </div>
+                                        )}
                                     </td>
                                     <td className="text-center py-4 text-gray-600">{item.quantity}</td>
                                     <td className="text-right py-4 text-gray-600">
