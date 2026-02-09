@@ -4,12 +4,18 @@ import { useCategories } from '@/hooks/useProducts';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useLanguage } from '@/i18n/LanguageContext';
 
+import { SEO } from '@/components/SEO';
+
 export default function Categories() {
   const { data: categories = [], isLoading } = useCategories();
   const { t } = useLanguage();
 
   return (
     <Layout>
+      <SEO
+        title={t.categories.title}
+        description={t.categories.browseCategories}
+      />
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground">{t.categories.title}</h1>

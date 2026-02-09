@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select"
 import { useProducts, useCategories } from '@/hooks/useProducts';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { SEO } from '@/components/SEO';
 
 export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -103,6 +104,10 @@ export default function Products() {
 
   return (
     <Layout>
+      <SEO
+        title={t.products.allProducts}
+        description="Browse our collection of high-quality 3D printed products. From decor to functional parts, find what you need."
+      />
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
