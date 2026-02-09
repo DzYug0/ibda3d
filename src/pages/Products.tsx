@@ -1,11 +1,18 @@
 import { useSearchParams } from 'react-router-dom';
-import { Filter, X } from 'lucide-react';
-import { useState } from 'react';
+import { Filter, X, ArrowUpDown } from 'lucide-react';
+import { useState, useMemo } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { ProductGrid } from '@/components/products/ProductGrid';
+import { FilterSidebar } from '@/components/products/FilterSidebar';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { useProducts, useCategories } from '@/hooks/useProducts';
 import { useLanguage } from '@/i18n/LanguageContext';
 
@@ -14,41 +21,85 @@ export default function Products() {
   const [showFilters, setShowFilters] = useState(false);
   const { t } = useLanguage();
 
+  // URL Params State
   const categoryParam = searchParams.get('category') || '';
   const searchQuery = searchParams.get('search') || '';
-  const selectedSlugs = categoryParam ? categoryParam.split(',').filter(Boolean) : [];
+  const sortParam = searchParams.get('sort') || 'newest';
+  const minPriceParam = Number(searchParams.get('minPrice')) || 0;
+  const maxPriceParam = Number(searchParams.get('maxPrice')) || 100000;
+  const inStockParam = searchParams.get('inStock') === 'true';
+
+  const selectedSlugs = useMemo(() => categoryParam ? categoryParam.split(',').filter(Boolean) : [], [categoryParam]);
 
   const { data: allProducts = [], isLoading } = useProducts();
   const { data: categories = [] } = useCategories();
 
-  let products = allProducts;
+  // Filter & Sort Logic
+  const filteredProducts = useMemo(() => {
+    let result = [...allProducts];
 
-  // Filter by search query
-  if (searchQuery) {
-    const lower = searchQuery.toLowerCase();
-    products = products.filter(p => p.name.toLowerCase().includes(lower) || p.description?.toLowerCase().includes(lower));
-  }
+    // Search
+    if (searchQuery) {
+      const lower = searchQuery.toLowerCase();
+      result = result.filter(p => p.name.toLowerCase().includes(lower) || p.description?.toLowerCase().includes(lower));
+    }
 
-  // Filter by category
-  if (selectedSlugs.length > 0) {
-    products = products.filter(p =>
-      p.categories?.some(c => selectedSlugs.includes(c.slug)) ||
-      (p.category && selectedSlugs.includes(p.category.slug))
-    );
-  }
+    // Category
+    if (selectedSlugs.length > 0) {
+      result = result.filter(p =>
+        p.categories?.some(c => selectedSlugs.includes(c.slug)) ||
+        (p.category && selectedSlugs.includes(p.category.slug))
+      );
+    }
+
+    // Price
+    result = result.filter(p => p.price >= minPriceParam && p.price <= maxPriceParam);
+
+    // Stock
+    if (inStockParam) {
+      result = result.filter(p => p.stock_quantity > 0);
+    }
+
+    // Sort
+    result.sort((a, b) => {
+      switch (sortParam) {
+        case 'price-asc': return a.price - b.price;
+        case 'price-desc': return b.price - a.price;
+        default: return new Date(b.created_at).getTime() - new Date(a.created_at).getTime(); // newest
+      }
+    });
+
+    return result;
+  }, [allProducts, searchQuery, selectedSlugs, minPriceParam, maxPriceParam, inStockParam, sortParam]);
+
+
+  // Handlers
+  const updateParams = (newParams: Record<string, string | null>) => {
+    const prev = Object.fromEntries(searchParams.entries());
+    const next = { ...prev, ...newParams };
+
+    // Cleanup nulls/defaults
+    Object.keys(next).forEach(key => {
+      if (next[key] === null) delete next[key];
+    });
+
+    setSearchParams(next as any);
+  };
 
   const toggleCategory = (slug: string) => {
     const newSlugs = selectedSlugs.includes(slug)
       ? selectedSlugs.filter(s => s !== slug)
       : [...selectedSlugs, slug];
-    if (newSlugs.length > 0) {
-      setSearchParams({ category: newSlugs.join(',') });
-    } else {
-      setSearchParams({});
-    }
+    updateParams({ category: newSlugs.length > 0 ? newSlugs.join(',') : null });
   };
 
   const clearFilters = () => setSearchParams({});
+
+  const handlePriceChange = (range: [number, number]) => {
+    updateParams({ minPrice: range[0].toString(), maxPrice: range[1].toString() });
+  };
+
+  const activeFilterCount = selectedSlugs.length + (inStockParam ? 1 : 0) + (minPriceParam > 0 || maxPriceParam < 100000 ? 1 : 0);
 
   return (
     <Layout>
@@ -59,64 +110,83 @@ export default function Products() {
               {selectedSlugs.length > 0 ? t.products.filteredProducts : t.products.allProducts}
             </h1>
             <p className="text-muted-foreground mt-1">
-              {t.products.productsFound.replace('{count}', String(products.length))}
+              {t.products.productsFound.replace('{count}', String(filteredProducts.length))}
             </p>
           </div>
           <Button variant="outline" className="md:hidden" onClick={() => setShowFilters(!showFilters)}>
             <Filter className="h-4 w-4 me-2" />
             {t.products.filters}
-            {selectedSlugs.length > 0 && (
+            {activeFilterCount > 0 && (
               <Badge variant="secondary" className="ms-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
-                {selectedSlugs.length}
+                {activeFilterCount}
               </Badge>
             )}
           </Button>
         </div>
 
-        {selectedSlugs.length > 0 && (
-          <div className="flex items-center gap-2 flex-wrap mb-6">
-            <span className="text-sm text-muted-foreground">{t.products.activeFilters}</span>
-            {selectedSlugs.map(slug => {
-              const cat = categories.find(c => c.slug === slug);
-              return (
-                <Badge key={slug} variant="default" className="gap-1 cursor-pointer" onClick={() => toggleCategory(slug)}>
-                  {cat?.name || slug}
+        <div className="flex flex-col sm:flex-row gap-4 items-center justify-between mb-6">
+          {activeFilterCount > 0 ? (
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-sm text-muted-foreground">{t.products.activeFilters}</span>
+              {selectedSlugs.map(slug => {
+                const cat = categories.find(c => c.slug === slug);
+                return (
+                  <Badge key={slug} variant="default" className="gap-1 cursor-pointer" onClick={() => toggleCategory(slug)}>
+                    {cat?.name || slug}
+                    <X className="h-3 w-3" />
+                  </Badge>
+                );
+              })}
+              {inStockParam && (
+                <Badge variant="default" className="gap-1 cursor-pointer" onClick={() => updateParams({ inStock: null })}>
+                  In Stock
                   <X className="h-3 w-3" />
                 </Badge>
-              );
-            })}
-            <Button variant="ghost" size="sm" onClick={clearFilters} className="text-xs">
-              {t.products.clearAll}
-            </Button>
+              )}
+              {(minPriceParam > 0 || maxPriceParam < 100000) && (
+                <Badge variant="default" className="gap-1 cursor-pointer" onClick={() => updateParams({ minPrice: null, maxPrice: null })}>
+                  Price: {minPriceParam} - {maxPriceParam}
+                  <X className="h-3 w-3" />
+                </Badge>
+              )}
+              <Button variant="ghost" size="sm" onClick={clearFilters} className="text-xs">
+                {t.products.clearAll}
+              </Button>
+            </div>
+          ) : <div />}
+
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground hidden sm:inline">Sort by:</span>
+            <Select value={sortParam} onValueChange={(val) => updateParams({ sort: val })}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Sort order" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">Newest Arrivals</SelectItem>
+                <SelectItem value="price-asc">Price: Low to High</SelectItem>
+                <SelectItem value="price-desc">Price: High to Low</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-        )}
+        </div>
 
         <div className="flex gap-8">
           <aside className={`${showFilters ? 'block' : 'hidden'} md:block w-full md:w-64 flex-shrink-0`}>
             <div className="bg-card rounded-xl p-6 border border-border sticky top-24">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-foreground">{t.categories.title}</h3>
-                {selectedSlugs.length > 0 && (
-                  <Button variant="ghost" size="sm" onClick={clearFilters} className="text-xs h-auto p-1">
-                    {t.products.clear}
-                  </Button>
-                )}
-              </div>
-              <div className="space-y-2">
-                {categories.map((category) => (
-                  <label key={category.id} className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-colors hover:bg-muted">
-                    <Checkbox checked={selectedSlugs.includes(category.slug)} onCheckedChange={() => toggleCategory(category.slug)} />
-                    <span className={`text-sm ${selectedSlugs.includes(category.slug) ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
-                      {category.name}
-                    </span>
-                  </label>
-                ))}
-              </div>
+              <FilterSidebar
+                selectedCategories={selectedSlugs}
+                onCategoryChange={toggleCategory}
+                priceRange={[minPriceParam, maxPriceParam]}
+                onPriceChange={handlePriceChange}
+                inStock={inStockParam}
+                onInStockChange={(val) => updateParams({ inStock: val ? 'true' : null })}
+                onClear={clearFilters}
+              />
             </div>
           </aside>
 
           <div className="flex-1">
-            <ProductGrid products={products} isLoading={isLoading} />
+            <ProductGrid products={filteredProducts} isLoading={isLoading} />
           </div>
         </div>
       </div>

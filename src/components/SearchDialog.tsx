@@ -10,8 +10,9 @@ interface SearchResult {
   id: string;
   name: string;
   slug: string;
-  price: number;
   image_url: string | null;
+  type: 'product' | 'category';
+  price?: number;
 }
 
 interface SearchDialogProps {
@@ -32,13 +33,27 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
       return;
     }
     setLoading(true);
-    const { data } = await supabase
+
+    // Search Products
+    const { data: products } = await supabase
       .from('products')
       .select('id, name, slug, price, image_url')
       .eq('is_active', true)
       .ilike('name', `%${term}%`)
       .limit(6);
-    setResults(data || []);
+
+    // Search Categories
+    const { data: categories } = await supabase
+      .from('categories')
+      .select('id, name, slug, image_url')
+      .ilike('name', `%${term}%`)
+      .limit(3);
+
+    const mixedResults: SearchResult[] = [
+      ...(categories?.map(c => ({ ...c, type: 'category' as const })) || []),
+      ...(products?.map(p => ({ ...p, type: 'product' as const })) || [])
+    ];
+    setResults(mixedResults);
     setLoading(false);
   }, []);
 
@@ -54,9 +69,13 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
     }
   }, [open]);
 
-  const goToProduct = (slug: string) => {
+  const goToResult = (result: SearchResult) => {
     onOpenChange(false);
-    navigate(`/products/${slug}`);
+    if (result.type === 'category') {
+      navigate(`/products?category=${result.slug}`);
+    } else {
+      navigate(`/products/${result.slug}`);
+    }
   };
 
   const goToAll = () => {
@@ -91,15 +110,15 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
               <div className="p-6 text-center text-muted-foreground text-sm">{t.common.searchNoResults}</div>
             ) : (
               <>
-                {results.map((product) => (
+                {results.map((result) => (
                   <button
-                    key={product.id}
-                    onClick={() => goToProduct(product.slug)}
+                    key={`${result.type}-${result.id}`}
+                    onClick={() => goToResult(result)}
                     className="w-full flex items-center gap-4 px-4 py-3 hover:bg-muted transition-colors text-start"
                   >
                     <div className="w-12 h-12 rounded-lg bg-muted overflow-hidden shrink-0">
-                      {product.image_url ? (
-                        <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
+                      {result.image_url ? (
+                        <img src={result.image_url} alt={result.name} className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-muted-foreground">
                           <Search className="h-4 w-4" />
@@ -107,8 +126,12 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{product.name}</p>
-                      <p className="text-sm text-primary font-semibold">{product.price} {t.common.da}</p>
+                      <p className="text-sm font-medium text-foreground truncate">{result.name}</p>
+                      {result.type === 'product' ? (
+                        <p className="text-sm text-primary font-semibold">{result.price} {t.common.da}</p>
+                      ) : (
+                        <p className="text-xs text-muted-foreground uppercase tracking-wider">{t.categories.title}</p>
+                      )}
                     </div>
                   </button>
                 ))}
