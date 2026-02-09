@@ -32,13 +32,14 @@ export interface OrderItem {
   pack?: { name_ar: string | null };
 }
 
-export function useUserOrders() {
+export function useUserOrders(userId?: string) {
   const { user } = useAuth();
+  const targetId = userId || user?.id;
 
   return useQuery({
-    queryKey: ['orders', user?.id],
+    queryKey: ['orders', targetId],
     queryFn: async () => {
-      if (!user) return [];
+      if (!targetId) return [];
 
       const { data, error } = await supabase
         .from('orders')
@@ -50,13 +51,13 @@ export function useUserOrders() {
             pack:packs(name_ar)
           )
         `)
-        .eq('user_id', user.id)
+        .eq('user_id', targetId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
       return data as unknown as Order[];
     },
-    enabled: !!user,
+    enabled: !!targetId,
   });
 }
 

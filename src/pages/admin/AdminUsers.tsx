@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Search, Shield, User, Crown, Ban, Trash2, ShieldOff } from 'lucide-react';
+import { Search, Shield, User, Crown, Ban, Trash2, ShieldOff, Eye } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -44,6 +44,7 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { supabase as supabaseClient } from '@/integrations/supabase/client';
+import { CustomerDetailsDialog } from '@/components/admin/CustomerDetailsDialog';
 
 type AppRole = 'owner' | 'admin' | 'user';
 
@@ -75,6 +76,7 @@ export default function AdminUsers() {
   const [banDialogOpen, setBanDialogOpen] = useState(false);
   const [banTarget, setBanTarget] = useState<UserWithRole | null>(null);
   const [banReason, setBanReason] = useState('');
+  const [detailsUser, setDetailsUser] = useState<UserWithRole | null>(null);
   const { user: currentUser } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -134,9 +136,9 @@ export default function AdminUsers() {
 
   // Update user role mutation
   const updateRoleMutation = useMutation({
-    mutationFn: async ({ userId, newRole, oldRole, targetEmail }: { 
-      userId: string; 
-      newRole: AppRole; 
+    mutationFn: async ({ userId, newRole, oldRole, targetEmail }: {
+      userId: string;
+      newRole: AppRole;
       oldRole: AppRole;
       targetEmail: string;
     }) => {
@@ -333,6 +335,14 @@ export default function AdminUsers() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setDetailsUser(user)}
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          Details
+                        </Button>
                         {!isCurrentUser && canEdit && (
                           <Select
                             value={user.role}
@@ -479,6 +489,13 @@ export default function AdminUsers() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Customer Details Dialog */}
+      <CustomerDetailsDialog
+        open={!!detailsUser}
+        onOpenChange={(open) => !open && setDetailsUser(null)}
+        user={detailsUser}
+      />
     </div>
   );
 }

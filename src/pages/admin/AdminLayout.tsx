@@ -18,7 +18,7 @@ const baseNavItems = [
   { icon: ShoppingBag, label: 'Orders', path: '/admin/orders' },
   { icon: Truck, label: 'Shipping', path: '/admin/shipping' },
   { icon: Boxes, label: 'Packs', path: '/admin/packs' },
-  { icon: Users, label: 'Users', path: '/admin/users' },
+  { icon: Users, label: 'Customers', path: '/admin/users' },
 ];
 
 const ownerOnlyItems = [
