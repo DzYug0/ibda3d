@@ -42,7 +42,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
   }
 
   return (
-    <div className="space-y-4" onKeyDown={handleKeyDown} tabIndex={0}>
+    <div className="space-y-4 w-full max-w-full" onKeyDown={handleKeyDown} tabIndex={0}>
       {/* Main Image */}
       <div className="relative group aspect-square rounded-2xl overflow-hidden bg-muted">
         <img

@@ -61,7 +61,7 @@ export default function Index() {
           </div>
         </div>
 
-        <div className="container mx-auto px-4 py-12 sm:py-20 md:py-32 relative z-10">
+        <div className="container mx-auto px-4 py-8 sm:py-20 md:py-32 relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="animate-slide-up text-center lg:text-start">
               <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-6">
@@ -106,10 +106,10 @@ export default function Index() {
               </div>
             </div>
 
-            <div className="relative hidden lg:flex justify-center items-center">
-              <div className="relative">
+            <div className="relative mt-12 lg:mt-0 flex justify-center items-center">
+              <div className="relative w-72 h-72 sm:w-80 sm:h-80 lg:w-[450px] lg:h-[450px]">
                 <div className="absolute inset-0 bg-accent/20 rounded-full blur-3xl scale-150" />
-                <img src={logo} alt="Ibda3D" className="relative w-80 h-80 object-contain drop-shadow-2xl animate-fade-in" />
+                <img src={logo} alt="Ibda3D" className="relative w-full h-full object-contain drop-shadow-2xl animate-fade-in" />
               </div>
               <div className="absolute top-10 right-10 bg-white/10 backdrop-blur-md rounded-2xl p-4 shadow-xl animate-bounce-in" style={{ animationDelay: '0.2s' }}>
                 <Box className="h-8 w-8 text-accent" />
@@ -260,8 +260,8 @@ export default function Index() {
                   );
                 })}
               </CarouselContent>
-              <CarouselPrevious />
-              <CarouselNext />
+              <CarouselPrevious className="hidden md:flex" />
+              <CarouselNext className="hidden md:flex" />
             </Carousel>
           </div>
         </section>
@@ -306,7 +306,7 @@ export default function Index() {
             >
               <CarouselContent className="-ml-4">
                 {categories.map((category) => (
-                  <CarouselItem key={category.id} className="pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4">
+                  <CarouselItem key={category.id} className="pl-4 basis-full xs:basis-1/2 sm:basis-1/2 md:basis-1/3 lg:basis-1/4">
                     <Link to={`/products?category=${category.slug}`} className="block group relative aspect-[4/3] rounded-2xl overflow-hidden bg-muted">
                       {category.image_url ? (
                         <OptimizedImage
@@ -326,8 +326,8 @@ export default function Index() {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious />
-              <CarouselNext />
+              <CarouselPrevious className="hidden md:flex" />
+              <CarouselNext className="hidden md:flex" />
             </Carousel>
           </div>
         </section>

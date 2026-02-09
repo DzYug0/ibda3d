@@ -287,16 +287,20 @@ export default function ProductDetail() {
               </div>
             )}
 
-            <div className="flex gap-3">
-              <Button size="xl" className="flex-1" onClick={handleAddToCart} disabled={product.stock_quantity === 0 || addToCart.isPending || isSelectionMissing}>
+            <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-3 w-full">
+              <Button size="xl" className="w-full" onClick={handleAddToCart} disabled={product.stock_quantity === 0 || addToCart.isPending || isSelectionMissing}>
                 <ShoppingCart className="h-5 w-5 me-2" />
                 {addToCart.isPending ? t.products.adding : (isSelectionMissing ? t.products.selectOptions || 'Select Options' : t.products.addToCart)}
               </Button>
-              <Button size="xl" className="flex-1" variant="outline" onClick={handleBuyNow} disabled={product.stock_quantity === 0 || isSelectionMissing}>
+              <Button size="xl" className="w-full" variant="outline" onClick={handleBuyNow} disabled={product.stock_quantity === 0 || isSelectionMissing}>
                 <Zap className="h-5 w-5 me-2" />
                 {t.products.buyNow}
               </Button>
-              <WishlistButton productId={product.id} size="lg" className="h-14 w-14 rounded-xl border-2" variant="outline" />
+              <WishlistButton productId={product.id} size="lg" className="h-14 w-14 rounded-xl border-2 shrink-0 hidden sm:flex" variant="outline" />
+              <div className="flex sm:hidden justify-center mt-2">
+                <WishlistButton productId={product.id} size="lg" className="h-12 w-12 rounded-full border shadow-sm" variant="outline" />
+                <span className="ms-2 self-center text-muted-foreground text-sm">{t.wishlist?.addToWishlist || "Add to Wishlist"}</span>
+              </div>
             </div>
           </div>
         </div>
