@@ -7,6 +7,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useAdminOrders, useUpdateOrderStatus } from '@/hooks/useOrders';
+import { OrderDetailsDialog } from '@/components/admin/OrderDetailsDialog';
+import { Button } from '@/components/ui/button';
+import { Eye } from 'lucide-react';
 
 const statuses = [
   { value: 'pending', label: 'Pending' },
@@ -70,6 +73,7 @@ export default function AdminOrders() {
                 <th className="text-left p-4 font-semibold text-foreground">Total</th>
                 <th className="text-left p-4 font-semibold text-foreground">Shipping</th>
                 <th className="text-left p-4 font-semibold text-foreground">Status</th>
+                <th className="text-left p-4 font-semibold text-foreground">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -164,6 +168,16 @@ export default function AdminOrders() {
                             ))}
                           </SelectContent>
                         </Select>
+                      </td>
+                      <td className="p-4">
+                        <OrderDetailsDialog
+                          order={order}
+                          trigger={
+                            <Button variant="ghost" size="icon">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          }
+                        />
                       </td>
                     </tr>
                   );
