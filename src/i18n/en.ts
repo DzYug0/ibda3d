@@ -164,6 +164,7 @@ export const en = {
     continueShopping: 'Continue Shopping',
     cartEmpty: 'Your cart is empty',
     viewProducts: 'View Products',
+    enterPromoCode: 'Enter Promo Code',
   },
 
   // Orders
@@ -269,6 +270,8 @@ export const en = {
     da: 'DA',
     filters: 'Filters',
     clearAll: 'Clear all',
+    apply: 'Apply',
+    discount: 'Discount',
   },
 
   // Language

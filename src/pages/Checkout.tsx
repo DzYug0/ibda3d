@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { MapPin, CheckCircle, Truck, Building2, Home } from 'lucide-react';
+import { MapPin, CheckCircle, Truck, Building2, Home, Loader2, X } from 'lucide-react';
 import { z } from 'zod';
 import { Layout } from '@/components/layout/Layout';
 import { useLanguage } from '@/i18n/LanguageContext';
@@ -40,6 +40,12 @@ interface UserAddress {
   state: string;
   zip_code: string;
   is_default: boolean;
+}
+
+interface Coupon {
+  code: string;
+  discount_type: 'fixed' | 'percentage';
+  discount_value: number;
 }
 
 const shippingSchema = z.object({
@@ -82,6 +88,12 @@ export default function Checkout() {
     phone: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Coupon State
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
+  const [couponError, setCouponError] = useState('');
 
   // Handle Buy Now URL params (for guests)
   const buyNowProductId = searchParams.get('buyNow');
@@ -213,7 +225,17 @@ export default function Checkout() {
   const shippingCost = currentRate
     ? (shippingInfo.deliveryType === 'desk' ? currentRate.desk_price : currentRate.home_price)
     : 0;
-  const totalWithShipping = itemsTotal + shippingCost;
+
+  // Calculate Discount
+  const discountAmount = useMemo(() => {
+    if (!appliedCoupon) return 0;
+    if (appliedCoupon.discount_type === 'percentage') {
+      return itemsTotal * (appliedCoupon.discount_value / 100);
+    }
+    return appliedCoupon.discount_value;
+  }, [appliedCoupon, itemsTotal]);
+
+  const totalWithShipping = Math.max(0, itemsTotal - discountAmount) + shippingCost;
 
   const selectedWilaya = ALGERIA_WILAYAS.find(w => w.code === shippingInfo.wilaya);
   const selectedCompany = companies.find(c => c.id === shippingInfo.companyId);
@@ -227,6 +249,39 @@ export default function Checkout() {
     );
     return companies.filter(c => companyIdsWithRates.has(c.id));
   }, [companies, allRates, shippingInfo.wilaya]);
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode) return;
+    setIsValidatingCoupon(true);
+    setCouponError('');
+    try {
+      // Direct RPC call to validate coupon logic
+      const { data, error } = await supabase.rpc('validate_coupon', {
+        coupon_code: couponCode,
+        cart_total: itemsTotal
+      });
+
+      if (error) throw error;
+
+      const result = data as any;
+      if (result.valid) {
+        setAppliedCoupon({
+          code: couponCode,
+          discount_type: result.discount_type,
+          discount_value: result.discount_value,
+        });
+      } else {
+        setCouponError(result.reason || 'Invalid coupon');
+        setAppliedCoupon(null);
+      }
+    } catch (err) {
+      console.error(err);
+      setCouponError('Failed to validate coupon');
+      setAppliedCoupon(null);
+    } finally {
+      setIsValidatingCoupon(false);
+    }
+  };
 
   if (buyNowLoading) {
     return (
@@ -315,6 +370,7 @@ export default function Checkout() {
           zip: shippingInfo.wilaya,
         },
         notes: `${deliveryNote} | Company: ${selectedCompany?.name} | Name: ${shippingInfo.fullName} | Phone: ${shippingInfo.phone} | Shipping: ${shippingCost} DA`,
+        couponCode: appliedCoupon ? appliedCoupon.code : null,
       });
 
       // Clear cart only for logged-in users
@@ -601,11 +657,52 @@ export default function Checkout() {
                   ))}
                 </div>
 
+                <div className="mb-4">
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder={t.checkout?.enterPromoCode || "Enter Promo Code"}
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value)}
+                      disabled={isValidatingCoupon || appliedCoupon !== null}
+                    />
+                    {appliedCoupon ? (
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        onClick={() => {
+                          setAppliedCoupon(null);
+                          setCouponCode("");
+                        }}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    ) : (
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={handleApplyCoupon}
+                        disabled={!couponCode || isValidatingCoupon}
+                      >
+                        {isValidatingCoupon ? <Loader2 className="h-4 w-4 animate-spin" /> : (t.common?.apply || "Apply")}
+                      </Button>
+                    )}
+                  </div>
+                  {couponError && <p className="text-xs text-destructive mt-1">{couponError}</p>}
+                  {appliedCoupon && <p className="text-xs text-success mt-1">Coupon applied!</p>}
+                </div>
+
                 <div className="border-t border-border pt-4 space-y-2">
                   <div className="flex justify-between text-muted-foreground">
                     <span>{t.cart.subtotal}</span>
                     <span>{itemsTotal.toFixed(0)} {t.common.da}</span>
                   </div>
+                  {appliedCoupon && (
+                    <div className="flex justify-between text-success">
+                      <span>{t.common?.discount || "Discount"} ({appliedCoupon.code})</span>
+                      <span>-{discountAmount.toFixed(0)} {t.common.da}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-muted-foreground">
                     <span>
                       {t.checkout.shippingCost}

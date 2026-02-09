@@ -7,10 +7,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useAdminOrders, useUpdateOrderStatus, useBulkUpdateOrderStatus } from '@/hooks/useOrders';
+import { useAdminOrders, useUpdateOrderStatus, useBulkUpdateOrderStatus, useDeleteOrder } from '@/hooks/useOrders';
 import { OrderDetailsDialog } from '@/components/admin/OrderDetailsDialog';
 import { Button } from '@/components/ui/button';
-import { Eye, Search, Filter, X, Printer, Download, Check, Calendar } from 'lucide-react';
+import { Eye, Search, Filter, X, Printer, Download, Check, Calendar, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
@@ -64,6 +64,7 @@ export default function AdminOrders() {
   const { data: orders = [], isLoading } = useAdminOrders();
   const updateStatus = useUpdateOrderStatus();
   const bulkUpdateStatus = useBulkUpdateOrderStatus();
+  const deleteOrder = useDeleteOrder();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -373,6 +374,18 @@ export default function AdminOrders() {
                             </Button>
                           }
                         />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive hover:text-destructive"
+                          onClick={() => {
+                            if (confirm('Are you sure you want to delete this order? This action cannot be undone.')) {
+                              deleteOrder.mutate(order.id);
+                            }
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </td>
                     </tr>
                   );
