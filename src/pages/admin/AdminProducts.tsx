@@ -21,6 +21,7 @@ import {
   useDeleteProduct,
   useBulkDeleteProducts,
   useBulkUpdateProductStatus,
+  useBulkUpdateProductFields,
   type Product,
 } from '@/hooks/useProducts';
 import { ImageUpload } from '@/components/admin/ImageUpload';
@@ -37,6 +38,7 @@ export default function AdminProducts() {
   const deleteProduct = useDeleteProduct();
   const bulkDelete = useBulkDeleteProducts();
   const bulkUpdateStatus = useBulkUpdateProductStatus();
+  const bulkUpdateFields = useBulkUpdateProductFields();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -167,12 +169,38 @@ export default function AdminProducts() {
     }
   };
 
+  const handleDuplicate = (product: Product) => {
+    setEditingProduct(null); // Treat as new product
+    setFormData({
+      name: `${product.name} (Copy)`,
+      name_ar: product.name_ar ? `${product.name_ar} (نسخة)` : '',
+      slug: '', // Reset slug to auto-generate
+      description: product.description || '',
+      description_ar: product.description_ar || '',
+      price: product.price.toString(),
+      compare_at_price: product.compare_at_price?.toString() || '',
+      category_ids: product.categories?.map(c => c.id) || (product.category_id ? [product.category_id] : []),
+      image_url: product.image_url || '',
+      images: product.images || [],
+      stock_quantity: product.stock_quantity.toString(),
+      is_featured: product.is_featured,
+      is_active: false, // Default to inactive for copies
+      colors: product.colors?.join(', ') || '',
+      versions: product.versions?.join(', ') || '',
+    });
+    setIsDialogOpen(true);
+  };
+
   const handleBulkDelete = async (ids: string[]) => {
     await bulkDelete.mutateAsync(ids);
   };
 
   const handleBulkUpdateStatus = async (ids: string[], isActive: boolean) => {
     await bulkUpdateStatus.mutateAsync({ ids, isActive });
+  };
+
+  const handleBulkEdit = async (ids: string[], data: { price?: number; stock_quantity?: number }) => {
+    await bulkUpdateFields.mutateAsync({ ids, data });
   };
 
   return (
@@ -410,9 +438,11 @@ export default function AdminProducts() {
         categories={categories}
         isLoading={isLoading}
         onEdit={openEditDialog}
+        onDuplicate={handleDuplicate}
         onDelete={handleDelete}
         onBulkDelete={handleBulkDelete}
         onBulkUpdateStatus={handleBulkUpdateStatus}
+        onBulkEdit={handleBulkEdit}
       />
     </div>
   );

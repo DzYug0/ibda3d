@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search, Pencil, Trash2, X, Filter } from 'lucide-react';
+import { Search, Pencil, Trash2, X, Filter, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import { BulkEditProductDialog } from '@/components/admin/BulkEditProductDialog';
 import type { Product } from '@/hooks/useProducts';
 
 interface Category {
@@ -32,9 +33,11 @@ interface ProductsTableProps {
   categories: Category[];
   isLoading: boolean;
   onEdit: (product: Product) => void;
+  onDuplicate: (product: Product) => void;
   onDelete: (id: string) => void;
   onBulkDelete: (ids: string[]) => Promise<void>;
   onBulkUpdateStatus: (ids: string[], isActive: boolean) => Promise<void>;
+  onBulkEdit: (ids: string[], data: { price?: number; stock_quantity?: number }) => Promise<void>;
 }
 
 type StockFilter = 'all' | 'in-stock' | 'out-of-stock' | 'low-stock';
@@ -45,9 +48,11 @@ export function ProductsTable({
   categories,
   isLoading,
   onEdit,
+  onDuplicate,
   onDelete,
   onBulkDelete,
   onBulkUpdateStatus,
+  onBulkEdit,
 }: ProductsTableProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
@@ -55,6 +60,7 @@ export function ProductsTable({
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isBulkActionPending, setIsBulkActionPending] = useState(false);
+  const [isBulkEditDialogOpen, setIsBulkEditDialogOpen] = useState(false);
 
   // Filter products
   const filteredProducts = useMemo(() => {
@@ -123,7 +129,7 @@ export function ProductsTable({
   // Bulk actions
   const handleBulkDelete = async () => {
     if (selectedIds.size === 0) return;
-    
+
     if (!confirm(`Are you sure you want to delete ${selectedIds.size} product(s)?`)) return;
 
     setIsBulkActionPending(true);
@@ -136,6 +142,10 @@ export function ProductsTable({
     } finally {
       setIsBulkActionPending(false);
     }
+  };
+
+  const handleBulkEdit = () => {
+    setIsBulkEditDialogOpen(true);
   };
 
   const handleBulkActivate = async () => {
@@ -181,7 +191,7 @@ export function ProductsTable({
             className="pl-9"
           />
         </div>
-        
+
         <div className="flex gap-2 flex-wrap">
           <Select value={categoryFilter} onValueChange={setCategoryFilter}>
             <SelectTrigger className="w-[140px]">
@@ -402,8 +412,8 @@ export function ProductsTable({
                           product.stock_quantity === 0
                             ? 'text-destructive'
                             : product.stock_quantity <= 10
-                            ? 'text-warning'
-                            : 'text-foreground'
+                              ? 'text-warning'
+                              : 'text-foreground'
                         }
                       >
                         {product.stock_quantity}
@@ -429,7 +439,10 @@ export function ProductsTable({
                     </td>
                     <td className="p-4">
                       <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="icon" onClick={() => onEdit(product)}>
+                        <Button variant="ghost" size="icon" onClick={() => onDuplicate(product)} title="Duplicate">
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => onEdit(product)} title="Edit">
                           <Pencil className="h-4 w-4" />
                         </Button>
                         <Button
@@ -437,6 +450,7 @@ export function ProductsTable({
                           size="icon"
                           className="text-destructive hover:text-destructive"
                           onClick={() => onDelete(product.id)}
+                          title="Delete"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -449,6 +463,15 @@ export function ProductsTable({
           </table>
         </div>
       </div>
+      <BulkEditProductDialog
+        open={isBulkEditDialogOpen}
+        onOpenChange={setIsBulkEditDialogOpen}
+        selectedCount={selectedIds.size}
+        onSave={async (data) => {
+          await onBulkEdit(Array.from(selectedIds), data);
+          setSelectedIds(new Set());
+        }}
+      />
     </div>
   );
 }

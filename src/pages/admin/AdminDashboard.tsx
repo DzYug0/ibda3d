@@ -1,17 +1,50 @@
-import { Package, FolderOpen, ShoppingBag, DollarSign } from 'lucide-react';
+import { useState } from 'react';
+import { Package, FolderOpen, ShoppingBag, DollarSign, Calendar } from 'lucide-react';
 import { useAdminProducts } from '@/hooks/useProducts';
 import { useAdminOrders } from '@/hooks/useOrders';
 import { useCategories } from '@/hooks/useProducts';
 import { RevenueChart, OrderStatusChart, TopProductsChart } from '@/components/admin/AnalyticsCharts';
-import { format, subDays, isSameDay } from 'date-fns';
+import { LowStockAlerts } from '@/components/admin/LowStockAlerts';
+import { format, subDays, isSameDay, isAfter, startOfDay } from 'date-fns';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+
+type DateRange = 'today' | '7d' | '30d' | '90d' | 'all';
+type TopProductsType = 'quantity' | 'revenue';
 
 export default function AdminDashboard() {
   const { data: products = [] } = useAdminProducts();
   const { data: orders = [] } = useAdminOrders();
   const { data: categories = [] } = useCategories();
 
-  const totalRevenue = orders.reduce((sum, order) => sum + order.total_amount, 0);
-  const pendingOrders = orders.filter((o) => o.status === 'pending').length;
+  const [dateRange, setDateRange] = useState<DateRange>('30d');
+  const [topProductsType, setTopProductsType] = useState<TopProductsType>('quantity');
+
+  // Filter orders based on date range
+  const filteredOrders = orders.filter(order => {
+    if (dateRange === 'all') return true;
+
+    const orderDate = new Date(order.created_at);
+    const today = startOfDay(new Date());
+
+    if (dateRange === 'today') {
+      return isSameDay(orderDate, today);
+    }
+
+    const daysToSubtract = dateRange === '7d' ? 7 : dateRange === '30d' ? 30 : 90;
+    const cutoffDate = subDays(today, daysToSubtract);
+
+    return isAfter(orderDate, cutoffDate);
+  });
+
+  const totalRevenue = filteredOrders.reduce((sum, order) => sum + order.total_amount, 0);
+  const pendingOrders = orders.filter((o) => o.status === 'pending').length; // Keep total pending regardless of date range
 
   const stats = [
     {
@@ -28,28 +61,46 @@ export default function AdminDashboard() {
     },
     {
       icon: ShoppingBag,
-      label: 'Total Orders',
-      value: orders.length,
-      subtext: `${pendingOrders} pending`,
+      label: `${dateRange === 'all' ? 'Total' : 'Period'} Orders`,
+      value: filteredOrders.length,
+      subtext: `${pendingOrders} pending total`,
       color: 'text-warning bg-warning/10',
     },
     {
       icon: DollarSign,
-      label: 'Total Revenue',
+      label: `${dateRange === 'all' ? 'Total' : 'Period'} Revenue`,
       value: `${totalRevenue.toFixed(0)} DA`,
       color: 'text-success bg-success/10',
     },
   ];
 
   return (
-    <div className="p-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground">Welcome to your admin dashboard</p>
+    <div className="p-8 space-y-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-muted-foreground">Welcome to your admin dashboard</p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Calendar className="h-4 w-4 text-muted-foreground" />
+          <Select value={dateRange} onValueChange={(v) => setDateRange(v as DateRange)}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select period" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="today">Today</SelectItem>
+              <SelectItem value="7d">Last 7 Days</SelectItem>
+              <SelectItem value="30d">Last 30 Days</SelectItem>
+              <SelectItem value="90d">Last 90 Days</SelectItem>
+              <SelectItem value="all">All Time</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Stats grid */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat) => (
           <div
             key={stat.label}
@@ -71,50 +122,80 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      {/* Analytics Charts */}
-      <div className="grid lg:grid-cols-2 gap-8 mb-8">
-        <div className="bg-card rounded-xl border border-border p-6 shadow-sm">
-          <RevenueChart data={getRevenueData(orders)} />
-        </div>
-        <div className="bg-card rounded-xl border border-border p-6 shadow-sm">
-          <OrderStatusChart data={getOrderStatusData(orders)} />
-        </div>
-      </div>
+      <div className="grid lg:grid-cols-3 gap-8">
+        {/* Main Charts Area */}
+        <div className="lg:col-span-2 space-y-8">
+          {/* Analytics Charts */}
+          <div className="grid lg:grid-cols-2 gap-8">
+            <div className="bg-card rounded-xl border border-border p-6 shadow-sm">
+              <RevenueChart data={getRevenueData(filteredOrders, dateRange)} />
+            </div>
+            <div className="bg-card rounded-xl border border-border p-6 shadow-sm">
+              <OrderStatusChart data={getOrderStatusData(filteredOrders)} />
+            </div>
+          </div>
 
-      <div className="bg-card rounded-xl border border-border p-6 mb-8 shadow-sm">
-        <TopProductsChart data={getTopProductsData(orders)} />
-      </div>
-
-      {/* Recent orders */}
-      <div className="bg-card rounded-xl border border-border">
-        <div className="p-6 border-b border-border">
-          <h2 className="text-xl font-bold text-foreground">Recent Orders</h2>
-        </div>
-        <div className="divide-y divide-border">
-          {orders.slice(0, 5).map((order) => (
-            <div key={order.id} className="p-4 flex items-center justify-between">
-              <div>
-                <p className="font-medium text-foreground">Order #{order.id.slice(0, 8)}</p>
-                <p className="text-sm text-muted-foreground">
-                  {new Date(order.created_at).toLocaleDateString()}
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="font-bold text-foreground">{order.total_amount.toFixed(0)} DA</p>
-                <span className={`text-xs px-2 py-1 rounded-full ${order.status === 'pending' ? 'bg-warning/10 text-warning' :
-                  order.status === 'delivered' ? 'bg-success/10 text-success' :
-                    'bg-primary/10 text-primary'
-                  }`}>
-                  {order.status}
-                </span>
+          <div className="bg-card rounded-xl border border-border p-6 shadow-sm">
+            <div className="flex justify-end mb-2">
+              <div className="flex bg-muted rounded-lg p-1">
+                <Button
+                  variant={topProductsType === 'quantity' ? 'secondary' : 'ghost'}
+                  size="sm"
+                  className="h-7 text-xs"
+                  onClick={() => setTopProductsType('quantity')}
+                >
+                  By Quantity
+                </Button>
+                <Button
+                  variant={topProductsType === 'revenue' ? 'secondary' : 'ghost'}
+                  size="sm"
+                  className="h-7 text-xs"
+                  onClick={() => setTopProductsType('revenue')}
+                >
+                  By Revenue
+                </Button>
               </div>
             </div>
-          ))}
-          {orders.length === 0 && (
-            <div className="p-8 text-center text-muted-foreground">
-              No orders yet
+            <TopProductsChart data={getTopProductsData(filteredOrders, topProductsType)} type={topProductsType} />
+          </div>
+        </div>
+
+        {/* Sidebar Area */}
+        <div className="space-y-8">
+          <LowStockAlerts products={products} />
+
+          {/* Recent orders */}
+          <div className="bg-card rounded-xl border border-border h-fit">
+            <div className="p-6 border-b border-border">
+              <h2 className="text-xl font-bold text-foreground">Recent Orders</h2>
             </div>
-          )}
+            <div className="divide-y divide-border">
+              {orders.slice(0, 5).map((order) => (
+                <div key={order.id} className="p-4 flex items-center justify-between">
+                  <div className="min-w-0">
+                    <p className="font-medium text-foreground truncate">Order #{order.id.slice(0, 8)}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {new Date(order.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="text-right shrink-0 ml-4">
+                    <p className="font-bold text-foreground">{order.total_amount.toFixed(0)} DA</p>
+                    <span className={`text-xs px-2 py-1 rounded-full ${order.status === 'pending' ? 'bg-warning/10 text-warning' :
+                      order.status === 'delivered' ? 'bg-success/10 text-success' :
+                        'bg-primary/10 text-primary'
+                      }`}>
+                      {order.status}
+                    </span>
+                  </div>
+                </div>
+              ))}
+              {orders.length === 0 && (
+                <div className="p-8 text-center text-muted-foreground">
+                  No orders yet
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -122,8 +203,10 @@ export default function AdminDashboard() {
 }
 
 // Helper functions for analytics data
-function getRevenueData(orders: any[]) {
-  const last30Days = Array.from({ length: 30 }, (_, i) => {
+function getRevenueData(orders: any[], range: DateRange) {
+  const days = range === '7d' ? 7 : range === '90d' ? 90 : 30; // Default to 30 for 'all' or '30d' or 'today' (to show context)
+
+  const data = Array.from({ length: days }, (_, i) => {
     const d = subDays(new Date(), i);
     return {
       date: format(d, 'MMM dd'),
@@ -134,14 +217,13 @@ function getRevenueData(orders: any[]) {
 
   orders.forEach(order => {
     const orderDate = new Date(order.created_at);
-    // Find the matching date in our array
-    const dayStat = last30Days.find(d => isSameDay(d.fullDate, orderDate));
+    const dayStat = data.find(d => isSameDay(d.fullDate, orderDate));
     if (dayStat) {
       dayStat.revenue += order.total_amount;
     }
   });
 
-  return last30Days.map(({ date, revenue }) => ({ date, revenue }));
+  return data.map(({ date, revenue }) => ({ date, revenue }));
 }
 
 function getOrderStatusData(orders: any[]) {
@@ -155,21 +237,22 @@ function getOrderStatusData(orders: any[]) {
   return Object.entries(statusCounts).map(([name, value]) => ({ name, value }));
 }
 
-function getTopProductsData(orders: any[]) {
-  const productCounts: Record<string, number> = {};
+function getTopProductsData(orders: any[], type: TopProductsType) {
+  const productStats: Record<string, number> = {};
 
   orders.forEach(order => {
     if (order.items && Array.isArray(order.items)) {
       order.items.forEach((item: any) => {
         if (item.product_name) {
-          productCounts[item.product_name] = (productCounts[item.product_name] || 0) + item.quantity;
+          const value = type === 'quantity' ? item.quantity : (item.quantity * item.product_price);
+          productStats[item.product_name] = (productStats[item.product_name] || 0) + value;
         }
       });
     }
   });
 
-  return Object.entries(productCounts)
-    .map(([name, quantity]) => ({ name, quantity }))
-    .sort((a, b) => b.quantity - a.quantity)
+  return Object.entries(productStats)
+    .map(([name, value]) => ({ name, value }))
+    .sort((a, b) => b.value - a.value)
     .slice(0, 5);
 }

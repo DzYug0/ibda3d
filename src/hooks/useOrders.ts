@@ -136,6 +136,7 @@ export function useCreateOrder() {
   });
 }
 
+
 export function useUpdateOrderStatus() {
   const queryClient = useQueryClient();
 
@@ -155,6 +156,29 @@ export function useUpdateOrderStatus() {
     },
     onError: (error) => {
       toast.error('Failed to update order: ' + error.message);
+    },
+  });
+}
+
+export function useBulkUpdateOrderStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ ids, status }: { ids: string[]; status: OrderStatus }) => {
+      const { error } = await supabase
+        .from('orders')
+        .update({ status })
+        .in('id', ids);
+
+      if (error) throw error;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
+      // toast.success(`${variables.ids.length} orders updated`); // Handled in component
+    },
+    onError: (error) => {
+      toast.error('Failed to update orders: ' + error.message);
     },
   });
 }

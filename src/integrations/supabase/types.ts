@@ -44,6 +44,42 @@ export type Database = {
         }
         Relationships: []
       }
+      banners: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          image_url: string
+          is_active: boolean
+          link_url: string | null
+          location: "hero" | "promo" | "sidebar"
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url: string
+          is_active?: boolean
+          link_url?: string | null
+          location: "hero" | "promo" | "sidebar"
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url?: string
+          is_active?: boolean
+          link_url?: string | null
+          location?: "hero" | "promo" | "sidebar"
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       cart_items: {
         Row: {
           created_at: string
@@ -116,6 +152,48 @@ export type Database = {
           name?: string
           slug?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      coupons: {
+        Row: {
+          code: string
+          created_at: string
+          discount_type: "fixed" | "percentage"
+          discount_value: number
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          min_spend: number
+          updated_at: string
+          usage_limit: number | null
+          used_count: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          discount_type: "fixed" | "percentage"
+          discount_value: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          min_spend?: number
+          updated_at?: string
+          usage_limit?: number | null
+          used_count?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          discount_type?: "fixed" | "percentage"
+          discount_value?: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          min_spend?: number
+          updated_at?: string
+          usage_limit?: number | null
+          used_count?: number
         }
         Relationships: []
       }
@@ -501,6 +579,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      store_settings: {
+        Row: {
+          description: string | null
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          description?: string | null
+          key: string
+          updated_at?: string
+          value: Json
+        }
+        Update: {
+          description?: string | null
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

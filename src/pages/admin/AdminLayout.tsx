@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, Outlet, useLocation, Navigate } from 'react-router-dom';
-import { LayoutDashboard, Package, FolderOpen, ShoppingBag, Users, History, ChevronLeft, LogOut, Truck, Boxes, PanelLeftClose, PanelLeft, Menu } from 'lucide-react';
+import { LayoutDashboard, Package, FolderOpen, ShoppingBag, Users, History, ChevronLeft, LogOut, Truck, Boxes, PanelLeftClose, PanelLeft, Menu, Tag, Layout, Settings } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -22,6 +22,9 @@ const baseNavItems = [
 ];
 
 const ownerOnlyItems = [
+  { icon: Tag, label: 'Marketing', path: '/admin/marketing' },
+  { icon: Layout, label: 'Content', path: '/admin/content' },
+  { icon: Settings, label: 'Settings', path: '/admin/settings' },
   { icon: History, label: 'Activity Log', path: '/admin/activity' },
 ];
 

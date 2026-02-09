@@ -27,6 +27,9 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminActivityLog from "./pages/admin/AdminActivityLog";
 import AdminShipping from "./pages/admin/AdminShipping";
 import AdminPacks from "./pages/admin/AdminPacks";
+import AdminMarketing from "./pages/admin/AdminMarketing";
+import AdminContent from "./pages/admin/AdminContent";
+import AdminSettings from "./pages/admin/AdminSettings";
 import NotFound from "./pages/NotFound";
 import { ScrollToTop } from "./components/ScrollToTop";
 
@@ -68,6 +71,9 @@ const App = () => (
                     <Route path="users" element={<AdminUsers />} />
                     <Route path="shipping" element={<AdminShipping />} />
                     <Route path="packs" element={<AdminPacks />} />
+                    <Route path="marketing" element={<AdminMarketing />} />
+                    <Route path="content" element={<AdminContent />} />
+                    <Route path="settings" element={<AdminSettings />} />
                     <Route path="activity" element={<AdminActivityLog />} />
                   </Route>
 
