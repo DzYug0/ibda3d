@@ -15,8 +15,12 @@ const statusColors: Record<string, string> = {
     cancelled: 'bg-destructive/10 text-destructive border-destructive/20',
 };
 
-export function OrderHistory() {
-    const { data: orders = [], isLoading } = useUserOrders();
+interface OrderHistoryProps {
+    userId?: string;
+}
+
+export function OrderHistory({ userId }: OrderHistoryProps) {
+    const { data: orders = [], isLoading } = useUserOrders(userId);
     const { t, language } = useLanguage();
 
     const statusLabels: Record<string, string> = {

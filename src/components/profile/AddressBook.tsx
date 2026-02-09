@@ -28,8 +28,16 @@ interface Address {
     is_default: boolean;
 }
 
-export function AddressBook() {
+interface AddressBookProps {
+    userId?: string;
+    readOnly?: boolean;
+}
+
+export function AddressBook({ userId, readOnly = false }: AddressBookProps) {
     const { user } = useAuth();
+    // Use passed userId or fallback to current user
+    const targetUserId = userId || user?.id;
+
     const { toast } = useToast();
     const { t } = useLanguage();
     const [addresses, setAddresses] = useState<Address[]>([]);
@@ -48,11 +56,11 @@ export function AddressBook() {
     });
 
     const fetchAddresses = async () => {
-        if (!user) return;
+        if (!targetUserId) return;
         const { data, error } = await supabase
             .from("user_addresses")
             .select("*")
-            .eq("user_id", user.id)
+            .eq("user_id", targetUserId)
             .order("is_default", { ascending: false });
 
         if (error) {
@@ -65,15 +73,29 @@ export function AddressBook() {
 
     useEffect(() => {
         fetchAddresses();
-    }, [user]);
+    }, [targetUserId]);
+
+    const resetForm = () => {
+        setFormData({
+            label: "Home",
+            full_name: "",
+            phone: "",
+            address_line1: "",
+            city: "",
+            state: "",
+            zip_code: "",
+            is_default: false,
+        });
+        setEditingAddress(null);
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!user) return;
+        if (!targetUserId || readOnly) return;
 
         try {
             const addressData = {
-                user_id: user.id,
+                user_id: targetUserId,
                 ...formData,
             };
 
@@ -85,7 +107,7 @@ export function AddressBook() {
                 await supabase
                     .from("user_addresses")
                     .update({ is_default: false })
-                    .eq("user_id", user.id);
+                    .eq("user_id", targetUserId);
             }
 
             if (editingAddress) {
@@ -130,20 +152,6 @@ export function AddressBook() {
         }
     };
 
-    const resetForm = () => {
-        setFormData({
-            label: "Home",
-            full_name: "",
-            phone: "",
-            address_line1: "",
-            city: "",
-            state: "",
-            zip_code: "",
-            is_default: false,
-        });
-        setEditingAddress(null);
-    };
-
     const openEdit = (address: Address) => {
         setEditingAddress(address);
         setFormData({
@@ -169,127 +177,129 @@ export function AddressBook() {
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h3 className="text-lg font-medium">My Addresses</h3>
-                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                    <DialogTrigger asChild>
-                        <Button onClick={openCreate} size="sm">
-                            <Plus className="h-4 w-4 mr-2" /> Add Address
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>
-                                {editingAddress ? "Edit Address" : "Add New Address"}
-                            </DialogTitle>
-                        </DialogHeader>
-                        <form onSubmit={handleSubmit} className="space-y-4 pt-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <Label htmlFor="label">Label</Label>
-                                    <Input
-                                        id="label"
-                                        value={formData.label}
-                                        onChange={(e) =>
-                                            setFormData({ ...formData, label: e.target.value })
-                                        }
-                                        placeholder="Home, Work, etc."
-                                    />
+                <h3 className="text-lg font-medium">{t.profile?.myAddresses || "My Addresses"}</h3>
+                {!readOnly && (
+                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                        <DialogTrigger asChild>
+                            <Button onClick={openCreate} size="sm">
+                                <Plus className="h-4 w-4 mr-2" /> {t.common?.add || "Add Address"}
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>
+                                    {editingAddress ? (t.common?.edit || "Edit Address") : (t.common?.add || "Add New Address")}
+                                </DialogTitle>
+                            </DialogHeader>
+                            <form onSubmit={handleSubmit} className="space-y-4 pt-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <Label htmlFor="label">Label</Label>
+                                        <Input
+                                            id="label"
+                                            value={formData.label}
+                                            onChange={(e) =>
+                                                setFormData({ ...formData, label: e.target.value })
+                                            }
+                                            placeholder="Home, Work, etc."
+                                        />
+                                    </div>
+                                    <div>
+                                        <Label htmlFor="full_name">Full Name</Label>
+                                        <Input
+                                            id="full_name"
+                                            value={formData.full_name}
+                                            onChange={(e) =>
+                                                setFormData({ ...formData, full_name: e.target.value })
+                                            }
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <Label htmlFor="phone">Phone</Label>
+                                        <Input
+                                            id="phone"
+                                            value={formData.phone}
+                                            onChange={(e) =>
+                                                setFormData({ ...formData, phone: e.target.value })
+                                            }
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <Label htmlFor="zip_code">Zip Code (Wilaya)</Label>
+                                        <Input
+                                            id="zip_code"
+                                            value={formData.zip_code}
+                                            onChange={(e) =>
+                                                setFormData({ ...formData, zip_code: e.target.value })
+                                            }
+                                        />
+                                    </div>
                                 </div>
                                 <div>
-                                    <Label htmlFor="full_name">Full Name</Label>
+                                    <Label htmlFor="address">Address</Label>
                                     <Input
-                                        id="full_name"
-                                        value={formData.full_name}
+                                        id="address"
+                                        value={formData.address_line1}
                                         onChange={(e) =>
-                                            setFormData({ ...formData, full_name: e.target.value })
+                                            setFormData({ ...formData, address_line1: e.target.value })
                                         }
+                                        placeholder="Street address, apartment, etc."
                                         required
                                     />
                                 </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <Label htmlFor="phone">Phone</Label>
-                                    <Input
-                                        id="phone"
-                                        value={formData.phone}
-                                        onChange={(e) =>
-                                            setFormData({ ...formData, phone: e.target.value })
-                                        }
-                                        required
-                                    />
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <Label htmlFor="city">City</Label>
+                                        <Input
+                                            id="city"
+                                            value={formData.city}
+                                            onChange={(e) =>
+                                                setFormData({ ...formData, city: e.target.value })
+                                            }
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <Label htmlFor="state">State</Label>
+                                        <Input
+                                            id="state"
+                                            value={formData.state}
+                                            onChange={(e) =>
+                                                setFormData({ ...formData, state: e.target.value })
+                                            }
+                                        />
+                                    </div>
                                 </div>
-                                <div>
-                                    <Label htmlFor="zip_code">Zip Code (Wilaya)</Label>
-                                    <Input
-                                        id="zip_code"
-                                        value={formData.zip_code}
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        id="is_default"
+                                        checked={formData.is_default}
                                         onChange={(e) =>
-                                            setFormData({ ...formData, zip_code: e.target.value })
+                                            setFormData({ ...formData, is_default: e.target.checked })
                                         }
+                                        className="rounded border-gray-300"
                                     />
+                                    <Label htmlFor="is_default">Set as default address</Label>
                                 </div>
-                            </div>
-                            <div>
-                                <Label htmlFor="address">Address</Label>
-                                <Input
-                                    id="address"
-                                    value={formData.address_line1}
-                                    onChange={(e) =>
-                                        setFormData({ ...formData, address_line1: e.target.value })
-                                    }
-                                    placeholder="Street address, apartment, etc."
-                                    required
-                                />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <Label htmlFor="city">City</Label>
-                                    <Input
-                                        id="city"
-                                        value={formData.city}
-                                        onChange={(e) =>
-                                            setFormData({ ...formData, city: e.target.value })
-                                        }
-                                        required
-                                    />
+                                <div className="flex justify-end gap-2 pt-2">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => setIsDialogOpen(false)}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button type="submit">Save Address</Button>
                                 </div>
-                                <div>
-                                    <Label htmlFor="state">State</Label>
-                                    <Input
-                                        id="state"
-                                        value={formData.state}
-                                        onChange={(e) =>
-                                            setFormData({ ...formData, state: e.target.value })
-                                        }
-                                    />
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <input
-                                    type="checkbox"
-                                    id="is_default"
-                                    checked={formData.is_default}
-                                    onChange={(e) =>
-                                        setFormData({ ...formData, is_default: e.target.checked })
-                                    }
-                                    className="rounded border-gray-300"
-                                />
-                                <Label htmlFor="is_default">Set as default address</Label>
-                            </div>
-                            <div className="flex justify-end gap-2 pt-2">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => setIsDialogOpen(false)}
-                                >
-                                    Cancel
-                                </Button>
-                                <Button type="submit">Save Address</Button>
-                            </div>
-                        </form>
-                    </DialogContent>
-                </Dialog>
+                            </form>
+                        </DialogContent>
+                    </Dialog>
+                )}
             </div>
 
             <div className="grid md:grid-cols-2 gap-4">
@@ -320,29 +330,31 @@ export function AddressBook() {
                                 </p>
                             </div>
                         </div>
-                        <div className="flex justify-end gap-2 mt-4 pt-3 border-t">
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => openEdit(address)}
-                                className="h-8"
-                            >
-                                <Pencil className="h-3 w-3 mr-1" /> Edit
-                            </Button>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleDelete(address.id)}
-                                className="h-8 text-destructive hover:text-destructive"
-                            >
-                                <Trash2 className="h-3 w-3 mr-1" /> Delete
-                            </Button>
-                        </div>
+                        {!readOnly && (
+                            <div className="flex justify-end gap-2 mt-4 pt-3 border-t">
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => openEdit(address)}
+                                    className="h-8"
+                                >
+                                    <Pencil className="h-3 w-3 mr-1" /> Edit
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleDelete(address.id)}
+                                    className="h-8 text-destructive hover:text-destructive"
+                                >
+                                    <Trash2 className="h-3 w-3 mr-1" /> Delete
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 ))}
                 {addresses.length === 0 && (
                     <div className="col-span-full text-center py-8 text-muted-foreground border border-dashed rounded-lg">
-                        No addresses saved yet.
+                        {t.profile?.noAddresses || "No addresses saved yet."}
                     </div>
                 )}
             </div>

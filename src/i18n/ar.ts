@@ -199,6 +199,8 @@ export const ar: DeepPartial<TranslationKeys> = {
     profileUpdated: 'تم تحديث الملف',
     changesSaved: 'تم حفظ تغييراتك.',
     updateError: 'فشل تحديث الملف الشخصي.',
+    myAddresses: 'عناويني',
+    noAddresses: 'لا توجد عناوين محفوظة بعد.',
   },
 
   // Auth
@@ -263,6 +265,7 @@ export const ar: DeepPartial<TranslationKeys> = {
     cancel: 'إلغاء',
     delete: 'حذف',
     edit: 'تعديل',
+    add: 'إضافة',
     search: 'بحث',
     searchPlaceholder: 'ابحث عن المنتجات...',
     searchNoResults: 'لم يتم العثور على منتجات',

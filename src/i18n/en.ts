@@ -195,6 +195,8 @@ export const en = {
     profileUpdated: 'Profile updated',
     changesSaved: 'Your changes have been saved.',
     updateError: 'Failed to update profile.',
+    myAddresses: 'My Addresses',
+    noAddresses: 'No addresses saved yet.',
   },
 
   // Auth
@@ -259,6 +261,7 @@ export const en = {
     cancel: 'Cancel',
     delete: 'Delete',
     edit: 'Edit',
+    add: 'Add',
     search: 'Search',
     searchPlaceholder: 'Search products...',
     searchNoResults: 'No products found',
