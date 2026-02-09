@@ -37,21 +37,19 @@ export const OptimizedImage = ({
     const optimizedSrc = getOptimizedUrl(src, width);
 
     return (
-        <div className={cn("overflow-hidden bg-gray-100", className)} style={{ width: width ? 'fit-content' : undefined }}>
-            <img
-                src={optimizedSrc}
-                alt={alt}
-                width={width}
-                height={height}
-                loading={priority ? "eager" : "lazy"}
-                className={cn(
-                    "transition-opacity duration-300",
-                    isLoaded ? "opacity-100" : "opacity-0",
-                    className
-                )}
-                onLoad={() => setIsLoaded(true)}
-                {...props}
-            />
-        </div>
+        <img
+            src={optimizedSrc}
+            alt={alt}
+            width={width}
+            height={height}
+            loading={priority ? "eager" : "lazy"}
+            className={cn(
+                "transition-opacity duration-300",
+                isLoaded ? "opacity-100" : "opacity-0",
+                className
+            )}
+            onLoad={() => setIsLoaded(true)}
+            {...props}
+        />
     );
 };
