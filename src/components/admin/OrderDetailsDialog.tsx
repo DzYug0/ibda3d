@@ -1,6 +1,7 @@
 
 import { useRef } from 'react';
-import { useReactToPrint } from 'react-to-print';
+// @ts-ignore
+import html2pdf from 'html2pdf.js';
 import {
     Dialog,
     DialogContent,
@@ -11,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Printer, Package, Truck, CheckCircle, XCircle, Clock } from "lucide-react";
+import { Download, Package, Truck, CheckCircle, XCircle, Clock } from "lucide-react";
 import { Order, useUpdateOrderStatus } from "@/hooks/useOrders";
 import { OrderInvoice } from "./OrderInvoice";
 
@@ -24,11 +25,18 @@ export function OrderDetailsDialog({ order, trigger }: OrderDetailsDialogProps) 
     const componentRef = useRef<HTMLDivElement>(null);
     const updateStatus = useUpdateOrderStatus();
 
-    const handlePrint = useReactToPrint({
-        // @ts-ignore
-        content: () => componentRef.current,
-        documentTitle: `Invoice-${order.id}`,
-    });
+    const handleDownloadPdf = () => {
+        const element = componentRef.current;
+        const opt = {
+            margin: 0,
+            filename: `Invoice-${order.id}.pdf`,
+            image: { type: 'jpeg' as const, quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
+        };
+
+        html2pdf().set(opt).from(element).save();
+    };
 
     const handleStatusUpdate = (status: Order['status']) => {
         updateStatus.mutate({ orderId: order.id, status });
@@ -66,9 +74,9 @@ export function OrderDetailsDialog({ order, trigger }: OrderDetailsDialogProps) 
                             </Badge>
                         </DialogTitle>
                         <div className="flex gap-2">
-                            <Button onClick={handlePrint} variant="outline" className="gap-2">
-                                <Printer className="h-4 w-4" />
-                                Print Invoice
+                            <Button onClick={handleDownloadPdf} variant="outline" className="gap-2">
+                                <Download className="h-4 w-4" />
+                                Download Invoice
                             </Button>
                         </div>
                     </div>
@@ -138,6 +146,13 @@ export function OrderDetailsDialog({ order, trigger }: OrderDetailsDialogProps) 
                                         icon={Clock}
                                         label="Pending"
                                         onClick={() => handleStatusUpdate('pending')}
+                                    />
+                                    <StatusButton
+                                        current={order.status}
+                                        target="confirmed"
+                                        icon={CheckCircle}
+                                        label="Confirmed"
+                                        onClick={() => handleStatusUpdate('confirmed')}
                                     />
                                     <StatusButton
                                         current={order.status}
