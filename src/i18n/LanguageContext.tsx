@@ -22,7 +22,7 @@ const translations: Record<Language, Translations> = { en: en as Translations, a
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<Language>(() => {
     const saved = localStorage.getItem('ibda3d-lang');
-    return (saved === 'ar' ? 'ar' : 'en') as Language;
+    return (saved === 'en' ? 'en' : 'ar') as Language;
   });
 
   const dir = language === 'ar' ? 'rtl' : 'ltr';
