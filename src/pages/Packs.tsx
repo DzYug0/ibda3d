@@ -8,6 +8,7 @@ import { usePacks } from '@/hooks/usePacks';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
 
 function PackCard({ pack }: { pack: ReturnType<typeof usePacks>['data'] extends (infer T)[] ? T : never }) {
   const { user } = useAuth();
@@ -40,7 +41,12 @@ function PackCard({ pack }: { pack: ReturnType<typeof usePacks>['data'] extends 
           <div className="w-full h-full flex">
             {allImages.slice(0, 4).map((img, i) => (
               <div key={i} className="relative flex-1 overflow-hidden" style={{ borderRight: i < Math.min(allImages.length, 4) - 1 ? '2px solid hsl(var(--border))' : 'none' }}>
-                <img src={img} alt="" loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <OptimizedImage
+                  src={img}
+                  alt=""
+                  width={200}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
               </div>
             ))}
             {allImages.length > 4 && (
@@ -68,7 +74,9 @@ function PackCard({ pack }: { pack: ReturnType<typeof usePacks>['data'] extends 
             {pack.items.map(item => (
               <div key={item.id} className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded bg-muted overflow-hidden flex-shrink-0">
-                  {item.product?.image_url ? <img src={item.product.image_url} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-[8px] text-muted-foreground">—</div>}
+                  {item.product?.image_url ?
+                    <OptimizedImage src={item.product.image_url} alt="" className="w-full h-full object-cover" width={32} />
+                    : <div className="w-full h-full flex items-center justify-center text-[8px] text-muted-foreground">—</div>}
                 </div>
                 <span className="text-sm text-foreground flex-1 truncate">{item.product?.name || 'Product'}</span>
                 <span className="text-xs text-muted-foreground">×{item.quantity}</span>
