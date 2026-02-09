@@ -2,6 +2,8 @@ import { Package, FolderOpen, ShoppingBag, DollarSign } from 'lucide-react';
 import { useAdminProducts } from '@/hooks/useProducts';
 import { useAdminOrders } from '@/hooks/useOrders';
 import { useCategories } from '@/hooks/useProducts';
+import { RevenueChart, OrderStatusChart, TopProductsChart } from '@/components/admin/AnalyticsCharts';
+import { format, subDays, isSameDay } from 'date-fns';
 
 export default function AdminDashboard() {
   const { data: products = [] } = useAdminProducts();
@@ -69,6 +71,20 @@ export default function AdminDashboard() {
         ))}
       </div>
 
+      {/* Analytics Charts */}
+      <div className="grid lg:grid-cols-2 gap-8 mb-8">
+        <div className="bg-card rounded-xl border border-border p-6 shadow-sm">
+          <RevenueChart data={getRevenueData(orders)} />
+        </div>
+        <div className="bg-card rounded-xl border border-border p-6 shadow-sm">
+          <OrderStatusChart data={getOrderStatusData(orders)} />
+        </div>
+      </div>
+
+      <div className="bg-card rounded-xl border border-border p-6 mb-8 shadow-sm">
+        <TopProductsChart data={getTopProductsData(orders)} />
+      </div>
+
       {/* Recent orders */}
       <div className="bg-card rounded-xl border border-border">
         <div className="p-6 border-b border-border">
@@ -85,11 +101,10 @@ export default function AdminDashboard() {
               </div>
               <div className="text-right">
                 <p className="font-bold text-foreground">{order.total_amount.toFixed(0)} DA</p>
-                <span className={`text-xs px-2 py-1 rounded-full ${
-                  order.status === 'pending' ? 'bg-warning/10 text-warning' :
+                <span className={`text-xs px-2 py-1 rounded-full ${order.status === 'pending' ? 'bg-warning/10 text-warning' :
                   order.status === 'delivered' ? 'bg-success/10 text-success' :
-                  'bg-primary/10 text-primary'
-                }`}>
+                    'bg-primary/10 text-primary'
+                  }`}>
                   {order.status}
                 </span>
               </div>
@@ -104,4 +119,57 @@ export default function AdminDashboard() {
       </div>
     </div>
   );
+}
+
+// Helper functions for analytics data
+function getRevenueData(orders: any[]) {
+  const last30Days = Array.from({ length: 30 }, (_, i) => {
+    const d = subDays(new Date(), i);
+    return {
+      date: format(d, 'MMM dd'),
+      fullDate: d,
+      revenue: 0,
+    };
+  }).reverse();
+
+  orders.forEach(order => {
+    const orderDate = new Date(order.created_at);
+    // Find the matching date in our array
+    const dayStat = last30Days.find(d => isSameDay(d.fullDate, orderDate));
+    if (dayStat) {
+      dayStat.revenue += order.total_amount;
+    }
+  });
+
+  return last30Days.map(({ date, revenue }) => ({ date, revenue }));
+}
+
+function getOrderStatusData(orders: any[]) {
+  const statusCounts: Record<string, number> = {};
+
+  orders.forEach(order => {
+    const status = order.status || 'unknown';
+    statusCounts[status] = (statusCounts[status] || 0) + 1;
+  });
+
+  return Object.entries(statusCounts).map(([name, value]) => ({ name, value }));
+}
+
+function getTopProductsData(orders: any[]) {
+  const productCounts: Record<string, number> = {};
+
+  orders.forEach(order => {
+    if (order.items && Array.isArray(order.items)) {
+      order.items.forEach((item: any) => {
+        if (item.product_name) {
+          productCounts[item.product_name] = (productCounts[item.product_name] || 0) + item.quantity;
+        }
+      });
+    }
+  });
+
+  return Object.entries(productCounts)
+    .map(([name, quantity]) => ({ name, quantity }))
+    .sort((a, b) => b.quantity - a.quantity)
+    .slice(0, 5);
 }
