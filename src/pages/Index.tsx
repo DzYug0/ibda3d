@@ -10,6 +10,7 @@ import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/i18n/LanguageContext';
 import logo from '@/assets/logo.png';
+import { SEO } from '@/components/SEO';
 
 export default function Index() {
   const { data: featuredProducts = [], isLoading: productsLoading } = useFeaturedProducts();
@@ -39,6 +40,10 @@ export default function Index() {
 
   return (
     <Layout>
+      <SEO
+        title={t.hero.title1 + " " + t.hero.title2}
+        description={t.hero.subtitle}
+      />
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary via-secondary to-primary" />
@@ -54,7 +59,7 @@ export default function Index() {
             }} />
           </div>
         </div>
-        
+
         <div className="container mx-auto px-4 py-12 sm:py-20 md:py-32 relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="animate-slide-up text-center lg:text-start">
@@ -62,7 +67,7 @@ export default function Index() {
                 <Printer className="h-4 w-4 text-accent" />
                 <span className="text-sm text-white/90 font-medium">{t.hero.badge}</span>
               </div>
-              
+
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 leading-tight text-white">
                 {t.hero.title1}
                 <br />
@@ -70,11 +75,11 @@ export default function Index() {
                   {t.hero.title2}
                 </span>
               </h1>
-              
+
               <p className="text-lg md:text-xl text-white/80 mb-8 max-w-lg mx-auto lg:mx-0">
                 {t.hero.subtitle}
               </p>
-              
+
               <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
                 <Link to="/products">
                   <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-8 shadow-lg hover:shadow-xl transition-all">
@@ -87,7 +92,7 @@ export default function Index() {
                   </Button>
                 </Link>
               </div>
-              
+
               <div className="flex gap-8 mt-12 justify-center lg:justify-start">
                 <div className="text-center">
                   <div className="text-3xl font-bold text-accent">58</div>
@@ -99,7 +104,7 @@ export default function Index() {
                 </div>
               </div>
             </div>
-            
+
             <div className="relative hidden lg:flex justify-center items-center">
               <div className="relative">
                 <div className="absolute inset-0 bg-accent/20 rounded-full blur-3xl scale-150" />

@@ -10,6 +10,7 @@ import { ProductGallery } from '@/components/products/ProductGallery';
 import { WishlistButton } from '@/components/products/WishlistButton';
 import { RelatedProducts } from '@/components/products/RelatedProducts';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { SEO } from '@/components/SEO';
 
 export default function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -93,6 +94,12 @@ export default function ProductDetail() {
 
   return (
     <Layout>
+      <SEO
+        title={product.name}
+        description={product.description || `Buy ${product.name} at Ibda3D. Best price in Algeria.`}
+        image={product.image_url || undefined}
+        type="product"
+      />
       <div className="container mx-auto px-4 py-8">
         <nav className="mb-6">
           <Link to="/products" className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors">
