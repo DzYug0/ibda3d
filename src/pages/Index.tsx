@@ -262,22 +262,24 @@ export default function Index() {
         </section>
       )}
 
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-secondary via-primary to-secondary text-white">
-        <div className="container mx-auto px-4 text-center">
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-6">
-            <Printer className="h-4 w-4 text-accent" />
-            <span className="text-sm font-medium">{t.cta.badge}</span>
+      {/* CTA Section - Only for guests */}
+      {!user && (
+        <section className="py-20 bg-gradient-to-r from-secondary via-primary to-secondary text-white">
+          <div className="container mx-auto px-4 text-center">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-6">
+              <Printer className="h-4 w-4 text-accent" />
+              <span className="text-sm font-medium">{t.cta.badge}</span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t.cta.title}</h2>
+            <p className="text-white/70 max-w-md mx-auto mb-8">{t.cta.subtitle}</p>
+            <Link to="/auth?tab=signup">
+              <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-8 shadow-lg">
+                {t.cta.createAccount}
+              </Button>
+            </Link>
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">{t.cta.title}</h2>
-          <p className="text-white/70 max-w-md mx-auto mb-8">{t.cta.subtitle}</p>
-          <Link to="/auth?tab=signup">
-            <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-8 shadow-lg">
-              {t.cta.createAccount}
-            </Button>
-          </Link>
-        </div>
-      </section>
+        </section>
+      )}
     </Layout>
   );
 }
