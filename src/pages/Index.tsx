@@ -195,8 +195,8 @@ export default function Index() {
                   );
                 })}
               </CarouselContent>
-              <CarouselPrevious className="hidden md:flex" />
-              <CarouselNext className="hidden md:flex" />
+              <CarouselPrevious className="left-4" />
+              <CarouselNext className="right-4" />
             </Carousel>
           </div>
         </section>
@@ -261,8 +261,8 @@ export default function Index() {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious className="hidden md:flex" />
-              <CarouselNext className="hidden md:flex" />
+              <CarouselPrevious className="left-4" />
+              <CarouselNext className="right-4" />
             </Carousel>
           </div>
         </section>
