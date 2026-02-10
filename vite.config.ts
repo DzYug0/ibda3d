@@ -39,7 +39,10 @@ export default defineConfig(({ mode }) => ({
             sizes: '512x512',
             type: 'image/png'
           }
-        ]
+        ],
+        display: 'standalone',
+        start_url: '/',
+        orientation: 'portrait'
       }
     })
   ].filter(Boolean),
