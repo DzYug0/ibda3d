@@ -39,6 +39,7 @@ export interface Category {
   slug: string;
   description: string | null;
   image_url: string | null;
+  parent_id: string | null;
   created_at: string;
 }
 
@@ -154,7 +155,7 @@ export function useCategories() {
         .order('name');
 
       if (error) throw error;
-      return data as Category[];
+      return data as unknown as Category[];
     },
   });
 }
