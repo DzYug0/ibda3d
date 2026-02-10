@@ -39,7 +39,34 @@ export function useProductReviews(productId: string) {
     });
 }
 
-// ... useSubmitReview
+export function useSubmitReview() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({ productId, rating, comment }: { productId: string; rating: number; comment: string }) => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error('User not authenticated');
+
+            const { error } = await supabase
+                .from('reviews')
+                .insert({
+                    product_id: productId,
+                    user_id: user.id,
+                    rating,
+                    comment,
+                    status: 'pending'
+                });
+
+            if (error) throw error;
+        },
+        onSuccess: () => {
+            toast.success('Review submitted successfully! It will be visible after approval.');
+        },
+        onError: (error) => {
+            toast.error('Failed to submit review: ' + error.message);
+        },
+    });
+}
 
 export function useAdminReviews() {
     return useQuery({
