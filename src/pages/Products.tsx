@@ -51,9 +51,25 @@ export default function Products() {
 
     // Category
     if (selectedSlugs.length > 0) {
+      // Expand selected slugs to include children of selected parents
+      const expandedSlugs = [...selectedSlugs];
+
+      selectedSlugs.forEach(slug => {
+        const category = categories.find(c => c.slug === slug);
+        if (category) {
+          // Find all children of this category
+          const children = categories.filter(c => c.parent_id === category.id);
+          children.forEach(child => {
+            if (!expandedSlugs.includes(child.slug)) {
+              expandedSlugs.push(child.slug);
+            }
+          });
+        }
+      });
+
       result = result.filter(p =>
-        p.categories?.some(c => selectedSlugs.includes(c.slug)) ||
-        (p.category && selectedSlugs.includes(p.category.slug))
+        p.categories?.some(c => expandedSlugs.includes(c.slug)) ||
+        (p.category && expandedSlugs.includes(p.category.slug))
       );
     }
 

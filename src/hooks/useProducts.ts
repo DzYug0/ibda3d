@@ -39,6 +39,7 @@ export interface Category {
   slug: string;
   description: string | null;
   image_url: string | null;
+  parent_id: string | null;
   created_at: string;
 }
 
@@ -47,11 +48,11 @@ async function fetchProductCategories(productIds: string[]) {
   if (productIds.length === 0) return {};
   const { data, error } = await supabase
     .from('product_categories')
-    .select('product_id, category:categories(id, name, slug)')
+    .select('product_id, category:categories(id, name, slug, parent_id)')
     .in('product_id', productIds);
   if (error) throw error;
 
-  const map: Record<string, { id: string; name: string; slug: string }[]> = {};
+  const map: Record<string, { id: string; name: string; slug: string; parent_id: string | null }[]> = {};
   for (const row of data || []) {
     if (!map[row.product_id]) map[row.product_id] = [];
     if (row.category) {
@@ -154,7 +155,7 @@ export function useCategories() {
         .order('name');
 
       if (error) throw error;
-      return data as Category[];
+      return data as unknown as Category[];
     },
   });
 }

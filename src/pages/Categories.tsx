@@ -10,6 +10,10 @@ export default function Categories() {
   const { data: categories = [], isLoading } = useCategories();
   const { t } = useLanguage();
 
+  // Group categories into parents and children
+  const topLevelCategories = categories.filter(c => !c.parent_id);
+  const getSubCategories = (parentId: string) => categories.filter(c => c.parent_id === parentId);
+
   return (
     <Layout>
       <SEO
@@ -30,26 +34,47 @@ export default function Categories() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {categories.map((category) => (
-              <Link key={category.id} to={`/products?category=${category.slug}`} className="group relative overflow-hidden rounded-xl border border-border bg-card shadow-card hover:border-primary hover:shadow-lg transition-all duration-300">
-                <div className="aspect-video relative overflow-hidden">
-                  {category.image_url ? (
-                    <img src={category.image_url} alt={category.name} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                  ) : (
-                    <div className="w-full h-full bg-muted flex items-center justify-center">
-                      <span className="text-4xl font-bold text-muted-foreground">{category.name.charAt(0)}</span>
+            {topLevelCategories.map((category) => {
+              const subCategories = getSubCategories(category.id);
+
+              return (
+                <div key={category.id} className="flex flex-col gap-2">
+                  <Link to={`/products?category=${category.slug}`} className="group relative overflow-hidden rounded-xl border border-border bg-card shadow-card hover:border-primary hover:shadow-lg transition-all duration-300">
+                    <div className="aspect-video relative overflow-hidden">
+                      {category.image_url ? (
+                        <img src={category.image_url} alt={category.name} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      ) : (
+                        <div className="w-full h-full bg-muted flex items-center justify-center">
+                          <span className="text-4xl font-bold text-muted-foreground">{category.name.charAt(0)}</span>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 p-4">
+                      <h2 className="text-xl font-bold text-foreground">{category.name}</h2>
+                      {category.description && (
+                        <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{category.description}</p>
+                      )}
+                    </div>
+                  </Link>
+
+                  {/* Sub-categories list */}
+                  {subCategories.length > 0 && (
+                    <div className="flex flex-wrap gap-2 px-1">
+                      {subCategories.map(sub => (
+                        <Link
+                          key={sub.id}
+                          to={`/products?category=${sub.slug}`}
+                          className="text-xs px-2 py-1 bg-secondary text-secondary-foreground rounded-full hover:bg-primary hover:text-primary-foreground transition-colors"
+                        >
+                          {sub.name}
+                        </Link>
+                      ))}
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
                 </div>
-                <div className="absolute bottom-0 left-0 right-0 p-4">
-                  <h2 className="text-xl font-bold text-foreground">{category.name}</h2>
-                  {category.description && (
-                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{category.description}</p>
-                  )}
-                </div>
-              </Link>
-            ))}
+              );
+            })}
           </div>
         )}
 

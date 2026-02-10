@@ -12,6 +12,13 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -23,6 +30,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory, Category } from '@/hooks/useProducts';
 import { ImageUpload } from '@/components/admin/ImageUpload';
+import { Badge } from '@/components/ui/badge';
 
 export default function AdminCategories() {
   const { data: categories = [], isLoading } = useCategories();
@@ -38,10 +46,11 @@ export default function AdminCategories() {
     slug: '',
     description: '',
     image_url: '',
+    parent_id: 'none',
   });
 
   const resetForm = () => {
-    setFormData({ name: '', slug: '', description: '', image_url: '' });
+    setFormData({ name: '', slug: '', description: '', image_url: '', parent_id: 'none' });
     setEditingCategory(null);
   };
 
@@ -57,12 +66,15 @@ export default function AdminCategories() {
       slug: category.slug,
       description: category.description || '',
       image_url: category.image_url || '',
+      parent_id: category.parent_id || 'none',
     });
     setIsDialogOpen(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const parentId = formData.parent_id === 'none' ? null : formData.parent_id;
 
     try {
       if (editingCategory) {
@@ -72,6 +84,7 @@ export default function AdminCategories() {
           slug: formData.slug || formData.name.toLowerCase().replace(/\s+/g, '-'),
           description: formData.description || null,
           image_url: formData.image_url || null,
+          parent_id: parentId,
         });
       } else {
         await createCategory.mutateAsync({
@@ -79,6 +92,7 @@ export default function AdminCategories() {
           slug: formData.slug || formData.name.toLowerCase().replace(/\s+/g, '-'),
           description: formData.description || null,
           image_url: formData.image_url || null,
+          parent_id: parentId,
         });
       }
       setIsDialogOpen(false);
@@ -96,6 +110,15 @@ export default function AdminCategories() {
   };
 
   const isPending = createCategory.isPending || updateCategory.isPending;
+
+  // Enhance categories with parent info for display
+  const enhancedCategories = categories.map(cat => ({
+    ...cat,
+    parentName: cat.parent_id ? categories.find(c => c.id === cat.parent_id)?.name : null
+  }));
+
+  // Filter out the current category from parent options to prevent self-reference
+  const parentOptions = categories.filter(c => !editingCategory || c.id !== editingCategory.id);
 
   return (
     <div className="p-8">
@@ -142,6 +165,26 @@ export default function AdminCategories() {
               </div>
 
               <div>
+                <Label htmlFor="parent">Parent Category</Label>
+                <Select
+                  value={formData.parent_id}
+                  onValueChange={(value) => setFormData({ ...formData, parent_id: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select parent category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None (Top Level)</SelectItem>
+                    {parentOptions.map(cat => (
+                      <SelectItem key={cat.id} value={cat.id}>
+                        {cat.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
                 <Label htmlFor="description">Description</Label>
                 <Textarea
                   id="description"
@@ -179,12 +222,12 @@ export default function AdminCategories() {
           Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="h-48 skeleton rounded-xl" />
           ))
-        ) : categories.length === 0 ? (
+        ) : enhancedCategories.length === 0 ? (
           <div className="col-span-full text-center py-12 text-muted-foreground">
             No categories yet. Click "Add Category" to create one.
           </div>
         ) : (
-          categories.map((category) => (
+          enhancedCategories.map((category) => (
             <div
               key={category.id}
               className="bg-card rounded-xl border border-border overflow-hidden group"
@@ -207,6 +250,11 @@ export default function AdminCategories() {
                 <h3 className="absolute bottom-3 left-3 text-lg font-bold text-secondary-foreground">
                   {category.name}
                 </h3>
+                {category.parentName && (
+                  <Badge variant="secondary" className="absolute top-3 left-3 bg-background/80 backdrop-blur-sm">
+                    {category.parentName} &gt;
+                  </Badge>
+                )}
               </div>
               <div className="p-4 flex justify-between items-center">
                 <p className="text-sm text-muted-foreground truncate flex-1">

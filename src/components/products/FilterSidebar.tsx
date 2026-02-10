@@ -97,7 +97,7 @@ export function FilterSidebar({
             {/* Categories */}
             <div className="space-y-4">
                 <h4 className="font-medium text-sm text-foreground/80">{t.categories?.title || "Categories"}</h4>
-                <ScrollArea className="h-[300px] w-full rounded-md pr-4">
+                <ScrollArea className="h-[400px] w-full rounded-md pr-4">
                     <div className="space-y-3">
                         {/* 'All' Option */}
                         <div className="flex items-center space-x-2">
@@ -105,9 +105,6 @@ export function FilterSidebar({
                                 id="category-all"
                                 checked={selectedCategories.length === 0}
                                 onCheckedChange={(checked) => {
-                                    // Use onClear for now which resets everything, including categories.
-                                    // If strict "only clear categories" is needed, we'd need a new prop.
-                                    // Given "All" usually means default state, full reset is often expected or acceptable.
                                     if (checked) onClear();
                                 }}
                             />
@@ -116,18 +113,58 @@ export function FilterSidebar({
                             </Label>
                         </div>
 
-                        {categories.map((category) => (
-                            <div key={category.id} className="flex items-center space-x-2">
-                                <Checkbox
-                                    id={category.slug}
-                                    checked={selectedCategories.includes(category.slug)}
-                                    onCheckedChange={() => onCategoryChange(category.slug)}
-                                />
-                                <Label htmlFor={category.slug} className="text-sm cursor-pointer font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                                    {category.name}
-                                </Label>
-                            </div>
-                        ))}
+                        {/* Hierarchical Categories */}
+                        {categories.filter(c => !c.parent_id).map((parent) => {
+                            const children = categories.filter(c => c.parent_id === parent.id);
+                            const isParentSelected = selectedCategories.includes(parent.slug);
+
+                            // Check if any child is selected to auto-expand accordion
+                            const hasSelectedChild = children.some(child => selectedCategories.includes(child.slug));
+
+                            if (children.length === 0) {
+                                return (
+                                    <div key={parent.id} className="flex items-center space-x-2">
+                                        <Checkbox
+                                            id={parent.slug}
+                                            checked={isParentSelected}
+                                            onCheckedChange={() => onCategoryChange(parent.slug)}
+                                        />
+                                        <Label htmlFor={parent.slug} className="text-sm cursor-pointer font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                            {parent.name}
+                                        </Label>
+                                    </div>
+                                );
+                            }
+
+                            return (
+                                <div key={parent.id} className="space-y-2">
+                                    <div className="flex items-center space-x-2">
+                                        <Checkbox
+                                            id={parent.slug}
+                                            checked={isParentSelected}
+                                            onCheckedChange={() => onCategoryChange(parent.slug)}
+                                        />
+                                        <Label htmlFor={parent.slug} className="text-sm cursor-pointer font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                            {parent.name}
+                                        </Label>
+                                    </div>
+                                    <div className="pl-6 flex flex-col gap-2 border-l-2 border-muted ml-2">
+                                        {children.map(child => (
+                                            <div key={child.id} className="flex items-center space-x-2">
+                                                <Checkbox
+                                                    id={child.slug}
+                                                    checked={selectedCategories.includes(child.slug)}
+                                                    onCheckedChange={() => onCategoryChange(child.slug)}
+                                                />
+                                                <Label htmlFor={child.slug} className="text-sm cursor-pointer font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                                    {child.name}
+                                                </Label>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
                 </ScrollArea>
             </div>

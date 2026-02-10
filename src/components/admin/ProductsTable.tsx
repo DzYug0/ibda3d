@@ -20,13 +20,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { BulkEditProductDialog } from '@/components/admin/BulkEditProductDialog';
-import type { Product } from '@/hooks/useProducts';
-
-interface Category {
-  id: string;
-  name: string;
-  slug: string;
-}
+import type { Product, Category } from '@/hooks/useProducts';
 
 interface ProductsTableProps {
   products: Product[];
@@ -395,7 +389,13 @@ export function ProductsTable({
                     </td>
                     <td className="p-4 text-muted-foreground">
                       {product.categories && product.categories.length > 0
-                        ? product.categories.map(c => c.name).join(', ')
+                        ? product.categories.map(c => {
+                          const categoryInfo = categories.find(cat => cat.id === c.id);
+                          const parentName = categoryInfo?.parent_id
+                            ? categories.find(p => p.id === categoryInfo.parent_id)?.name
+                            : null;
+                          return parentName ? `${parentName} > ${c.name}` : c.name;
+                        }).join(', ')
                         : product.category?.name || '—'}
                     </td>
                     <td className="p-4">
