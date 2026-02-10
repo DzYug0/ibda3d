@@ -196,10 +196,14 @@ export function useDeleteOrder() {
 
   return useMutation({
     mutationFn: async (orderId: string) => {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('orders')
         .delete()
-        .eq('id', orderId);
+        .eq('id', orderId)
+        .select()
+        .single();
+
+      if (!data) throw new Error('Order not found or permission denied');
 
       if (error) throw error;
     },
