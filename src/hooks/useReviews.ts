@@ -2,6 +2,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+// ... imports
+
 export interface Review {
     id: string;
     user_id: string;
@@ -11,7 +13,7 @@ export interface Review {
     status: 'pending' | 'approved' | 'rejected';
     created_at: string;
     user?: {
-        full_name: string | null;
+        username: string | null;
         avatar_url: string | null;
     };
 }
@@ -24,7 +26,7 @@ export function useProductReviews(productId: string) {
                 .from('reviews')
                 .select(`
           *,
-          user:profiles(full_name, avatar_url)
+          user:profiles(username, avatar_url)
         `)
                 .eq('product_id', productId)
                 .eq('status', 'approved')
@@ -37,36 +39,7 @@ export function useProductReviews(productId: string) {
     });
 }
 
-export function useSubmitReview() {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: async ({ productId, rating, comment }: { productId: string; rating: number; comment: string }) => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error('You must be logged in to review.');
-
-            const { error } = await supabase
-                .from('reviews')
-                .insert({
-                    product_id: productId,
-                    user_id: user.id,
-                    rating,
-                    comment,
-                    status: 'pending' // Explictly set pending, though default handled by DB
-                });
-
-            if (error) throw error;
-        },
-        onSuccess: (_, { productId }) => {
-            // We don't necessarily invalidate 'reviews' immediately because the new one is pending and won't show up.
-            // But we might want to invalidate if we showed "My Pending Reviews" somewhere.
-            toast.success('Review submitted for moderation!');
-        },
-        onError: (error) => {
-            toast.error('Failed to submit review: ' + error.message);
-        },
-    });
-}
+// ... useSubmitReview
 
 export function useAdminReviews() {
     return useQuery({
@@ -76,7 +49,7 @@ export function useAdminReviews() {
                 .from('reviews')
                 .select(`
           *,
-          user:profiles(full_name, avatar_url),
+          user:profiles(username, avatar_url),
           product:products(name, slug, image_url)
         `)
                 .order('created_at', { ascending: false });

@@ -51,7 +51,7 @@ type AppRole = 'owner' | 'admin' | 'user';
 interface UserWithRole {
   id: string;
   email: string;
-  full_name: string | null;
+  username: string | null;
   created_at: string;
   role: AppRole;
   role_id: string | null;
@@ -89,7 +89,7 @@ export default function AdminUsers() {
       // Get all profiles
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('user_id, email, full_name, created_at, is_banned');
+        .select('user_id, email, username, created_at, is_banned');
 
       if (profilesError) throw profilesError;
 
@@ -120,7 +120,7 @@ export default function AdminUsers() {
         return {
           id: profile.user_id,
           email: profile.email || '',
-          full_name: profile.full_name,
+          username: profile.username,
           created_at: profile.created_at,
           role: (userRole?.role as AppRole) || 'user',
           role_id: userRole?.id || null,
@@ -251,7 +251,7 @@ export default function AdminUsers() {
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
       user.email.toLowerCase().includes(search.toLowerCase()) ||
-      user.full_name?.toLowerCase().includes(search.toLowerCase());
+      user.username?.toLowerCase().includes(search.toLowerCase());
     const matchesRole = roleFilter === 'all' || user.role === roleFilter;
     return matchesSearch && matchesRole;
   });
@@ -268,7 +268,7 @@ export default function AdminUsers() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search by email or name..."
+            placeholder="Search by email or username..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10"
@@ -286,11 +286,11 @@ export default function AdminUsers() {
           </SelectContent>
         </Select>
         <Button variant="outline" onClick={() => {
-          const headers = ['ID', 'Email', 'Name', 'Role', 'Status', 'Joined', 'LTV (DA)'];
+          const headers = ['ID', 'Email', 'Username', 'Role', 'Status', 'Joined', 'LTV (DA)'];
           const rows = filteredUsers.map(u => [
             u.id,
             u.email,
-            u.full_name || '',
+            u.username || '',
             u.role,
             u.is_banned ? 'Banned' : 'Active',
             new Date(u.created_at).toLocaleDateString(),
@@ -332,7 +332,7 @@ export default function AdminUsers() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8">
+                <TableCell colSpan={6} className="text-center py-8">
                   <div className="flex items-center justify-center">
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
                   </div>
@@ -340,7 +340,7 @@ export default function AdminUsers() {
               </TableRow>
             ) : filteredUsers.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                   No users found
                 </TableCell>
               </TableRow>
@@ -355,7 +355,7 @@ export default function AdminUsers() {
                     <TableCell>
                       <div>
                         <p className="font-medium text-foreground">
-                          {user.full_name || 'No name'}
+                          @{user.username || 'No username'}
                           {isCurrentUser && (
                             <span className="ml-2 text-xs text-muted-foreground">(You)</span>
                           )}
@@ -470,7 +470,7 @@ export default function AdminUsers() {
       </div>
 
       {/* Role explanation */}
-      <div className="mt-8 grid sm:grid-cols-3 gap-4">
+      < div className="mt-8 grid sm:grid-cols-3 gap-4" >
         <div className="bg-card rounded-lg border border-border p-4">
           <div className="flex items-center gap-2 mb-2">
             <Crown className="h-5 w-5 text-amber-500" />
@@ -498,9 +498,9 @@ export default function AdminUsers() {
             Standard customer access. Can browse products, place orders, and view order history.
           </p>
         </div>
-      </div>
+      </div >
       {/* Ban Dialog */}
-      <Dialog open={banDialogOpen} onOpenChange={setBanDialogOpen}>
+      < Dialog open={banDialogOpen} onOpenChange={setBanDialogOpen} >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Ban User</DialogTitle>
@@ -537,14 +537,14 @@ export default function AdminUsers() {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog >
 
       {/* Customer Details Dialog */}
-      <CustomerDetailsDialog
+      < CustomerDetailsDialog
         open={!!detailsUser}
         onOpenChange={(open) => !open && setDetailsUser(null)}
         user={detailsUser}
       />
-    </div>
+    </div >
   );
 }

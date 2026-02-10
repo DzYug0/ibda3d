@@ -16,18 +16,18 @@ import logo from '@/assets/logo.png';
 
 const emailSchema = z.string().email('Please enter a valid email address');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
-const nameSchema = z.string().min(2, 'Name must be at least 2 characters');
+const usernameSchema = z.string().min(3, 'Username must be at least 3 characters').regex(/^[a-z0-9_]+$/, 'Username can only contain lowercase letters, numbers, and underscores');
 
 export default function Auth() {
   const [searchParams] = useSearchParams();
   const [isSignUp, setIsSignUp] = useState(searchParams.get('tab') === 'signup');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string; name?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string; username?: string }>({});
   const [banInfo, setBanInfo] = useState<{ is_banned: boolean; ban_reason: string | null } | null>(null);
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
@@ -37,14 +37,14 @@ export default function Auth() {
   useEffect(() => { setIsSignUp(searchParams.get('tab') === 'signup'); }, [searchParams]);
 
   const validateForm = () => {
-    const newErrors: { email?: string; password?: string; name?: string } = {};
+    const newErrors: { email?: string; password?: string; username?: string } = {};
     const emailResult = emailSchema.safeParse(email);
     if (!emailResult.success) newErrors.email = emailResult.error.errors[0].message;
     const passwordResult = passwordSchema.safeParse(password);
     if (!passwordResult.success) newErrors.password = passwordResult.error.errors[0].message;
     if (isSignUp) {
-      const nameResult = nameSchema.safeParse(fullName);
-      if (!nameResult.success) newErrors.name = nameResult.error.errors[0].message;
+      const usernameResult = usernameSchema.safeParse(username);
+      if (!usernameResult.success) newErrors.username = usernameResult.error.errors[0].message;
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -57,7 +57,7 @@ export default function Auth() {
     setBanInfo(null);
     try {
       if (isSignUp) {
-        const { error } = await signUp(email, password, fullName);
+        const { error } = await signUp(email, password, username);
         if (error) {
           toast.error(error.message.includes('already registered') ? 'This email is already registered.' : error.message);
         } else {

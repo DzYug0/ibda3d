@@ -16,24 +16,25 @@ import { AddressBook } from '@/components/profile/AddressBook';
 import { OrderHistory } from '@/components/profile/OrderHistory';
 import { SecuritySettings } from '@/components/profile/SecuritySettings';
 
+// ... imports
+
 interface Profile {
-  full_name: string | null;
+  username: string | null;
   email: string | null;
-  phone: string | null;
-  address: string | null;
+  avatar_url: string | null;
 }
 
 export default function ProfilePage() {
   const { user, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const { t } = useLanguage();
-  const [profile, setProfile] = useState<Profile>({ full_name: null, email: null, phone: null, address: null });
+  const [profile, setProfile] = useState<Profile>({ username: null, email: null, avatar_url: null });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!user) return;
-    supabase.from('profiles').select('full_name, email, phone, address').eq('user_id', user.id).single().then(({ data }) => {
+    supabase.from('profiles').select('username, email, avatar_url').eq('user_id', user.id).single().then(({ data }) => {
       if (data) setProfile(data);
       setLoading(false);
     });
@@ -42,7 +43,8 @@ export default function ProfilePage() {
   const handleSave = async () => {
     if (!user) return;
     setSaving(true);
-    const { error } = await supabase.from('profiles').update({ full_name: profile.full_name, phone: profile.phone, address: profile.address }).eq('user_id', user.id);
+    // Only update username
+    const { error } = await supabase.from('profiles').update({ username: profile.username }).eq('user_id', user.id);
     setSaving(false);
     if (error) {
       toast({ title: t.common.error, description: t.profile.updateError, variant: 'destructive' });
@@ -54,7 +56,7 @@ export default function ProfilePage() {
   if (authLoading) return null;
   if (!user) return <Navigate to="/auth" replace />;
 
-  const initials = profile.full_name?.split(' ').map((n) => n[0]).join('').toUpperCase() || '?';
+  const displayInitials = profile.username?.substring(0, 2).toUpperCase() || 'U';
 
   return (
     <Layout>
@@ -64,16 +66,13 @@ export default function ProfilePage() {
           <Card className="md:w-1/3 h-fit">
             <CardHeader className="items-center text-center">
               <Avatar className="h-24 w-24 mb-4">
-                <AvatarFallback className="text-3xl bg-primary text-primary-foreground">{initials}</AvatarFallback>
+                <AvatarFallback className="text-3xl bg-primary text-primary-foreground">{displayInitials}</AvatarFallback>
               </Avatar>
-              <CardTitle className="text-xl">{profile.full_name || 'User'}</CardTitle>
+              <CardTitle className="text-xl">@{profile.username || 'user'}</CardTitle>
               <CardDescription>{profile.email}</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-sm text-muted-foreground text-center space-y-1">
-                {profile.phone && <p>{profile.phone}</p>}
-                {profile.address && <p>{profile.address}</p>}
-              </div>
+              {/* Phone and address removed from sidebar summary as they are in Address Book now */}
             </CardContent>
           </Card>
 
@@ -91,7 +90,7 @@ export default function ProfilePage() {
                 <Card>
                   <CardHeader>
                     <CardTitle>{t.profile.title}</CardTitle>
-                    <CardDescription>Update your personal information.</CardDescription>
+                    <CardDescription>Update your public profile information.</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     {loading ? (
@@ -99,21 +98,20 @@ export default function ProfilePage() {
                     ) : (
                       <>
                         <div className="space-y-2">
-                          <Label htmlFor="name" className="flex items-center gap-2"><User className="h-4 w-4" /> {t.profile.fullName}</Label>
-                          <Input id="name" value={profile.full_name || ''} onChange={(e) => setProfile({ ...profile, full_name: e.target.value })} />
+                          <Label htmlFor="username" className="flex items-center gap-2"><User className="h-4 w-4" /> Username</Label>
+                          <Input id="username" value={profile.username || ''} onChange={(e) => setProfile({ ...profile, username: e.target.value })} />
+                          <p className="text-xs text-muted-foreground">This is how you will appear publicly (e.g. in reviews).</p>
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="email" className="flex items-center gap-2"><Mail className="h-4 w-4" /> {t.profile.email}</Label>
                           <Input id="email" value={profile.email || ''} disabled className="opacity-60" />
+                          <p className="text-xs text-muted-foreground">To change your email, please contact support.</p>
                         </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="phone" className="flex items-center gap-2"><Phone className="h-4 w-4" /> {t.profile.phone}</Label>
-                          <Input id="phone" value={profile.phone || ''} onChange={(e) => setProfile({ ...profile, phone: e.target.value })} />
+
+                        <div className="rounded-md bg-muted p-4 text-sm text-muted-foreground">
+                          <p>To manage your <strong>Full Name</strong>, <strong>Phone Number</strong>, and <strong>Shipping Addresses</strong>, please go to the <Button variant="link" className="p-0 h-auto font-semibold" onClick={() => document.querySelector('[value="addresses"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))}>Addresses</Button> tab.</p>
                         </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="address" className="flex items-center gap-2"><MapPin className="h-4 w-4" /> {t.profile.address} (Default)</Label>
-                          <Input id="address" value={profile.address || ''} onChange={(e) => setProfile({ ...profile, address: e.target.value })} />
-                        </div>
+
                         <Button onClick={handleSave} disabled={saving} className="w-full">
                           {saving ? <Loader2 className="h-4 w-4 me-2 animate-spin" /> : <Save className="h-4 w-4 me-2" />}
                           {t.profile.saveChanges}
