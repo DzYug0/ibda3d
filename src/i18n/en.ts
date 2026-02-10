@@ -80,6 +80,7 @@ export const en = {
     title: 'My Wishlist',
     emptyTitle: 'Your wishlist is empty',
     emptyDescription: 'Browse products and add your favorites to see them here.',
+    addToWishlist: 'Add to Wishlist',
   },
 
   // Categories
@@ -279,6 +280,27 @@ export const en = {
     clearAll: 'Clear all',
     apply: 'Apply',
     discount: 'Discount',
+  },
+
+  // Reviews
+  reviews: {
+    title: 'Customer Reviews',
+    writeReview: 'Write a Review',
+    rating: 'Rating',
+    comment: 'Comment',
+    commentPlaceholder: 'Share your experience...',
+    submit: 'Submit Review',
+    latestReviews: 'Latest Reviews',
+    noReviews: 'No reviews yet. Be the first to verify this product!',
+    loginToReview: 'Please log in to leave a review.',
+    pendingApproval: 'Review submitted for moderation',
+    verifiedPurchase: 'Verified Purchase',
+    stars: 'Stars',
+    outOf5: 'out of 5',
+    adminTitle: 'Review Management',
+    approve: 'Approve',
+    reject: 'Reject',
+    status: 'Status',
   },
 
   // Language
