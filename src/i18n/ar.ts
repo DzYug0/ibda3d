@@ -84,6 +84,7 @@ export const ar: DeepPartial<TranslationKeys> = {
     title: 'قائمة رغباتي',
     emptyTitle: 'قائمة رغباتك فارغة',
     emptyDescription: 'تصفح المنتجات وأضف مفضلاتك لرؤيتها هنا.',
+    addToWishlist: 'أضف إلى قائمة الرغبات',
   },
 
   // Categories
@@ -283,6 +284,27 @@ export const ar: DeepPartial<TranslationKeys> = {
     clearAll: 'مسح الكل',
     apply: 'تطبيق',
     discount: 'خصم',
+  },
+
+  // Reviews
+  reviews: {
+    title: 'مراجعات العملاء',
+    writeReview: 'اكتب مراجعة',
+    rating: 'التقييم',
+    comment: 'تعليق',
+    commentPlaceholder: 'شارك تجربتك...',
+    submit: 'إرسال المراجعة',
+    latestReviews: 'أحدث المراجعات',
+    noReviews: 'لا توجد مراجعات بعد. كن أول من يقيّم هذا المنتج!',
+    loginToReview: 'يرجى تسجيل الدخول لكتابة مراجعة.',
+    pendingApproval: 'تم إرسال المراجعة للموافقة',
+    verifiedPurchase: 'شراء مؤكد',
+    stars: 'نجوم',
+    outOf5: 'من 5',
+    adminTitle: 'إدارة المراجعات',
+    approve: 'موافقة',
+    reject: 'رفض',
+    status: 'الحالة',
   },
 
   // Language

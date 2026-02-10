@@ -9,6 +9,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ProductGallery } from '@/components/products/ProductGallery';
 import { WishlistButton } from '@/components/products/WishlistButton';
 import { RelatedProducts } from '@/components/products/RelatedProducts';
+import { ReviewList } from '@/components/products/ReviewList';
+import { ReviewForm } from '@/components/products/ReviewForm';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { SEO } from '@/components/SEO';
@@ -301,6 +303,21 @@ export default function ProductDetail() {
                 <WishlistButton productId={product.id} size="lg" className="h-12 w-12 rounded-full border shadow-sm" variant="outline" />
                 <span className="ms-2 self-center text-muted-foreground text-sm">{t.wishlist?.addToWishlist || "Add to Wishlist"}</span>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="bg-card rounded-2xl p-6 border border-border mt-8">
+          <h2 className="text-2xl font-bold mb-6">{t.reviews?.title || "Customer Reviews"}</h2>
+          <div className="grid md:grid-cols-2 gap-12">
+            <div>
+              <h3 className="text-lg font-semibold mb-4">{t.reviews?.writeReview || "Write a Review"}</h3>
+              <ReviewForm productId={product.id} />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-4">{t.reviews?.latestReviews || "Latest Reviews"}</h3>
+              <ReviewList productId={product.id} />
             </div>
           </div>
         </div>

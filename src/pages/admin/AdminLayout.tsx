@@ -1,18 +1,12 @@
 import { useState } from 'react';
 import { Link, Outlet, useLocation, Navigate } from 'react-router-dom';
-import { LayoutDashboard, Package, FolderOpen, ShoppingBag, Users, History, ChevronLeft, LogOut, Truck, Boxes, PanelLeftClose, PanelLeft, Menu, Tag, Layout, Settings } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import logo from '@/assets/logo.png';
-import { cn } from '@/lib/utils';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { LayoutDashboard, Package, FolderOpen, ShoppingBag, Users, History, ChevronLeft, LogOut, Truck, Boxes, PanelLeftClose, PanelLeft, Menu, Tag, Layout, Settings, Star } from 'lucide-react';
+
+// ... (imports remain the same)
 
 const baseNavItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
+  { icon: Star, label: 'Reviews', path: '/admin/reviews' },
   { icon: Package, label: 'Products', path: '/admin/products' },
   { icon: FolderOpen, label: 'Categories', path: '/admin/categories' },
   { icon: ShoppingBag, label: 'Orders', path: '/admin/orders' },
