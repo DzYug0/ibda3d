@@ -111,6 +111,13 @@ export const en = {
     backToPacks: 'Back to Packs',
     individualTotal: 'Individual items total:',
     more: 'more',
+    menuLink: 'Packs',
+  },
+
+  // Header
+  header: {
+    profile: 'Profile',
+    wishlist: 'Wishlist',
   },
 
   // Cart

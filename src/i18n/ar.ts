@@ -115,6 +115,13 @@ export const ar: DeepPartial<TranslationKeys> = {
     backToPacks: 'العودة للباقات',
     individualTotal: 'مجموع العناصر الفردية:',
     more: 'أخرى',
+    menuLink: 'الباقات',
+  },
+
+  // Header
+  header: {
+    profile: 'الملف الشخصي',
+    wishlist: 'قائمة الرغبات',
   },
 
   // Cart
