@@ -34,64 +34,48 @@ export default function Products() {
 
   const selectedSlugs = useMemo(() => categoryParam ? categoryParam.split(',').filter(Boolean) : [], [categoryParam]);
 
-  const { data: allProducts = [], isLoading } = useProducts();
+
   const { data: categories = [] } = useCategories();
   const { data: banners = [] } = useBanners();
   const sidebarBanners = banners.filter(b => b.location === 'sidebar');
 
-  // Filter & Sort Logic
-  const filteredProducts = useMemo(() => {
-    let result = [...allProducts];
+  // Resolve category slugs to IDs for filtering
+  const categoryIds = useMemo(() => {
+    if (selectedSlugs.length === 0) return undefined;
+    if (categories.length === 0) return undefined;
 
-    // Search
-    if (searchQuery) {
-      const lower = searchQuery.toLowerCase();
-      result = result.filter(p => p.name.toLowerCase().includes(lower) || p.description?.toLowerCase().includes(lower));
-    }
+    const ids: string[] = [];
+    const expandedSlugs = [...selectedSlugs];
 
-    // Category
-    if (selectedSlugs.length > 0) {
-      // Expand selected slugs to include children of selected parents
-      const expandedSlugs = [...selectedSlugs];
-
-      selectedSlugs.forEach(slug => {
-        const category = categories.find(c => c.slug === slug);
-        if (category) {
-          // Find all children of this category
-          const children = categories.filter(c => c.parent_id === category.id);
-          children.forEach(child => {
-            if (!expandedSlugs.includes(child.slug)) {
-              expandedSlugs.push(child.slug);
-            }
-          });
-        }
-      });
-
-      result = result.filter(p =>
-        p.categories?.some(c => expandedSlugs.includes(c.slug)) ||
-        (p.category && expandedSlugs.includes(p.category.slug))
-      );
-    }
-
-    // Price
-    result = result.filter(p => p.price >= minPriceParam && p.price <= maxPriceParam);
-
-    // Stock
-    if (inStockParam) {
-      result = result.filter(p => p.stock_quantity > 0);
-    }
-
-    // Sort
-    result.sort((a, b) => {
-      switch (sortParam) {
-        case 'price-asc': return a.price - b.price;
-        case 'price-desc': return b.price - a.price;
-        default: return new Date(b.created_at).getTime() - new Date(a.created_at).getTime(); // newest
+    selectedSlugs.forEach(slug => {
+      const category = categories.find(c => c.slug === slug);
+      if (category) {
+        ids.push(category.id);
+        // Find all children of this category
+        const children = categories.filter(c => c.parent_id === category.id);
+        children.forEach(child => {
+          if (!ids.includes(child.id)) {
+            ids.push(child.id);
+          }
+        });
       }
     });
 
-    return result;
-  }, [allProducts, searchQuery, selectedSlugs, minPriceParam, maxPriceParam, inStockParam, sortParam]);
+    // If we have slugs selected but found no matching IDs (e.g. invalid slug or categories not loaded),
+    // return a non-matching ID to ensure we return 0 results instead of all.
+    if (ids.length === 0) return ['00000000-0000-0000-0000-000000000000'];
+
+    return ids;
+  }, [selectedSlugs, categories]);
+
+  const { data: filteredProducts = [], isLoading } = useProducts({
+    categoryIds,
+    searchQuery,
+    minPrice: minPriceParam,
+    maxPrice: maxPriceParam,
+    inStock: inStockParam,
+    sort: sortParam
+  });
 
 
   // Handlers

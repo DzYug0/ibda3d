@@ -62,37 +62,79 @@ async function fetchProductCategories(productIds: string[]) {
   return map;
 }
 
-export function useProducts(categorySlug?: string) {
+export interface ProductFilters {
+  categoryIds?: string[];
+  searchQuery?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  inStock?: boolean;
+  sort?: string;
+}
+
+export function useProducts(filters?: ProductFilters) {
   return useQuery({
-    queryKey: ['products', categorySlug],
+    queryKey: ['products', filters],
     queryFn: async () => {
       let query = supabase
         .from('products')
-        .select('*')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
+        .select('*, product_categories!inner(category_id)')
+        .eq('is_active', true);
+
+      // Apply Search
+      if (filters?.searchQuery) {
+        // Use ilike for case-insensitive search
+        query = query.or(`name.ilike.%${filters.searchQuery}%,description.ilike.%${filters.searchQuery}%`);
+      }
+
+      // Apply Price Range
+      if (filters?.minPrice !== undefined) {
+        query = query.gte('price', filters.minPrice);
+      }
+      if (filters?.maxPrice !== undefined && filters.maxPrice < 100000) {
+        query = query.lte('price', filters.maxPrice);
+      }
+
+      // Apply Stock Filter
+      if (filters?.inStock) {
+        query = query.gt('stock_quantity', 0);
+      }
+
+      // Apply Category Filter
+      if (filters?.categoryIds && filters.categoryIds.length > 0) {
+        // We use the inner join on product_categories to filter
+        query = query.in('product_categories.category_id', filters.categoryIds);
+      }
+
+      // Apply Sorting
+      switch (filters?.sort) {
+        case 'price-asc':
+          query = query.order('price', { ascending: true });
+          break;
+        case 'price-desc':
+          query = query.order('price', { ascending: false });
+          break;
+        default: // newest
+          query = query.order('created_at', { ascending: false });
+      }
 
       const { data, error } = await query;
       if (error) throw error;
 
-      let products = data as unknown as Product[];
+      // Deduplicate products (in case multiple category matches return same product multiple times from join)
+      // Actually Supabase select * from products should be unique by ID if the join is implicit?
+      // Wait, product_categories!inner might cause duplication if a product is in multiple matched categories.
+      // We should dedup by ID.
+      const rawProducts = data as unknown as Product[];
+      const uniqueProducts = Array.from(new Map(rawProducts.map(p => [p.id, p])).values());
 
-      // Fetch categories from junction table
-      const catMap = await fetchProductCategories(products.map(p => p.id));
-      products = products.map(p => ({
+      // Fetch categories for the final list (to populate UI tags)
+      const catMap = await fetchProductCategories(uniqueProducts.map(p => p.id));
+
+      return uniqueProducts.map(p => ({
         ...p,
         categories: catMap[p.id] || [],
         category: catMap[p.id]?.[0] || undefined,
       }));
-
-      // Filter by category if specified
-      if (categorySlug) {
-        products = products.filter(p =>
-          p.categories?.some(c => c.slug === categorySlug)
-        );
-      }
-
-      return products;
     },
   });
 }
