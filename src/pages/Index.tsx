@@ -240,7 +240,7 @@ export default function Index() {
               className="w-full"
             >
               <CarouselContent className="-ml-4">
-                {categories.map((category) => (
+                {categories.filter(c => !c.parent_id).map((category) => (
                   <CarouselItem key={category.id} className="pl-4 basis-full xs:basis-1/2 sm:basis-1/2 md:basis-1/3 lg:basis-1/4">
                     <Link to={`/products?category=${category.slug}`} className="block group relative aspect-[4/3] rounded-2xl overflow-hidden bg-muted">
                       {category.image_url ? (
