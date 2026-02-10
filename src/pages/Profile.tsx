@@ -32,6 +32,8 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  const [activeTab, setActiveTab] = useState("overview");
+
   useEffect(() => {
     if (!user) return;
     supabase.from('profiles').select('username, email, avatar_url').eq('user_id', user.id).single().then(({ data }) => {
@@ -78,7 +80,7 @@ export default function ProfilePage() {
 
           {/* Main Content Areas */}
           <div className="md:w-2/3">
-            <Tabs defaultValue="overview" className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-4 mb-8">
                 <TabsTrigger value="overview"><LayoutDashboard className="h-4 w-4 md:mr-2" /><span className="hidden md:inline">Overview</span></TabsTrigger>
                 <TabsTrigger value="addresses"><MapPin className="h-4 w-4 md:mr-2" /><span className="hidden md:inline">Addresses</span></TabsTrigger>
@@ -109,7 +111,7 @@ export default function ProfilePage() {
                         </div>
 
                         <div className="rounded-md bg-muted p-4 text-sm text-muted-foreground">
-                          <p>To manage your <strong>Full Name</strong>, <strong>Phone Number</strong>, and <strong>Shipping Addresses</strong>, please go to the <Button variant="link" className="p-0 h-auto font-semibold" onClick={() => document.querySelector('[value="addresses"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))}>Addresses</Button> tab.</p>
+                          <p>To manage your <strong>Full Name</strong>, <strong>Phone Number</strong>, and <strong>Shipping Addresses</strong>, please go to the <Button variant="link" className="p-0 h-auto font-semibold" onClick={() => setActiveTab("addresses")}>Addresses</Button> tab.</p>
                         </div>
 
                         <Button onClick={handleSave} disabled={saving} className="w-full">
