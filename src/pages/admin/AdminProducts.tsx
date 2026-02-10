@@ -375,21 +375,41 @@ export default function AdminProducts() {
 
               <div>
                 <Label>Categories</Label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2 p-3 border border-border rounded-lg max-h-40 overflow-y-auto">
-                  {categories.map((cat) => (
-                    <label
-                      key={cat.id}
-                      className="flex items-center gap-2 cursor-pointer text-sm"
-                    >
-                      <Checkbox
-                        checked={formData.category_ids.includes(cat.id)}
-                        onCheckedChange={() => toggleCategory(cat.id)}
-                      />
-                      {cat.name}
-                    </label>
-                  ))}
+                <div className="grid grid-cols-1 gap-2 mt-2 p-3 border border-border rounded-lg max-h-60 overflow-y-auto">
+                  {categories.filter(c => !c.parent_id).map((parent) => {
+                    const children = categories.filter(c => c.parent_id === parent.id);
+                    return (
+                      <div key={parent.id} className="space-y-1">
+                        <label className="flex items-center gap-2 cursor-pointer text-sm font-medium hover:bg-muted/50 p-1 rounded">
+                          <Checkbox
+                            checked={formData.category_ids.includes(parent.id)}
+                            onCheckedChange={() => toggleCategory(parent.id)}
+                          />
+                          {parent.name}
+                        </label>
+
+                        {children.length > 0 && (
+                          <div className="pl-6 grid grid-cols-1 sm:grid-cols-2 gap-1 border-l-2 border-muted ml-2">
+                            {children.map(child => (
+                              <label
+                                key={child.id}
+                                className="flex items-center gap-2 cursor-pointer text-sm hover:bg-muted/50 p-1 rounded"
+                              >
+                                <Checkbox
+                                  checked={formData.category_ids.includes(child.id)}
+                                  onCheckedChange={() => toggleCategory(child.id)}
+                                />
+                                {child.name}
+                              </label>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+
                   {categories.length === 0 && (
-                    <p className="text-sm text-muted-foreground col-span-full">No categories available</p>
+                    <p className="text-sm text-muted-foreground">No categories available</p>
                   )}
                 </div>
               </div>
