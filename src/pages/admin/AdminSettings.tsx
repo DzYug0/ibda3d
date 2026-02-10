@@ -49,7 +49,9 @@ export default function AdminSettings() {
             const settingsMap: Partial<StoreSettings> = {};
             data.forEach(item => {
                 // @ts-ignore
-                settingsMap[item.key] = item.value;
+                // Handle both wrapped and unwrapped legacy values
+                const val = item.value;
+                settingsMap[item.key] = (val && typeof val === 'object' && 'val' in val) ? val.val : val;
             });
 
             return { ...DEFAULT_SETTINGS, ...settingsMap };
@@ -66,7 +68,7 @@ export default function AdminSettings() {
         mutationFn: async (newSettings: StoreSettings) => {
             const updates = Object.entries(newSettings).map(([key, value]) => ({
                 key,
-                value,
+                value: { val: value }, // Wrap in object to ensure valid JSONB
                 updated_at: new Date().toISOString(),
             }));
 
