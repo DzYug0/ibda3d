@@ -91,7 +91,6 @@ export function useCreateOrder() {
       shippingInfo,
       notes,
       couponCode,
-      paymentMethod = 'cod',
     }: {
       items: {
         product_id: string | null;
@@ -109,7 +108,6 @@ export function useCreateOrder() {
       };
       notes?: string;
       couponCode?: string | null;
-      paymentMethod?: 'cod' | 'chargily';
     }) => {
       // Use RPC instead of Edge Function
       const { data, error } = await supabase.rpc('create_new_order' as any, {
@@ -124,7 +122,6 @@ export function useCreateOrder() {
         p_shipping_info: shippingInfo,
         p_notes: notes || '',
         p_coupon_code: couponCode || null,
-        p_payment_method: paymentMethod,
       });
 
       if (error) throw error;
@@ -139,7 +136,7 @@ export function useCreateOrder() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
-      // toast.success('Order placed successfully!'); // Handled in component now for better flow control
+      toast.success('Order placed successfully!');
     },
     onError: (error) => {
       toast.error('Failed to place order: ' + error.message);

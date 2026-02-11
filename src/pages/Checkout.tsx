@@ -88,7 +88,6 @@ export default function Checkout() {
     phone: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'chargily'>('cod');
 
   // Coupon State
   const [couponCode, setCouponCode] = useState('');
@@ -257,7 +256,7 @@ export default function Checkout() {
     setCouponError('');
     try {
       // Direct RPC call to validate coupon logic
-      const { data, error } = await supabase.rpc('validate_coupon' as any, {
+      const { data, error } = await supabase.rpc('validate_coupon', {
         coupon_code: couponCode,
         cart_total: itemsTotal
       });
@@ -327,7 +326,6 @@ export default function Checkout() {
     );
   }
 
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -361,7 +359,7 @@ export default function Checkout() {
         ? 'Desk delivery (Desk Stop)'
         : 'Home delivery';
 
-      const orderData = await createOrder.mutateAsync({
+      await createOrder.mutateAsync({
         items,
         shippingInfo: {
           address: shippingInfo.deliveryType === 'home'
@@ -373,7 +371,6 @@ export default function Checkout() {
         },
         notes: `${deliveryNote} | Company: ${selectedCompany?.name} | Name: ${shippingInfo.fullName} | Phone: ${shippingInfo.phone} | Shipping: ${shippingCost} DA`,
         couponCode: appliedCoupon ? appliedCoupon.code : null,
-        paymentMethod,
       });
 
       // Clear cart only for logged-in users
@@ -381,7 +378,7 @@ export default function Checkout() {
         await clearCart.mutateAsync();
       }
 
-      // Save checkout info back to user profile
+      // Save checkout info back to user profile (optional now that we have addresses)
       if (user) {
         await supabase
           .from('profiles')
@@ -393,36 +390,11 @@ export default function Checkout() {
           .eq('user_id', user.id);
       }
 
-      if (paymentMethod === 'chargily') {
-        const { data, error } = await supabase.functions.invoke('create-chargily-checkout', {
-          body: {
-            orderId: orderData.id,
-            successUrl: `${window.location.origin}/payment/success`,
-            failureUrl: `${window.location.origin}/payment/failed`
-          }
-        });
-
-        if (error) throw error;
-        if (data?.checkout_url) {
-          window.location.href = data.checkout_url;
-          return; // Don't set orderPlaced(true) yet
-        } else {
-          throw new Error('Failed to retrieve payment URL');
-        }
-      }
-
       setOrderPlaced(true);
-    } catch (err) {
-      console.error(err);
-      if (err instanceof Error) {
-        // useOrders already establishes toast error, but we might want to be specific
-      }
+    } catch {
+      // Error handled by mutation
     } finally {
-      // If redirecting, we might not want to set processing to false immediately 
-      // to prevent user interaction, but since we modify window.location, it's fine.
-      if (paymentMethod !== 'chargily') {
-        setIsProcessing(false);
-      }
+      setIsProcessing(false);
     }
   };
 
@@ -651,44 +623,13 @@ export default function Checkout() {
                   <CheckCircle className="h-5 w-5 text-primary" />
                   <h2 className="text-xl font-bold text-foreground">{t.checkout.payment}</h2>
                 </div>
-
-                <RadioGroup
-                  value={paymentMethod}
-                  onValueChange={(value: 'cod' | 'chargily') => setPaymentMethod(value)}
-                  className="space-y-4"
-                >
-                  <div className={`flex items-start gap-4 p-4 rounded-lg border-2 transition-colors cursor-pointer ${paymentMethod === 'cod'
-                    ? 'border-primary bg-primary/5'
-                    : 'border-border hover:border-primary/50'
-                    }`}>
-                    <RadioGroupItem value="cod" id="cod" className="mt-1" />
-                    <div className="flex-1">
-                      <Label htmlFor="cod" className="flex items-center gap-2 cursor-pointer font-semibold">
-                        {t.checkout.cashOnDelivery}
-                      </Label>
-                      <p className="text-sm text-muted-foreground mt-1">{t.checkout.cashOnDeliveryDesc}</p>
-                    </div>
+                <div className="flex items-center gap-3 p-4 bg-success/10 rounded-lg">
+                  <CheckCircle className="h-5 w-5 text-success" />
+                  <div>
+                    <p className="font-medium text-foreground">{t.checkout.cashOnDelivery}</p>
+                    <p className="text-sm text-muted-foreground">{t.checkout.cashOnDeliveryDesc}</p>
                   </div>
-
-                  <div className={`flex items-start gap-4 p-4 rounded-lg border-2 transition-colors cursor-pointer ${paymentMethod === 'chargily'
-                    ? 'border-primary bg-primary/5'
-                    : 'border-border hover:border-primary/50'
-                    }`}>
-                    <RadioGroupItem value="chargily" id="chargily" className="mt-1" />
-                    <div className="flex-1">
-                      <Label htmlFor="chargily" className="flex items-center gap-2 cursor-pointer font-semibold">
-                        <span>Chargily Pay (CIB / Edahabia)</span>
-                        <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">Secure</span>
-                      </Label>
-                      <p className="text-sm text-muted-foreground mt-1">Pay securely online using your CIB or Edahabia card.</p>
-                      <div className="flex gap-2 mt-2">
-                        {/* You could add card icons here if available */}
-                        <div className="h-6 w-10 bg-muted/50 rounded flex items-center justify-center text-[10px]">CIB</div>
-                        <div className="h-6 w-10 bg-muted/50 rounded flex items-center justify-center text-[10px]">Edahabia</div>
-                      </div>
-                    </div>
-                  </div>
-                </RadioGroup>
+                </div>
               </div>
             </div>
 
