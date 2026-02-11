@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from '@/hooks/use-toast';
-import { User, Mail, Phone, MapPin, Save, Loader2, Package, Shield, LayoutDashboard } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Save, Loader2, Package, Shield, LayoutDashboard, Upload } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { AddressBook } from '@/components/profile/AddressBook';
@@ -67,9 +67,66 @@ export default function ProfilePage() {
           {/* Sidebar / User Info */}
           <Card className="md:w-1/3 h-fit">
             <CardHeader className="items-center text-center">
-              <Avatar className="h-24 w-24 mb-4">
-                <AvatarFallback className="text-3xl bg-primary text-primary-foreground">{displayInitials}</AvatarFallback>
-              </Avatar>
+              <div className="mb-4 relative group">
+                {profile.avatar_url ? (
+                  <Avatar className="h-24 w-24 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => document.getElementById('avatar-upload')?.click()}>
+                    <img src={profile.avatar_url} alt="Profile" className="h-full w-full object-cover" />
+                  </Avatar>
+                ) : (
+                  <Avatar className="h-24 w-24 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => document.getElementById('avatar-upload')?.click()}>
+                    <AvatarFallback className="text-3xl bg-primary text-primary-foreground">{displayInitials}</AvatarFallback>
+                  </Avatar>
+                )}
+                <div className="absolute bottom-0 right-0 bg-secondary rounded-full p-1.5 border-2 border-background cursor-pointer" onClick={() => document.getElementById('avatar-upload')?.click()}>
+                  <Upload className="h-3 w-3 text-secondary-foreground" />
+                </div>
+                <Input
+                  type="file"
+                  id="avatar-upload"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    if (file.size > 5 * 1024 * 1024) {
+                      toast({ title: 'Error', description: 'Image must be less than 5MB', variant: 'destructive' });
+                      return;
+                    }
+
+                    const fileExt = file.name.split('.').pop();
+                    const fileName = `${user?.id}-${Math.random()}.${fileExt}`;
+                    const filePath = `${fileName}`;
+
+                    // Show loading state if needed
+
+                    const { error: uploadError } = await supabase.storage
+                      .from('avatars')
+                      .upload(filePath, file);
+
+                    if (uploadError) {
+                      toast({ title: 'Error', description: 'Failed to upload avatar', variant: 'destructive' });
+                      return;
+                    }
+
+                    const { data: { publicUrl } } = supabase.storage
+                      .from('avatars')
+                      .getPublicUrl(filePath);
+
+                    // Update profile immediately
+                    const { error: updateError } = await supabase
+                      .from('profiles')
+                      .update({ avatar_url: publicUrl })
+                      .eq('user_id', user?.id);
+
+                    if (updateError) {
+                      toast({ title: 'Error', description: 'Failed to update profile image', variant: 'destructive' });
+                    } else {
+                      setProfile(prev => ({ ...prev, avatar_url: publicUrl }));
+                      toast({ title: 'Success', description: 'Profile image updated' });
+                    }
+                  }}
+                />
+              </div>
               <CardTitle className="text-xl">@{profile.username || 'user'}</CardTitle>
               <CardDescription>{profile.email}</CardDescription>
             </CardHeader>

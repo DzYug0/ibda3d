@@ -76,6 +76,55 @@ export function SecuritySettings() {
                     Update Password
                 </Button>
             </form>
+
+            <div className="border-t pt-6 mt-6">
+                <h3 className="text-lg font-medium mb-4">Change Email</h3>
+                <EmailChangeForm />
+            </div>
         </div>
+    );
+}
+
+function EmailChangeForm() {
+    const { toast } = useToast();
+    const [loading, setLoading] = useState(false);
+    const [email, setEmail] = useState('');
+
+    const handleEmailChange = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        const { error } = await supabase.auth.updateUser({ email: email });
+
+        if (error) {
+            toast({ title: 'Error', description: error.message, variant: 'destructive' });
+        } else {
+            toast({ title: 'Check your email', description: 'Confirmation links have been sent to both your old and new email addresses.' });
+            setEmail('');
+        }
+        setLoading(false);
+    };
+
+    return (
+        <form onSubmit={handleEmailChange} className="space-y-4">
+            <div className="space-y-2">
+                <Label htmlFor="new-email">New Email Address</Label>
+                <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        id="new-email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="pl-9"
+                        placeholder="new@example.com"
+                        required
+                    />
+                </div>
+            </div>
+            <Button type="submit" disabled={loading} variant="outline" className="w-full">
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Update Email
+            </Button>
+        </form>
     );
 }
