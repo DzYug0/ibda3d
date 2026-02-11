@@ -91,7 +91,12 @@ export default function Auth() {
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
     try {
-      const { error } = await lovable.auth.signInWithOAuth('google', { redirect_uri: window.location.origin });
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin,
+        },
+      });
       if (error) toast.error(error.message || 'Failed to sign in with Google');
     } catch { toast.error('An unexpected error occurred'); }
     finally { setIsGoogleLoading(false); }
@@ -133,12 +138,13 @@ export default function Auth() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {isSignUp && (
               <div className="space-y-2">
-                <Label htmlFor="name">{t.auth.fullName}</Label>
+                <Label htmlFor="username">Username</Label>
                 <div className="relative">
                   <User className="absolute start-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                  <Input id="name" type="text" placeholder="John Doe" value={fullName} onChange={(e) => setFullName(e.target.value)} className="ps-10" />
+                  <Input id="username" type="text" placeholder="username" value={username} onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/\s/g, '_'))} className="ps-10" />
                 </div>
-                {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
+                {errors.username && <p className="text-sm text-destructive">{errors.username}</p>}
+                <p className="text-xs text-muted-foreground">Only lowercase letters, numbers, and underscores.</p>
               </div>
             )}
 
