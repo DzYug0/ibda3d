@@ -16,7 +16,7 @@ import { AddressBook } from '@/components/profile/AddressBook';
 import { OrderHistory } from '@/components/profile/OrderHistory';
 import { SecuritySettings } from '@/components/profile/SecuritySettings';
 
-// ... imports
+
 
 interface Profile {
   username: string | null;

@@ -39,7 +39,6 @@ export function ReviewList({ productId }: ReviewListProps) {
         <div className="space-y-6">
             {reviews.map((review) => (
                 <div key={review.id} className="flex gap-4 p-4 rounded-xl bg-card border border-border">
-// ... imports
 
                     <Avatar>
                         <AvatarImage src={review.user?.avatar_url || ''} />
