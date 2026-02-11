@@ -88,6 +88,7 @@ export default function Checkout() {
     phone: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'chargily'>('cod');
 
   // Coupon State
   const [couponCode, setCouponCode] = useState('');
@@ -326,7 +327,6 @@ export default function Checkout() {
     );
   }
 
-  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'chargily'>('cod');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
