@@ -39,14 +39,15 @@ export function ReviewList({ productId }: ReviewListProps) {
         <div className="space-y-6">
             {reviews.map((review) => (
                 <div key={review.id} className="flex gap-4 p-4 rounded-xl bg-card border border-border">
+
                     <Avatar>
                         <AvatarImage src={review.user?.avatar_url || ''} />
-                        <AvatarFallback>{review.user?.full_name?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
+                        <AvatarFallback>{review.user?.username?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
                     </Avatar>
                     <div className="flex-1 space-y-1">
                         <div className="flex justify-between items-start">
                             <div>
-                                <p className="font-semibold text-foreground">{review.user?.full_name || 'Anonymous'}</p>
+                                <p className="font-semibold text-foreground">@{review.user?.username || 'Anonymous'}</p>
                                 <div className="flex items-center gap-2">
                                     <StarRating rating={review.rating} size={14} />
                                     <span className="text-xs text-muted-foreground">• {formatDistanceToNow(new Date(review.created_at), { addSuffix: true })}</span>

@@ -36,7 +36,7 @@ export default function AdminReviews() {
     const filteredReviews = reviews.filter(r => {
         const matchesStatus = filterStatus === 'all' || r.status === filterStatus;
         const matchesSearch =
-            r.user?.full_name?.toLowerCase().includes(search.toLowerCase()) ||
+            r.user?.username?.toLowerCase().includes(search.toLowerCase()) ||
             r.comment?.toLowerCase().includes(search.toLowerCase()) ||
             r.product?.name?.toLowerCase().includes(search.toLowerCase());
         return matchesStatus && matchesSearch;
@@ -109,7 +109,7 @@ export default function AdminReviews() {
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex items-center gap-2">
-                                                <span className="font-medium">{review.user?.full_name || 'Anonymous'}</span>
+                                                <span className="font-medium">@{review.user?.username || 'Anonymous'}</span>
                                             </div>
                                         </TableCell>
                                         <TableCell>

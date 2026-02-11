@@ -81,10 +81,10 @@ export default function AdminActivityLog() {
       // Get profiles to map user IDs to emails
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('user_id, email, full_name');
+        .select('user_id, email, username');
 
       const profileMap = new Map(
-        profiles?.map((p) => [p.user_id, { email: p.email, name: p.full_name }]) || []
+        profiles?.map((p) => [p.user_id, { email: p.email, name: p.username }]) || []
       );
 
       // Enrich logs with actor info

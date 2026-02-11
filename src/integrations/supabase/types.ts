@@ -500,6 +500,51 @@ export type Database = {
           },
         ]
       }
+      reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          product_id: string
+          rating: number
+          status: "pending" | "approved" | "rejected"
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          product_id: string
+          rating: number
+          status?: "pending" | "approved" | "rejected"
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          product_id?: string
+          rating?: number
+          status?: "pending" | "approved" | "rejected"
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           address: string | null
@@ -508,7 +553,7 @@ export type Database = {
           banned_at: string | null
           created_at: string
           email: string | null
-          full_name: string | null
+          username: string | null
           id: string
           is_banned: boolean
           phone: string | null
@@ -522,7 +567,7 @@ export type Database = {
           banned_at?: string | null
           created_at?: string
           email?: string | null
-          full_name?: string | null
+          username?: string | null
           id?: string
           is_banned?: boolean
           phone?: string | null
@@ -536,7 +581,7 @@ export type Database = {
           banned_at?: string | null
           created_at?: string
           email?: string | null
-          full_name?: string | null
+          username?: string | null
           id?: string
           is_banned?: boolean
           phone?: string | null
