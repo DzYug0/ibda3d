@@ -18,7 +18,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Search, Shield, Package, FolderOpen, ShoppingBag, UserCog, Settings, Ticket, Truck } from 'lucide-react';
+import { Search, Shield, Package, FolderOpen, ShoppingBag, UserCog, Settings, Ticket, Truck, Star, Image } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 interface ActivityLog {
@@ -54,6 +54,11 @@ const actionLabels: Record<string, string> = {
   shipping_company_update: 'Updated Shipping Company',
   shipping_company_delete: 'Deleted Shipping Company',
   shipping_rates_update: 'Updated Shipping Rates',
+  review_update: 'Updated Review',
+  review_delete: 'Deleted Review',
+  banner_create: 'Created Banner',
+  banner_update: 'Updated Banner',
+  banner_delete: 'Deleted Banner',
 };
 
 const targetIcons: Record<string, typeof Shield> = {
@@ -65,6 +70,8 @@ const targetIcons: Record<string, typeof Shield> = {
   coupon: Ticket,
   shipping_company: Truck,
   shipping_rates: Truck,
+  review: Star,
+  banner: Image,
 };
 
 const actionColors: Record<string, string> = {
@@ -88,6 +95,11 @@ const actionColors: Record<string, string> = {
   shipping_company_update: 'bg-indigo-500/10 text-indigo-600 border-indigo-500/20',
   shipping_company_delete: 'bg-red-500/10 text-red-600 border-red-500/20',
   shipping_rates_update: 'bg-indigo-500/10 text-indigo-600 border-indigo-500/20',
+  review_update: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20',
+  review_delete: 'bg-red-500/10 text-red-600 border-red-500/20',
+  banner_create: 'bg-cyan-500/10 text-cyan-600 border-cyan-500/20',
+  banner_update: 'bg-cyan-500/10 text-cyan-600 border-cyan-500/20',
+  banner_delete: 'bg-red-500/10 text-red-600 border-red-500/20',
 };
 
 export default function AdminActivityLog() {
@@ -225,6 +237,23 @@ export default function AdminActivityLog() {
             Updated {log.details.count as number} rates for company
           </span>
         );
+      case 'review_update':
+        return (
+          <span>
+            Updated review status to <Badge variant="outline">{log.details.status as string}</Badge>
+          </span>
+        );
+      case 'review_delete':
+        return <span>Deleted Review</span>;
+      case 'banner_create':
+      case 'banner_update':
+      case 'banner_delete':
+        return (
+          <span>
+            Banner: <span className="font-medium">{log.details.title as string || log.target_id}</span>
+            {log.details.location && <span className="text-muted-foreground ml-1">({log.details.location as string})</span>}
+          </span>
+        );
       default:
         return JSON.stringify(log.details);
     }
@@ -274,6 +303,11 @@ export default function AdminActivityLog() {
             <SelectItem value="shipping_company_update">Shipping Co. Updated</SelectItem>
             <SelectItem value="shipping_company_delete">Shipping Co. Deleted</SelectItem>
             <SelectItem value="shipping_rates_update">Shipping Rates Updated</SelectItem>
+            <SelectItem value="review_update">Review Updated</SelectItem>
+            <SelectItem value="review_delete">Review Deleted</SelectItem>
+            <SelectItem value="banner_create">Banner Created</SelectItem>
+            <SelectItem value="banner_update">Banner Updated</SelectItem>
+            <SelectItem value="banner_delete">Banner Deleted</SelectItem>
           </SelectContent>
         </Select>
       </div>

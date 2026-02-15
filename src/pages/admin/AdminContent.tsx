@@ -87,8 +87,23 @@ export default function AdminContent() {
                 if (error) throw error;
             }
         },
-        onSuccess: () => {
+        onSuccess: async () => {
             queryClient.invalidateQueries({ queryKey: ['admin-banners'] });
+
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                await supabase.from('activity_logs').insert({
+                    user_id: user.id,
+                    action: editingBanner ? 'banner_update' : 'banner_create',
+                    target_type: 'banner',
+                    target_id: editingBanner?.id || null,
+                    details: {
+                        title: formData.title,
+                        location: formData.location
+                    },
+                });
+            }
+
             setIsDialogOpen(false);
             resetForm();
             toast.success(editingBanner ? 'Banner updated' : 'Banner created');
@@ -106,8 +121,20 @@ export default function AdminContent() {
                 .eq('id', id);
             if (error) throw error;
         },
-        onSuccess: () => {
+        onSuccess: async (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['admin-banners'] });
+
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                await supabase.from('activity_logs').insert({
+                    user_id: user.id,
+                    action: 'banner_delete',
+                    target_type: 'banner',
+                    target_id: variables,
+                    details: { banner_id: variables },
+                });
+            }
+
             toast.success('Banner deleted');
         },
         onError: (error) => {
