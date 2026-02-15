@@ -1,9 +1,12 @@
 -- Create a function to manage users (ban, unban, delete)
 -- This replaces the edge function for better offline/local support
+-- Updated to use target_user_id to avoid ambiguity with column names
+
+DROP FUNCTION IF EXISTS public.manage_user(text, uuid, text);
 
 CREATE OR REPLACE FUNCTION public.manage_user(
     action text,
-    user_id uuid,
+    target_user_id uuid,
     reason text DEFAULT NULL
 )
 RETURNS json
@@ -28,11 +31,10 @@ BEGIN
 
     IF action = 'delete' THEN
         -- Delete from auth.users (cascades to public.profiles if configured)
-        DELETE FROM auth.users WHERE id = user_id;
+        DELETE FROM auth.users WHERE id = target_user_id;
         
         -- Also try to delete from profiles just in case cascade isn't set up or fails
-        -- (though it should cascade given ON DELETE CASCADE in schema)
-        DELETE FROM public.profiles WHERE user_id = manage_user.user_id;
+        DELETE FROM public.profiles WHERE user_id = target_user_id;
 
         RETURN json_build_object('success', true);
     
@@ -40,14 +42,14 @@ BEGIN
         -- Ban in auth.users (set ban duration to ~100 years)
         UPDATE auth.users 
         SET banned_until = (now() + interval '100 years')
-        WHERE id = user_id;
+        WHERE id = target_user_id;
 
         -- Update profiles
         UPDATE public.profiles
         SET is_banned = true,
             banned_at = now(),
             ban_reason = reason
-        WHERE user_id = manage_user.user_id;
+        WHERE user_id = target_user_id;
 
         RETURN json_build_object('success', true);
 
@@ -55,14 +57,14 @@ BEGIN
         -- Unban in auth.users
         UPDATE auth.users 
         SET banned_until = NULL
-        WHERE id = user_id;
+        WHERE id = target_user_id;
 
         -- Update profiles
         UPDATE public.profiles
         SET is_banned = false,
             banned_at = NULL,
             ban_reason = NULL
-        WHERE user_id = manage_user.user_id;
+        WHERE user_id = target_user_id;
 
         RETURN json_build_object('success', true);
         
