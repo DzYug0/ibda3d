@@ -18,7 +18,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Search, Shield, Package, FolderOpen, ShoppingBag, UserCog } from 'lucide-react';
+import { Search, Shield, Package, FolderOpen, ShoppingBag, UserCog, Settings, Ticket, Truck } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 interface ActivityLog {
@@ -43,6 +43,17 @@ const actionLabels: Record<string, string> = {
   category_delete: 'Deleted Category',
   order_update: 'Updated Order',
   order_delete: 'Deleted Order',
+  user_ban: 'Banned User',
+  user_unban: 'Unbanned User',
+  user_delete: 'Deleted User',
+  settings_update: 'Updated Settings',
+  coupon_create: 'Created Coupon',
+  coupon_update: 'Updated Coupon',
+  coupon_delete: 'Deleted Coupon',
+  shipping_company_create: 'Added Shipping Company',
+  shipping_company_update: 'Updated Shipping Company',
+  shipping_company_delete: 'Deleted Shipping Company',
+  shipping_rates_update: 'Updated Shipping Rates',
 };
 
 const targetIcons: Record<string, typeof Shield> = {
@@ -50,6 +61,10 @@ const targetIcons: Record<string, typeof Shield> = {
   product: Package,
   category: FolderOpen,
   order: ShoppingBag,
+  settings: Settings,
+  coupon: Ticket,
+  shipping_company: Truck,
+  shipping_rates: Truck,
 };
 
 const actionColors: Record<string, string> = {
@@ -62,6 +77,17 @@ const actionColors: Record<string, string> = {
   category_delete: 'bg-red-500/10 text-red-600 border-red-500/20',
   order_update: 'bg-purple-500/10 text-purple-600 border-purple-500/20',
   order_delete: 'bg-red-500/10 text-red-600 border-red-500/20',
+  user_ban: 'bg-red-500/10 text-red-600 border-red-500/20',
+  user_unban: 'bg-green-500/10 text-green-600 border-green-500/20',
+  user_delete: 'bg-red-500/10 text-red-600 border-red-500/20',
+  settings_update: 'bg-gray-500/10 text-gray-600 border-gray-500/20',
+  coupon_create: 'bg-pink-500/10 text-pink-600 border-pink-500/20',
+  coupon_update: 'bg-pink-500/10 text-pink-600 border-pink-500/20',
+  coupon_delete: 'bg-red-500/10 text-red-600 border-red-500/20',
+  shipping_company_create: 'bg-indigo-500/10 text-indigo-600 border-indigo-500/20',
+  shipping_company_update: 'bg-indigo-500/10 text-indigo-600 border-indigo-500/20',
+  shipping_company_delete: 'bg-red-500/10 text-red-600 border-red-500/20',
+  shipping_rates_update: 'bg-indigo-500/10 text-indigo-600 border-indigo-500/20',
 };
 
 export default function AdminActivityLog() {
@@ -156,6 +182,49 @@ export default function AdminActivityLog() {
             Deleted Order #{(log.details.order_id as string || log.target_id || '').slice(0, 8)}
           </span>
         );
+      case 'user_ban':
+        return (
+          <span>
+            Banned <span className="font-medium">{log.details.target_email as string}</span>
+            {log.details.reason && <span className="text-muted-foreground ml-1">({log.details.reason as string})</span>}
+          </span>
+        );
+      case 'user_unban':
+      case 'user_delete':
+        return (
+          <span>
+            {log.action === 'user_unban' ? 'Unbanned' : 'Deleted'} <span className="font-medium">{log.details.target_email as string}</span>
+          </span>
+        );
+      case 'settings_update':
+        return <span>Store settings updated</span>;
+      case 'coupon_create':
+      case 'coupon_update':
+      case 'coupon_delete':
+        return (
+          <span>
+            Coupon: <span className="font-mono font-medium">{log.details.code as string}</span>
+            {log.details.discount_value && (
+              <span className="text-muted-foreground ml-1">
+                ({String(log.details.discount_value)} {log.details.discount_type === 'percentage' ? '%' : 'DA'})
+              </span>
+            )}
+          </span>
+        );
+      case 'shipping_company_create':
+      case 'shipping_company_update':
+      case 'shipping_company_delete':
+        return (
+          <span>
+            Shipping Company: <span className="font-medium">{log.details.name || (log.details.updates as any)?.name || (log.details.company_id) || 'Unknown'}</span>
+          </span>
+        );
+      case 'shipping_rates_update':
+        return (
+          <span>
+            Updated {log.details.count as number} rates for company
+          </span>
+        );
       default:
         return JSON.stringify(log.details);
     }
@@ -194,6 +263,17 @@ export default function AdminActivityLog() {
             <SelectItem value="category_delete">Category Deleted</SelectItem>
             <SelectItem value="order_update">Order Updated</SelectItem>
             <SelectItem value="order_delete">Order Deleted</SelectItem>
+            <SelectItem value="user_ban">User Banned</SelectItem>
+            <SelectItem value="user_unban">User Unbanned</SelectItem>
+            <SelectItem value="user_delete">User Deleted</SelectItem>
+            <SelectItem value="settings_update">Settings Updated</SelectItem>
+            <SelectItem value="coupon_create">Coupon Created</SelectItem>
+            <SelectItem value="coupon_update">Coupon Updated</SelectItem>
+            <SelectItem value="coupon_delete">Coupon Deleted</SelectItem>
+            <SelectItem value="shipping_company_create">Shipping Co. Created</SelectItem>
+            <SelectItem value="shipping_company_update">Shipping Co. Updated</SelectItem>
+            <SelectItem value="shipping_company_delete">Shipping Co. Deleted</SelectItem>
+            <SelectItem value="shipping_rates_update">Shipping Rates Updated</SelectItem>
           </SelectContent>
         </Select>
       </div>

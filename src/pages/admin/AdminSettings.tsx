@@ -78,8 +78,20 @@ export default function AdminSettings() {
 
             if (error) throw error;
         },
-        onSuccess: () => {
+        onSuccess: async () => {
             queryClient.invalidateQueries({ queryKey: ['store-settings'] });
+
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                await supabase.from('activity_logs').insert({
+                    user_id: user.id,
+                    action: 'settings_update',
+                    target_type: 'settings',
+                    target_id: null,
+                    details: { updated_at: new Date().toISOString() },
+                });
+            }
+
             toast.success('Settings saved successfully');
         },
         onError: (error) => {

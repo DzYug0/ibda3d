@@ -203,7 +203,7 @@ export default function AdminUsers() {
 
   // Ban/Unban/Delete mutation
   const manageUserMutation = useMutation({
-    mutationFn: async ({ action, userId, reason }: { action: 'ban' | 'unban' | 'delete'; userId: string; reason?: string }) => {
+    mutationFn: async ({ action, userId, userEmail, reason }: { action: 'ban' | 'unban' | 'delete'; userId: string; userEmail: string; reason?: string }) => {
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (!session) throw new Error('Not authenticated');
 
@@ -224,8 +224,26 @@ export default function AdminUsers() {
 
       return result;
     },
-    onSuccess: (_, variables) => {
+    onSuccess: async (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+
+      const logActionMap: Record<string, string> = {
+        ban: 'user_ban',
+        unban: 'user_unban',
+        delete: 'user_delete',
+      };
+
+      await supabase.from('activity_logs').insert({
+        user_id: currentUser!.id,
+        action: logActionMap[variables.action],
+        target_type: 'user',
+        target_id: variables.userId,
+        details: {
+          target_email: variables.userEmail,
+          reason: variables.reason,
+        },
+      });
+
       const messages: Record<string, string> = {
         ban: 'User has been banned.',
         unban: 'User has been unbanned.',
@@ -427,7 +445,7 @@ export default function AdminUsers() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => manageUserMutation.mutate({ action: 'unban', userId: user.id })}
+                                onClick={() => manageUserMutation.mutate({ action: 'unban', userId: user.id, userEmail: user.email })}
                                 disabled={manageUserMutation.isPending}
                               >
                                 <ShieldOff className="h-4 w-4 mr-1" />
@@ -461,7 +479,7 @@ export default function AdminUsers() {
                                 <AlertDialogFooter>
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                                   <AlertDialogAction
-                                    onClick={() => manageUserMutation.mutate({ action: 'delete', userId: user.id })}
+                                    onClick={() => manageUserMutation.mutate({ action: 'delete', userId: user.id, userEmail: user.email })}
                                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                   >
                                     Delete
@@ -539,7 +557,7 @@ export default function AdminUsers() {
               onClick={() => {
                 if (banTarget) {
                   manageUserMutation.mutate(
-                    { action: 'ban', userId: banTarget.id, reason: banReason || undefined },
+                    { action: 'ban', userId: banTarget.id, userEmail: banTarget.email, reason: banReason || undefined },
                     { onSuccess: () => setBanDialogOpen(false) }
                   );
                 }
