@@ -122,6 +122,25 @@ export default function ProductDetail() {
         description={product.description || `Buy ${product.name} at Ibda3D. Best price in Algeria.`}
         image={product.image_url || undefined}
         type="product"
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "Product",
+          "name": product.name,
+          "image": images,
+          "description": product.description,
+          "brand": {
+            "@type": "Brand",
+            "name": "Ibda3D"
+          },
+          "offers": {
+            "@type": "Offer",
+            "url": window.location.href,
+            "priceCurrency": "DZD",
+            "price": product.price,
+            "availability": product.stock_quantity > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+            "itemCondition": "https://schema.org/NewCondition"
+          }
+        }}
       />
       <div className="container mx-auto px-4 py-8">
         <nav className="mb-6">

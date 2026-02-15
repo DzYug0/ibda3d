@@ -6,6 +6,7 @@ interface SEOProps {
     image?: string;
     url?: string;
     type?: string;
+    schema?: Record<string, any>;
 }
 
 export function SEO({
@@ -13,7 +14,8 @@ export function SEO({
     description = "Discover our complete range of 3D printed products. Professional quality, fast delivery across Algeria.",
     image = "/og-image.png",
     url,
-    type = "website"
+    type = "website",
+    schema
 }: SEOProps) {
     const siteTitle = "Ibda3D";
     const fullTitle = `${title} | ${siteTitle}`;
@@ -40,6 +42,13 @@ export function SEO({
             <meta property="twitter:title" content={fullTitle} />
             <meta property="twitter:description" content={description} />
             <meta property="twitter:image" content={fullImage} />
+
+            {/* Structured Data (JSON-LD) */}
+            {schema && (
+                <script type="application/ld+json">
+                    {JSON.stringify(schema)}
+                </script>
+            )}
         </Helmet>
     );
 }
