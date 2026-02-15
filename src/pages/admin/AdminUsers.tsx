@@ -252,6 +252,10 @@ export default function AdminUsers() {
       toast({ title: 'Permission denied', description: 'Only owners can modify owner accounts.', variant: 'destructive' });
       return;
     }
+    if (targetUser?.email === 'molpi48@gmail.com') {
+      toast({ title: 'Permission denied', description: 'Cannot modify the Main Owner account.', variant: 'destructive' });
+      return;
+    }
     if (!targetUser) return;
     updateRoleMutation.mutate({ userId, newRole, oldRole: targetUser.role, targetEmail: targetUser.email });
   };
