@@ -207,13 +207,22 @@ export default function AdminUsers() {
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (!session) throw new Error('Not authenticated');
 
-      const response = await supabaseClient.functions.invoke('manage-user', {
-        body: { action, userId, reason },
+      // Use RPC instead of Edge Function for better reliability/local support
+      const { data, error } = await supabaseClient.rpc('manage_user' as any, {
+        action,
+        user_id: userId,
+        reason: reason || null,
       });
 
-      if (response.error) throw response.error;
-      if (response.data?.error) throw new Error(response.data.error);
-      return response.data;
+      if (error) throw error;
+
+      // Check for application-level error in JSON response
+      const result = data as any;
+      if (result && result.error) {
+        throw new Error(result.error);
+      }
+
+      return result;
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
