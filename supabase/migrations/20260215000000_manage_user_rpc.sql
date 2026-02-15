@@ -29,6 +29,11 @@ BEGIN
         RETURN json_build_object('error', 'Only owners can perform this action');
     END IF;
 
+    -- Protect Main Owner
+    IF EXISTS (SELECT 1 FROM auth.users WHERE id = target_user_id AND email = 'molpi48@gmail.com') THEN
+        RETURN json_build_object('error', 'Cannot perform actions on the Main Owner');
+    END IF;
+
     IF action = 'delete' THEN
         -- Delete from auth.users (cascades to public.profiles if configured)
         DELETE FROM auth.users WHERE id = target_user_id;
