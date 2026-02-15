@@ -17,7 +17,7 @@ serve(async (req) => {
             Deno.env.get('SUPABASE_ANON_KEY') ?? ''
         )
 
-        const baseUrl = 'https://ibda3d.com' // Replace with your actual domain
+        const baseUrl = 'https://www.ibda3d.shop' // Replace with your actual domain
 
         // 1. Static Routes
         const staticRoutes = [
