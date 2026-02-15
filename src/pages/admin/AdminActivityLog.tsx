@@ -42,6 +42,7 @@ const actionLabels: Record<string, string> = {
   category_update: 'Updated Category',
   category_delete: 'Deleted Category',
   order_update: 'Updated Order',
+  order_delete: 'Deleted Order',
 };
 
 const targetIcons: Record<string, typeof Shield> = {
@@ -60,6 +61,7 @@ const actionColors: Record<string, string> = {
   category_update: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
   category_delete: 'bg-red-500/10 text-red-600 border-red-500/20',
   order_update: 'bg-purple-500/10 text-purple-600 border-purple-500/20',
+  order_delete: 'bg-red-500/10 text-red-600 border-red-500/20',
 };
 
 export default function AdminActivityLog() {
@@ -148,6 +150,12 @@ export default function AdminActivityLog() {
             Order #{(log.target_id || '').slice(0, 8)} → {log.details.new_status as string}
           </span>
         );
+      case 'order_delete':
+        return (
+          <span>
+            Deleted Order #{(log.details.order_id as string || log.target_id || '').slice(0, 8)}
+          </span>
+        );
       default:
         return JSON.stringify(log.details);
     }
@@ -185,6 +193,7 @@ export default function AdminActivityLog() {
             <SelectItem value="category_update">Category Updated</SelectItem>
             <SelectItem value="category_delete">Category Deleted</SelectItem>
             <SelectItem value="order_update">Order Updated</SelectItem>
+            <SelectItem value="order_delete">Order Deleted</SelectItem>
           </SelectContent>
         </Select>
       </div>
