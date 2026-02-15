@@ -15,10 +15,12 @@ import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { SEO } from '@/components/SEO';
 import type { ProductOption } from '@/components/admin/ProductOptionsEditor';
+import { useProductReviews } from '@/hooks/useReviews';
 
 export default function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
   const { data: product, isLoading } = useProduct(slug || '');
+  const { data: reviews = [] } = useProductReviews(product?.id || '');
   const { user } = useAuth();
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
@@ -115,6 +117,11 @@ export default function ProductDetail() {
     }
   };
 
+
+  const averageRating = reviews.length > 0
+    ? reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
+    : 0;
+
   return (
     <Layout>
       <SEO
@@ -139,7 +146,26 @@ export default function ProductDetail() {
             "price": product.price,
             "availability": product.stock_quantity > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
             "itemCondition": "https://schema.org/NewCondition"
-          }
+          },
+          ...(reviews.length > 0 && {
+            "aggregateRating": {
+              "@type": "AggregateRating",
+              "ratingValue": averageRating.toFixed(1),
+              "reviewCount": reviews.length
+            },
+            "review": reviews.map(review => ({
+              "@type": "Review",
+              "reviewRating": {
+                "@type": "Rating",
+                "ratingValue": review.rating
+              },
+              "author": {
+                "@type": "Person",
+                "name": review.user?.username || "Anonymous"
+              },
+              "datePublished": review.created_at
+            }))
+          })
         }}
       />
       <div className="container mx-auto px-4 py-8">
