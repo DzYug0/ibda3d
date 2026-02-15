@@ -210,7 +210,7 @@ export default function AdminUsers() {
       // Use RPC instead of Edge Function for better reliability/local support
       const { data, error } = await supabaseClient.rpc('manage_user' as any, {
         action,
-        user_id: userId,
+        target_user_id: userId,
         reason: reason || null,
       });
 
