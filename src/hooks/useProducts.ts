@@ -247,9 +247,22 @@ export function useCreateProduct() {
 
       return data;
     },
-    onSuccess: () => {
+    onSuccess: async (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+
+      // Log activity
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('activity_logs').insert({
+          user_id: user.id,
+          action: 'product_create',
+          target_type: 'product',
+          target_id: null,
+          details: { product_name: variables.name },
+        });
+      }
+
       toast.success('Product created successfully');
     },
     onError: (error) => {
@@ -290,9 +303,22 @@ export function useUpdateProduct() {
 
       return data;
     },
-    onSuccess: () => {
+    onSuccess: async (data) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+
+      // Log activity
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user && data) {
+        await supabase.from('activity_logs').insert({
+          user_id: user.id,
+          action: 'product_update',
+          target_type: 'product',
+          target_id: data.id,
+          details: { product_name: data.name },
+        });
+      }
+
       toast.success('Product updated successfully');
     },
     onError: (error) => {
@@ -305,7 +331,7 @@ export function useDeleteProduct() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: async ({ id, name }: { id: string; name: string }) => {
       const { error } = await supabase
         .from('products')
         .delete()
@@ -313,9 +339,23 @@ export function useDeleteProduct() {
 
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+
+      // Log activity
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        if (user) {
+          supabase.from('activity_logs').insert({
+            user_id: user.id,
+            action: 'product_delete',
+            target_type: 'product',
+            target_id: variables.id,
+            details: { product_name: variables.name },
+          }).then();
+        }
+      });
+
       toast.success('Product deleted successfully');
     },
     onError: (error) => {

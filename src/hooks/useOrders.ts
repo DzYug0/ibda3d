@@ -157,9 +157,22 @@ export function useUpdateOrderStatus() {
 
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: async (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
+
+      // Log activity
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('activity_logs').insert({
+          user_id: user.id,
+          action: 'order_update',
+          target_type: 'order',
+          target_id: variables.orderId,
+          details: { new_status: variables.status },
+        });
+      }
+
       toast.success('Order status updated');
     },
     onError: (error) => {
@@ -207,9 +220,22 @@ export function useDeleteOrder() {
 
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: async (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
+
+      // Log activity
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('activity_logs').insert({
+          user_id: user.id,
+          action: 'order_delete',
+          target_type: 'order',
+          target_id: variables,
+          details: { order_id: variables },
+        });
+      }
+
       toast.success('Order deleted successfully');
     },
     onError: (error) => {

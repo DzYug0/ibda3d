@@ -167,9 +167,9 @@ export default function AdminProducts() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this product?')) {
-      await deleteProduct.mutateAsync(id);
+  const handleDelete = async (id: string, name: string) => {
+    if (confirm(`Are you sure you want to delete "${name}"?`)) {
+      await deleteProduct.mutateAsync({ id, name });
     }
   };
 

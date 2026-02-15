@@ -99,10 +99,22 @@ export function useUpdateReviewStatus() {
 
             if (error) throw error;
         },
-        onSuccess: () => {
+        onSuccess: async (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['admin-reviews'] });
             // Also invalidate public reviews so they appear/disappear
             queryClient.invalidateQueries({ queryKey: ['reviews'] });
+
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                await supabase.from('activity_logs').insert({
+                    user_id: user.id,
+                    action: 'review_update',
+                    target_type: 'review',
+                    target_id: variables.id,
+                    details: { status: variables.status },
+                });
+            }
+
             toast.success('Review status updated');
         },
         onError: (error) => {
@@ -123,9 +135,21 @@ export function useDeleteReview() {
 
             if (error) throw error;
         },
-        onSuccess: () => {
+        onSuccess: async (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['admin-reviews'] });
             queryClient.invalidateQueries({ queryKey: ['reviews'] });
+
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                await supabase.from('activity_logs').insert({
+                    user_id: user.id,
+                    action: 'review_delete',
+                    target_type: 'review',
+                    target_id: variables,
+                    details: { review_id: variables },
+                });
+            }
+
             toast.success('Review deleted');
         },
         onError: (error) => {

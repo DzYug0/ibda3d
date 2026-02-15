@@ -76,8 +76,20 @@ export function useCreateShippingCompany() {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: async (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['shipping-companies'] });
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('activity_logs').insert({
+          user_id: user.id,
+          action: 'shipping_company_create',
+          target_type: 'shipping_company',
+          target_id: data.id,
+          details: { name: variables },
+        });
+      }
+
       toast.success('Shipping company added');
     },
     onError: (e) => toast.error('Failed: ' + e.message),
@@ -95,8 +107,20 @@ export function useUpdateShippingCompany() {
       const { error } = await supabase.from('shipping_companies').update(updates).eq('id', id);
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: async (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['shipping-companies'] });
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('activity_logs').insert({
+          user_id: user.id,
+          action: 'shipping_company_update',
+          target_type: 'shipping_company',
+          target_id: variables.id,
+          details: { updates: variables },
+        });
+      }
+
       toast.success('Company updated');
     },
     onError: (e) => toast.error('Failed: ' + e.message),
@@ -110,8 +134,20 @@ export function useDeleteShippingCompany() {
       const { error } = await supabase.from('shipping_companies').delete().eq('id', id);
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: async (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['shipping-companies'] });
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('activity_logs').insert({
+          user_id: user.id,
+          action: 'shipping_company_delete',
+          target_type: 'shipping_company',
+          target_id: variables,
+          details: { company_id: variables },
+        });
+      }
+
       toast.success('Company deleted');
     },
     onError: (e) => toast.error('Failed: ' + e.message),
@@ -144,8 +180,20 @@ export function useBulkUpsertShippingRates() {
         .upsert(rates, { onConflict: 'company_id,wilaya_code' });
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: async (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['shipping-rates'] });
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('activity_logs').insert({
+          user_id: user.id,
+          action: 'shipping_rates_update',
+          target_type: 'shipping_rates',
+          target_id: variables[0]?.company_id || null,
+          details: { count: variables.length, company_id: variables[0]?.company_id },
+        });
+      }
+
       toast.success('Rates saved');
     },
     onError: (e) => toast.error('Failed: ' + e.message),

@@ -28,7 +28,7 @@ interface ProductsTableProps {
   isLoading: boolean;
   onEdit: (product: Product) => void;
   onDuplicate: (product: Product) => void;
-  onDelete: (id: string) => void;
+  onDelete: (id: string, name: string) => void;
   onBulkDelete: (ids: string[]) => Promise<void>;
   onBulkUpdateStatus: (ids: string[], isActive: boolean) => Promise<void>;
   onBulkEdit: (ids: string[], data: { price?: number; stock_quantity?: number }) => Promise<void>;
@@ -449,7 +449,7 @@ export function ProductsTable({
                           variant="ghost"
                           size="icon"
                           className="text-destructive hover:text-destructive"
-                          onClick={() => onDelete(product.id)}
+                          onClick={() => onDelete(product.id, product.name)}
                           title="Delete"
                         >
                           <Trash2 className="h-4 w-4" />

@@ -90,8 +90,24 @@ export default function AdminMarketing() {
                 if (error) throw error;
             }
         },
-        onSuccess: () => {
+        onSuccess: async () => {
             queryClient.invalidateQueries({ queryKey: ['admin-coupons'] });
+
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                await supabase.from('activity_logs').insert({
+                    user_id: user.id,
+                    action: editingCoupon ? 'coupon_update' : 'coupon_create',
+                    target_type: 'coupon',
+                    target_id: editingCoupon?.id || null, // For create, we might need the new ID but for now null or omitted is fine, or we can fetch it. Ideally we return data from mutation.
+                    details: {
+                        code: formData.code,
+                        discount_type: formData.discount_type,
+                        discount_value: formData.discount_value
+                    },
+                });
+            }
+
             setIsDialogOpen(false);
             resetForm();
             toast.success(editingCoupon ? 'Coupon updated' : 'Coupon created');
@@ -102,15 +118,27 @@ export default function AdminMarketing() {
     });
 
     const deleteMutation = useMutation({
-        mutationFn: async (id: string) => {
+        mutationFn: async ({ id, code }: { id: string; code: string }) => {
             const { error } = await supabase
                 .from('coupons')
                 .delete()
                 .eq('id', id);
             if (error) throw error;
         },
-        onSuccess: () => {
+        onSuccess: async (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['admin-coupons'] });
+
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                await supabase.from('activity_logs').insert({
+                    user_id: user.id,
+                    action: 'coupon_delete',
+                    target_type: 'coupon',
+                    target_id: variables.id,
+                    details: { code: variables.code },
+                });
+            }
+
             toast.success('Coupon deleted');
         },
         onError: (error) => {
@@ -243,7 +271,7 @@ export default function AdminMarketing() {
                                                 size="icon"
                                                 className="text-destructive hover:text-destructive"
                                                 onClick={() => {
-                                                    if (confirm('Delete this coupon?')) deleteMutation.mutate(coupon.id);
+                                                    if (confirm('Delete this coupon?')) deleteMutation.mutate({ id: coupon.id, code: coupon.code });
                                                 }}
                                             >
                                                 <Trash2 className="h-4 w-4" />
