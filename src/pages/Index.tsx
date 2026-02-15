@@ -52,6 +52,23 @@ export default function Index() {
       <SEO
         title={t.hero.title1 + " " + t.hero.title2}
         description={t.hero.subtitle}
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "Store",
+          "name": "Ibda3D",
+          "url": "https://www.ibda3d.shop",
+          "logo": "https://www.ibda3d.shop/pwa-192x192.png",
+          "description": t.hero.subtitle,
+          "address": {
+            "@type": "PostalAddress",
+            "addressCountry": "DZ"
+          },
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://www.ibda3d.shop/products?search={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        }}
       />
 
       {/* Hero Section */}
