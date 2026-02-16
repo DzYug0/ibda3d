@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, Printer, Box, Layers } from 'lucide-react';
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Banner } from '@/hooks/useContent';
@@ -109,12 +110,14 @@ export function HeroBanner({ banners }: { banners: Banner[] }) {
                 }}
             >
                 <CarouselContent>
-                    {banners.map((banner) => (
+                    {banners.map((banner, index) => (
                         <CarouselItem key={banner.id} className="relative w-full">
-                            <div className="relative w-full aspect-[21/9] min-h-[400px] md:min-h-[500px] lg:min-h-[600px] overflow-hidden">
-                                <img
+                            <div className="relative w-full aspect-[21/9] min-h-[400px] md:min-h-[500px] lg:min-h-[600px] overflow-hidden bg-muted">
+                                <OptimizedImage
                                     src={banner.image_url}
                                     alt={banner.title}
+                                    width={1920}
+                                    priority={index === 0}
                                     className="absolute inset-0 w-full h-full object-cover"
                                 />
                                 {/* Overlay Gradient */}
