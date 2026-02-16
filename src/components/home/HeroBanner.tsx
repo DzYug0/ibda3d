@@ -123,9 +123,9 @@ export function HeroBanner({ banners }: { banners: Banner[] }) {
                                 <div className="absolute inset-0 flex items-center">
                                     <div className="container mx-auto px-4">
                                         <div className="max-w-2xl animate-slide-up">
-                                            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 text-white leading-tight">
+                                            <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 text-white leading-tight">
                                                 {banner.title}
-                                            </h1>
+                                            </h2>
                                             {banner.link_url && (
                                                 <Link to={banner.link_url}>
                                                     <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-8 shadow-lg">

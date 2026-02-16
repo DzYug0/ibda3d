@@ -2,9 +2,9 @@ export const en = {
   // Navigation
   nav: {
     home: 'Home',
-    allProducts: 'All Products',
+    allProducts: 'Shop 3D Products',
     categories: 'Categories',
-    packs: 'Packs',
+    packs: 'Value Packs',
     cart: 'Cart',
     myProfile: 'My Profile',
     myOrders: 'My Orders',
@@ -19,8 +19,8 @@ export const en = {
   // Hero / Index
   hero: {
     badge: '3D Printing Solutions',
-    title1: 'Bring Your Ideas',
-    title2: 'To Life in 3D',
+    title1: 'Ibda3D: Your Partner',
+    title2: 'in 3D Printing',
     subtitle: 'Discover our complete range of 3D printed products. Professional quality, fast delivery across Algeria.',
     discover: 'Discover',
     ourCategories: 'Our Categories',
