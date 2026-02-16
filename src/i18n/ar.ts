@@ -22,8 +22,8 @@ export const ar: DeepPartial<TranslationKeys> = {
 
   // Hero / Index
   hero: {
-    badge: 'حلول الطباعة ثلاثية الأبعاد',
-    title1: 'حوّل أفكارك',
+    badge: 'Ibda3D للطباعة ثلاثية الأبعاد',
+    title1: 'Ibda3D: حوّل أفكارك',
     title2: 'إلى واقع ثلاثي الأبعاد',
     subtitle: 'اكتشف مجموعتنا الكاملة من المنتجات المطبوعة ثلاثياً. جودة احترافية، توصيل سريع عبر الجزائر.',
     discover: 'اكتشف',

@@ -22,6 +22,7 @@ import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { useBanners } from '@/hooks/useContent';
 import { HeroBanner } from '@/components/home/HeroBanner';
 import { PromoBanner } from '@/components/home/PromoBanner';
+import { useStoreSettings } from '@/hooks/useStoreSettings';
 
 export default function Index() {
   const { data: featuredProducts = [], isLoading: productsLoading } = useFeaturedProducts();
@@ -30,6 +31,7 @@ export default function Index() {
   const { user } = useAuth();
   const { addToCart, addPackToCart } = useCart();
   const { t, language } = useLanguage();
+  const { data: settings } = useStoreSettings();
 
   /* Fetch Banners */
   const { data: banners = [] } = useBanners();
@@ -63,6 +65,11 @@ export default function Index() {
             "@type": "PostalAddress",
             "addressCountry": "DZ"
           },
+          "sameAs": [
+            settings?.social_facebook,
+            settings?.social_instagram,
+            settings?.social_twitter
+          ].filter(Boolean),
           "potentialAction": {
             "@type": "SearchAction",
             "target": "https://www.ibda3d.shop/products?search={search_term_string}",
