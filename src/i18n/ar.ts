@@ -6,9 +6,9 @@ export const ar: DeepPartial<TranslationKeys> = {
   // Navigation
   nav: {
     home: 'الرئيسية',
-    allProducts: 'جميع المنتجات',
+    allProducts: 'تسوق المنتجات',
     categories: 'الفئات',
-    packs: 'الباقات',
+    packs: 'باقات التوفير',
     cart: 'السلة',
     myProfile: 'ملفي الشخصي',
     myOrders: 'طلباتي',

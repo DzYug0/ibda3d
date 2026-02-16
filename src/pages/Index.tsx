@@ -56,8 +56,8 @@ export default function Index() {
         description={t.hero.subtitle}
         schema={{
           "@context": "https://schema.org",
-          "@type": "Store",
-          "name": "Ibda3D",
+          "@type": "Organization",
+          "name": "Ibda3D - 3D Printing Algeria",
           "url": "https://www.ibda3d.shop",
           "logo": "https://www.ibda3d.shop/pwa-192x192.png",
           "description": t.hero.subtitle,
@@ -70,6 +70,13 @@ export default function Index() {
             settings?.social_instagram,
             settings?.social_twitter
           ].filter(Boolean),
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": settings?.contact_phone,
+            "contactType": "customer service",
+            "areaServed": "DZ",
+            "availableLanguage": ["en", "ar", "fr"]
+          },
           "potentialAction": {
             "@type": "SearchAction",
             "target": "https://www.ibda3d.shop/products?search={search_term_string}",
