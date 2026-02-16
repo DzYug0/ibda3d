@@ -46,7 +46,16 @@ export default defineConfig(({ mode }) => ({
     })
   ].filter(Boolean),
   build: {
-    chunkSizeWarningLimit: 3000,
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-ui': ['@radix-ui/react-slot', '@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', 'lucide-react', 'class-variance-authority', 'clsx', 'tailwind-merge'],
+          'vendor-utils': ['date-fns', '@supabase/supabase-js', '@tanstack/react-query']
+        }
+      }
+    },
   },
   resolve: {
     alias: {
