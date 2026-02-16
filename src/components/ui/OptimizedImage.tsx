@@ -27,7 +27,7 @@ export const OptimizedImage = ({
         // Check if it's a Supabase Storage URL
         if (url.includes('supabase.co/storage/v1/object/public')) {
             const separator = url.includes('?') ? '&' : '?';
-            let params = `quality=80&format=origin`;
+            let params = `quality=75&format=webp`;
             if (w) params += `&width=${w}`;
             return `${url}${separator}${params}`;
         }
