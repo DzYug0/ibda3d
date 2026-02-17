@@ -25,7 +25,10 @@ export function ProductCard({ product }: ProductCardProps) {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (user) addToCart.mutate({ productId: product.id });
+    addToCart.mutate({
+      productId: product.id,
+      productDetails: product
+    });
   };
 
   const displayCategories = product.categories && product.categories.length > 0
@@ -49,7 +52,7 @@ export function ProductCard({ product }: ProductCardProps) {
           <div className="absolute top-3 end-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
             <WishlistButton productId={product.id} className="bg-white/80 hover:bg-white shadow-sm backdrop-blur-sm rounded-full h-8 w-8" size="icon" />
           </div>
-          {user && product.stock_quantity > 0 && (
+          {product.stock_quantity > 0 && (
             <div className="absolute bottom-3 end-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               <Button size="icon" onClick={handleAddToCart} disabled={addToCart.isPending} className="rounded-full shadow-lg">
                 <ShoppingCart className="h-4 w-4" />

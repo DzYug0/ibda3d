@@ -141,7 +141,7 @@ export default function Checkout() {
 
   // Fetch saved addresses and pre-fill default
   useEffect(() => {
-    if (!user) return;
+    if (!user) return; // Only fetch profile/addresses if logged in
 
     // Fetch profile first for fallback
     supabase
@@ -208,6 +208,7 @@ export default function Checkout() {
         };
       });
     }
+    // Fallback for direct URL buyNow which might still be used externally or via old links
     if (buyNowItem) return [buyNowItem];
     return [];
   }, [cartItems, buyNowItem]);
@@ -318,7 +319,11 @@ export default function Checkout() {
             <strong className="text-foreground">{t.checkout.cashOnDelivery}</strong>
           </p>
           <div className="flex gap-4 justify-center">
-            {user && <Link to="/orders"><Button>{t.checkout.viewMyOrders}</Button></Link>}
+            {user ? (
+              <Link to="/orders"><Button>{t.checkout.viewMyOrders}</Button></Link>
+            ) : (
+              <Link to="/"><Button>{t.common.home || 'Home'}</Button></Link>
+            )}
             <Link to="/products"><Button variant="outline">{t.checkout.continueShopping}</Button></Link>
           </div>
         </div>
@@ -373,8 +378,8 @@ export default function Checkout() {
         couponCode: appliedCoupon ? appliedCoupon.code : null,
       });
 
-      // Clear cart only for logged-in users
-      if (user && cartItems.length > 0) {
+      // Clear cart for both users and guests
+      if (cartItems.length > 0) {
         await clearCart.mutateAsync();
       }
 

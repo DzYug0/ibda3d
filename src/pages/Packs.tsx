@@ -30,8 +30,11 @@ function PackCard({ pack }: { pack: ReturnType<typeof usePacks>['data'] extends 
   const savings = individualTotal > pack.price ? individualTotal - pack.price : 0;
 
   const handleAddPackToCart = () => {
-    if (!user) return;
-    addPackToCart.mutate({ packId: pack.id, quantity });
+    addPackToCart.mutate({
+      packId: pack.id,
+      quantity,
+      packDetails: pack // Pass pack details for guest cart
+    });
   };
 
   return (
@@ -90,25 +93,21 @@ function PackCard({ pack }: { pack: ReturnType<typeof usePacks>['data'] extends 
           {hasDiscount && <span className="text-sm text-muted-foreground line-through">{pack.compare_at_price!.toFixed(0)} {t.common.da}</span>}
         </div>
 
-        {user ? (
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-medium text-foreground">{t.packs.qty}</span>
-              <div className="flex items-center border border-border rounded-lg">
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}><Minus className="h-3 w-3" /></Button>
-                <span className="w-8 text-center text-sm font-semibold">{quantity}</span>
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setQuantity(quantity + 1)}><Plus className="h-3 w-3" /></Button>
-              </div>
-              {quantity > 1 && <span className="text-sm text-muted-foreground">{t.packs.total} {(pack.price * quantity).toFixed(0)} {t.common.da}</span>}
+        <div className="space-y-2">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-foreground">{t.packs.qty}</span>
+            <div className="flex items-center border border-border rounded-lg">
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}><Minus className="h-3 w-3" /></Button>
+              <span className="w-8 text-center text-sm font-semibold">{quantity}</span>
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setQuantity(quantity + 1)}><Plus className="h-3 w-3" /></Button>
             </div>
-            <Button className="w-full" onClick={handleAddPackToCart} disabled={addPackToCart.isPending}>
-              <ShoppingCart className="h-4 w-4 me-2" />
-              {addPackToCart.isPending ? t.products.adding : quantity > 1 ? t.packs.addPacksToCart.replace('{count}', String(quantity)) : t.packs.addPackToCart}
-            </Button>
+            {quantity > 1 && <span className="text-sm text-muted-foreground">{t.packs.total} {(pack.price * quantity).toFixed(0)} {t.common.da}</span>}
           </div>
-        ) : (
-          <Link to="/auth" className="block"><Button className="w-full">{t.products.signInToShop}</Button></Link>
-        )}
+          <Button className="w-full" onClick={handleAddPackToCart} disabled={addPackToCart.isPending}>
+            <ShoppingCart className="h-4 w-4 me-2" />
+            {addPackToCart.isPending ? t.products.adding : quantity > 1 ? t.packs.addPacksToCart.replace('{count}', String(quantity)) : t.packs.addPackToCart}
+          </Button>
+        </div>
       </div>
     </div>
   );

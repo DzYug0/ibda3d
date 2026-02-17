@@ -51,18 +51,20 @@ export function Header() {
             </Button>
             <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
 
+            {/* Cart Button - Visible to everyone */}
+            <Link to="/cart">
+              <Button variant="ghost" size="icon" className="relative hidden md:flex">
+                <ShoppingCart className="h-5 w-5" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-bounce-in">
+                    {cartCount}
+                  </span>
+                )}
+              </Button>
+            </Link>
+
             {user ? (
               <>
-                <Link to="/cart">
-                  <Button variant="ghost" size="icon" className="relative">
-                    <ShoppingCart className="h-5 w-5" />
-                    {cartCount > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-bounce-in">
-                        {cartCount}
-                      </span>
-                    )}
-                  </Button>
-                </Link>
                 <div className="hidden md:flex items-center gap-2">
                   {isAdmin && (
                     <Link to="/admin">
@@ -134,11 +136,13 @@ export function Header() {
               <Link to="/packs" className="px-4 py-2 text-foreground hover:bg-muted rounded-lg transition-colors" onClick={() => setMobileMenuOpen(false)}>
                 {t.nav.packs}
               </Link>
+
+              <Link to="/cart" className="px-4 py-2 text-foreground hover:bg-muted rounded-lg transition-colors flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
+                <ShoppingCart className="h-4 w-4" /> {t.nav.cart} ({cartCount})
+              </Link>
+
               {user ? (
                 <>
-                  <Link to="/cart" className="px-4 py-2 text-foreground hover:bg-muted rounded-lg transition-colors flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
-                    <ShoppingCart className="h-4 w-4" /> {t.nav.cart} ({cartCount})
-                  </Link>
                   <Link to="/profile" className="px-4 py-2 text-foreground hover:bg-muted rounded-lg transition-colors flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
                     <User className="h-4 w-4" /> {t.nav.myProfile}
                   </Link>

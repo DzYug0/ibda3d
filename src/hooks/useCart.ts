@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -36,7 +37,30 @@ export function useCart() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const { data: cartItems = [], isLoading } = useQuery({
+  const [localCart, setLocalCart] = useState<CartItem[]>([]);
+  const [isLocalLoaded, setIsLocalLoaded] = useState(false);
+
+  // Load local cart on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('ibda3d_guest_cart');
+    if (saved) {
+      try {
+        setLocalCart(JSON.parse(saved));
+      } catch (e) {
+        console.error('Failed to parse local cart', e);
+      }
+    }
+    setIsLocalLoaded(true);
+  }, []);
+
+  // Save local cart whenever it changes
+  useEffect(() => {
+    if (isLocalLoaded) {
+      localStorage.setItem('ibda3d_guest_cart', JSON.stringify(localCart));
+    }
+  }, [localCart, isLocalLoaded]);
+
+  const { data: dbCartItems = [], isLoading: isDbLoading } = useQuery({
     queryKey: ['cart', user?.id],
     queryFn: async () => {
       if (!user) return [];
@@ -79,70 +103,168 @@ export function useCart() {
     enabled: !!user,
   });
 
+  // Combine logic: if user, use DB. If guest, use Local.
+  // Note: We are NOT merging them automatically here to avoid complexity.
+  // A proper merge would happen on login (out of scope for now).
+  const cartItems = user ? dbCartItems : localCart;
+  const isLoading = user ? isDbLoading : !isLocalLoaded;
+
   const addToCart = useMutation({
     mutationFn: async ({
       productId,
       quantity = 1,
       selectedColor,
       selectedVersion,
-      selectedOptions
+      selectedOptions,
+      productDetails // New: required for local cart
     }: {
       productId: string;
       quantity?: number;
       selectedColor?: string;
       selectedVersion?: string;
       selectedOptions?: Record<string, string>;
+      productDetails?: any;
     }) => {
-      if (!user) throw new Error('Must be logged in');
-
-      // Check if item exists with same options
-      let query = supabase
-        .from('cart_items')
-        .select('id, quantity')
-        .eq('user_id', user.id)
-        .eq('product_id', productId);
-
-      if (selectedColor) query = query.eq('selected_color', selectedColor);
-
-      if (selectedVersion) query = query.eq('selected_version', selectedVersion);
-
-      // JSONB equality check is tricky in Supabase/PostgREST. 
-      // For now, let's fetch matching product items and filter in JS if needed,
-      // OR use the 'contains' operator if structure is consistent.
-      // A better approach for exact match is calculating a hash, but for now:
-      if (selectedOptions) {
-        query = query.contains('selected_options', selectedOptions);
-      } else {
-        query = query.is('selected_options', null);
-      }
-
-      // Execute query to find candidates
-      const { data: candidates } = await query;
-
-      // Filter candidates for exact match (especially if contains returns partial matches or if we need strict null checks for other fields)
-      // Since we already filtered by color/version/id, we just need to be sure about options equality
-      let existing = candidates && candidates.length > 0 ? candidates[0] : null;
-
-      if (existing) {
-        // Update quantity
-        const { error } = await supabase
+      if (user) {
+        // DB Logic
+        let query = supabase
           .from('cart_items')
-          .update({ quantity: existing.quantity + quantity })
-          .eq('id', existing.id);
-        if (error) throw error;
+          .select('id, quantity')
+          .eq('user_id', user.id)
+          .eq('product_id', productId);
+
+        if (selectedColor) query = query.eq('selected_color', selectedColor);
+        if (selectedVersion) query = query.eq('selected_version', selectedVersion);
+
+        if (selectedOptions) {
+          query = query.contains('selected_options', selectedOptions);
+        } else {
+          query = query.is('selected_options', null);
+        }
+
+        const { data: candidates } = await query;
+        let existing = candidates && candidates.length > 0 ? candidates[0] : null;
+
+        if (existing) {
+          const { error } = await supabase
+            .from('cart_items')
+            .update({ quantity: existing.quantity + quantity })
+            .eq('id', existing.id);
+          if (error) throw error;
+        } else {
+          const { error } = await supabase
+            .from('cart_items')
+            .insert({
+              user_id: user.id,
+              product_id: productId,
+              quantity,
+              selected_color: selectedColor || null,
+              selected_version: selectedVersion || null,
+              selected_options: selectedOptions || null
+            });
+          if (error) throw error;
+        }
       } else {
-        // Insert new
-        const { error } = await supabase
-          .from('cart_items')
-          .insert({
-            user_id: user.id,
+        // Local Logic
+        // Generate a pseudo-ID for the item
+        const existingIndex = localCart.findIndex(item =>
+          item.product_id === productId &&
+          item.selected_color === (selectedColor || null) &&
+          item.selected_version === (selectedVersion || null) &&
+          JSON.stringify(item.selected_options) === JSON.stringify(selectedOptions || null)
+        );
+
+        if (existingIndex >= 0) {
+          const updated = [...localCart];
+          updated[existingIndex].quantity += quantity;
+          setLocalCart(updated);
+        } else {
+          if (!productDetails) throw new Error("Product details required for guest cart");
+
+          const newItem: CartItem = {
+            id: `local_${Date.now()}_${Math.random()}`,
             product_id: productId,
+            pack_id: null,
             quantity,
             selected_color: selectedColor || null,
             selected_version: selectedVersion || null,
-            selected_options: selectedOptions || null
-          });
-        if (error) throw error;
+            selected_options: selectedOptions || null,
+            product: productDetails,
+            pack: null
+          };
+          setLocalCart([...localCart, newItem]);
+        }
+        // Artificial delay to simulate async
+        await new Promise(r => setTimeout(r, 100));
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+      toast.success('Added to cart!');
+    },
+    onError: (err) => {
+      toast.error('Failed to add to cart');
+      console.error(err);
+    },
+  });
+
+  const addPackToCart = useMutation({
+    mutationFn: async ({
+      packId,
+      quantity = 1,
+      packDetails // New: required for local cart
+    }: {
+      packId: string;
+      quantity?: number;
+      packDetails?: any;
+    }) => {
+      if (user) {
+        // DB Logic
+        const { data: existing } = await supabase
+          .from('cart_items')
+          .select('id, quantity')
+          .eq('user_id', user.id)
+          .eq('pack_id', packId)
+          .is('product_id', null)
+          .maybeSingle();
+
+        if (existing) {
+          const { error } = await supabase
+            .from('cart_items')
+            .update({ quantity: existing.quantity + quantity })
+            .eq('id', existing.id);
+          if (error) throw error;
+        } else {
+          const { error } = await supabase
+            .from('cart_items')
+            .insert({ user_id: user.id, pack_id: packId, product_id: null, quantity } as any);
+          if (error) throw error;
+        }
+      } else {
+        // Local Logic
+        const existingIndex = localCart.findIndex(item => item.pack_id === packId);
+
+        if (existingIndex >= 0) {
+          const updated = [...localCart];
+          updated[existingIndex].quantity += quantity;
+          setLocalCart(updated);
+        } else {
+          if (!packDetails) throw new Error("Pack details required for guest cart");
+
+          const newItem: CartItem = {
+            id: `local_${Date.now()}_${Math.random()}`,
+            product_id: null,
+            pack_id: packId,
+            quantity,
+            selected_color: null,
+            selected_version: null,
+            selected_options: null,
+            product: null,
+            pack: packDetails
+          };
+          setLocalCart([...localCart, newItem]);
+        }
+        await new Promise(r => setTimeout(r, 100));
       }
     },
     onSuccess: () => {
@@ -156,18 +278,20 @@ export function useCart() {
 
   const updateQuantity = useMutation({
     mutationFn: async ({ itemId, quantity }: { itemId: string; quantity: number }) => {
-      if (quantity <= 0) {
-        const { error } = await supabase
-          .from('cart_items')
-          .delete()
-          .eq('id', itemId);
-        if (error) throw error;
+      if (user) {
+        if (quantity <= 0) {
+          const { error } = await supabase.from('cart_items').delete().eq('id', itemId);
+          if (error) throw error;
+        } else {
+          const { error } = await supabase.from('cart_items').update({ quantity }).eq('id', itemId);
+          if (error) throw error;
+        }
       } else {
-        const { error } = await supabase
-          .from('cart_items')
-          .update({ quantity })
-          .eq('id', itemId);
-        if (error) throw error;
+        if (quantity <= 0) {
+          setLocalCart(localCart.filter(item => item.id !== itemId));
+        } else {
+          setLocalCart(localCart.map(item => item.id === itemId ? { ...item, quantity } : item));
+        }
       }
     },
     onSuccess: () => {
@@ -177,11 +301,12 @@ export function useCart() {
 
   const removeFromCart = useMutation({
     mutationFn: async (itemId: string) => {
-      const { error } = await supabase
-        .from('cart_items')
-        .delete()
-        .eq('id', itemId);
-      if (error) throw error;
+      if (user) {
+        const { error } = await supabase.from('cart_items').delete().eq('id', itemId);
+        if (error) throw error;
+      } else {
+        setLocalCart(localCart.filter(item => item.id !== itemId));
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
@@ -191,49 +316,15 @@ export function useCart() {
 
   const clearCart = useMutation({
     mutationFn: async () => {
-      if (!user) return;
-      const { error } = await supabase
-        .from('cart_items')
-        .delete()
-        .eq('user_id', user.id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
-    },
-  });
-
-  const addPackToCart = useMutation({
-    mutationFn: async ({ packId, quantity = 1 }: { packId: string; quantity?: number }) => {
-      if (!user) throw new Error('Must be logged in');
-
-      const { data: existing } = await supabase
-        .from('cart_items')
-        .select('id, quantity')
-        .eq('user_id', user.id)
-        .eq('pack_id', packId)
-        .is('product_id', null)
-        .maybeSingle();
-
-      if (existing) {
-        const { error } = await supabase
-          .from('cart_items')
-          .update({ quantity: existing.quantity + quantity })
-          .eq('id', existing.id);
+      if (user) {
+        const { error } = await supabase.from('cart_items').delete().eq('user_id', user.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase
-          .from('cart_items')
-          .insert({ user_id: user.id, pack_id: packId, product_id: null, quantity } as any);
-        if (error) throw error;
+        setLocalCart([]);
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
-      toast.success('Added to cart!');
-    },
-    onError: () => {
-      toast.error('Failed to add to cart');
     },
   });
 
