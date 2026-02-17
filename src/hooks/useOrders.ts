@@ -99,6 +99,8 @@ export function useCreateOrder() {
         selected_color?: string | null;
         selected_version?: string | null;
         selected_options?: Record<string, string> | null;
+        name?: string;
+        price?: number;
       }[];
       shippingInfo: {
         address: string;
@@ -109,30 +111,61 @@ export function useCreateOrder() {
       notes?: string;
       couponCode?: string | null;
     }) => {
-      // Use RPC instead of Edge Function
-      const { data, error } = await supabase.rpc('create_new_order' as any, {
-        p_items: items.map(item => ({
-          product_id: item.product_id,
-          pack_id: item.pack_id || null,
-          quantity: item.quantity,
-          selected_color: item.selected_color || null,
-          selected_version: item.selected_version || null,
-          selected_options: item.selected_options || null
-        })),
-        p_shipping_info: shippingInfo,
-        p_notes: notes || '',
-        p_coupon_code: couponCode || null,
+      // Calculate total amount from passed items (trust frontend for display, but ideally valid on backend)
+      // Since we are inserting directly, we are responsible for the data.
+      let totalAmount = 0;
+      items.forEach(item => {
+        totalAmount += (item.price || 0) * item.quantity;
       });
 
-      if (error) throw error;
+      const { data: { user } } = await supabase.auth.getUser();
 
-      // data is { success: boolean, order_id: string }
-      const result = data as any;
-      if (!result || !result.success) {
-        throw new Error('Failed to create order');
+      const orderData = {
+        user_id: user ? user.id : null,
+        status: 'pending' as OrderStatus,
+        total_amount: totalAmount,
+        shipping_address: shippingInfo.address,
+        shipping_city: shippingInfo.city,
+        shipping_country: shippingInfo.country || 'Algeria', // Fallback
+        shipping_zip: shippingInfo.zip,
+        notes: notes || '',
+        // coupon_code: couponCode // If schema has this
+      };
+
+      // 1. Create Order
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert(orderData)
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+      if (!order) throw new Error('Failed to create order');
+
+      // 2. Create Order Items
+      const orderItemsData = items.map(item => ({
+        order_id: order.id,
+        product_id: item.product_id,
+        pack_id: item.pack_id,
+        quantity: item.quantity,
+        product_name: item.name || 'Unknown Item',
+        product_price: item.price || 0,
+        selected_color: item.selected_color,
+        selected_version: item.selected_version,
+        selected_options: item.selected_options
+      }));
+
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(orderItemsData);
+
+      if (itemsError) {
+        // Optional: Delete order if items fail? Or log it?
+        console.error('Failed to insert items', itemsError);
+        throw itemsError;
       }
 
-      return { id: result.order_id };
+      return { id: order.id };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });

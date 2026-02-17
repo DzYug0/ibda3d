@@ -358,6 +358,9 @@ export default function Checkout() {
         selected_color: item.selected_color,
         selected_version: item.selected_version,
         selected_options: item.selected_options,
+        // Snapshot data
+        name: item.name,
+        price: item.price
       }));
 
       const deliveryNote = shippingInfo.deliveryType === 'desk'
