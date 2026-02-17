@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ShoppingCart, User, Menu, X, Search, Heart } from 'lucide-react';
+import { ShoppingCart, User, Search, Heart } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,8 +10,9 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { SearchDialog } from '@/components/SearchDialog';
 import logo from '@/assets/logo.png';
 
+import { MobileMenu } from './MobileMenu';
+
 export function Header() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const { user, isAdmin, signOut } = useAuth();
   const { cartCount } = useCart();
@@ -99,82 +100,11 @@ export function Header() {
             )}
 
             {/* Mobile menu button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button>
+            <MobileMenu />
           </div>
         </div>
-
-        {/* Mobile menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-border animate-slide-up">
-            <nav className="flex flex-col gap-2">
-              <div className="flex items-center gap-2 mx-4 mb-2">
-                <LanguageSwitcher variant="outline" />
-                <ThemeToggle />
-              </div>
-              <button
-                className="px-4 py-2 text-foreground hover:bg-muted rounded-lg transition-colors flex items-center gap-2"
-                onClick={() => { setSearchOpen(true); setMobileMenuOpen(false); }}
-              >
-                <Search className="h-4 w-4" /> {t.common.search}
-              </button>
-              <Link to="/" className="px-4 py-2 text-foreground hover:bg-muted rounded-lg transition-colors" onClick={() => setMobileMenuOpen(false)}>
-                {t.nav.home}
-              </Link>
-              <Link to="/products" className="px-4 py-2 text-foreground hover:bg-muted rounded-lg transition-colors" onClick={() => setMobileMenuOpen(false)}>
-                {t.nav.allProducts}
-              </Link>
-              <Link to="/categories" className="px-4 py-2 text-foreground hover:bg-muted rounded-lg transition-colors" onClick={() => setMobileMenuOpen(false)}>
-                {t.nav.categories}
-              </Link>
-              <Link to="/packs" className="px-4 py-2 text-foreground hover:bg-muted rounded-lg transition-colors" onClick={() => setMobileMenuOpen(false)}>
-                {t.nav.packs}
-              </Link>
-
-              <Link to="/cart" className="px-4 py-2 text-foreground hover:bg-muted rounded-lg transition-colors flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
-                <ShoppingCart className="h-4 w-4" /> {t.nav.cart} ({cartCount})
-              </Link>
-
-              {user ? (
-                <>
-                  <Link to="/profile" className="px-4 py-2 text-foreground hover:bg-muted rounded-lg transition-colors flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
-                    <User className="h-4 w-4" /> {t.nav.myProfile}
-                  </Link>
-                  <Link to="/wishlist" className="px-4 py-2 text-foreground hover:bg-muted rounded-lg transition-colors flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
-                    <Heart className="h-4 w-4" /> {t.wishlist?.title || 'Wishlist'}
-                  </Link>
-                  <Link to="/orders" className="px-4 py-2 text-foreground hover:bg-muted rounded-lg transition-colors" onClick={() => setMobileMenuOpen(false)}>
-                    {t.nav.myOrders}
-                  </Link>
-                  {isAdmin && (
-                    <Link to="/admin" className="px-4 py-2 text-foreground hover:bg-muted rounded-lg transition-colors" onClick={() => setMobileMenuOpen(false)}>
-                      {t.nav.adminDashboard}
-                    </Link>
-                  )}
-                  <button className="px-4 py-2 text-left text-foreground hover:bg-muted rounded-lg transition-colors" onClick={() => { signOut(); setMobileMenuOpen(false); }}>
-                    {t.nav.signOut}
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link to="/auth" className="px-4 py-2 text-foreground hover:bg-muted rounded-lg transition-colors" onClick={() => setMobileMenuOpen(false)}>
-                    {t.nav.signIn}
-                  </Link>
-                  <Link to="/auth?tab=signup" className="px-4 py-2 text-foreground hover:bg-muted rounded-lg transition-colors" onClick={() => setMobileMenuOpen(false)}>
-                    {t.nav.signUp}
-                  </Link>
-                </>
-              )}
-            </nav>
-          </div>
-        )}
       </div>
     </header>
   );
 }
+
