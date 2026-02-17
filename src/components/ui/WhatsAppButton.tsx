@@ -5,10 +5,11 @@ import { MessageCircle } from 'lucide-react';
 export function WhatsAppButton() {
     const { data: settings } = useStoreSettings();
 
-    if (!settings?.contact_phone) return null;
+    // Use local fallback if settings not yet loaded or empty
+    const phone = settings?.contact_phone || '+213555123456';
 
     // Format phone number for WhatsApp URL (remove spaces, +, parentheses)
-    const phoneNumber = settings.contact_phone.replace(/[^0-9]/g, '');
+    const phoneNumber = phone.replace(/[^0-9]/g, '');
     const whatsappUrl = `https://wa.me/${phoneNumber}`;
 
     return (
@@ -17,7 +18,7 @@ export function WhatsAppButton() {
             target="_blank"
             rel="noopener noreferrer"
             className={cn(
-                "fixed bottom-6 right-6 z-50",
+                "fixed bottom-6 right-6 z-[100]",
                 "flex items-center justify-center",
                 "w-14 h-14 rounded-full",
                 "bg-[#25D366] text-white",
