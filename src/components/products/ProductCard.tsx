@@ -36,13 +36,13 @@ export function ProductCard({ product }: ProductCardProps) {
     : product.category ? [product.category] : [];
 
   return (
-    <Link to={`/products/${product.slug}`}>
-      <div className="group bg-card rounded-2xl overflow-hidden shadow-card product-card border border-border">
+    <Link to={`/products/${product.slug}`} className="group block">
+      <div className="bg-card rounded-2xl overflow-hidden shadow-card border border-border transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
         <div className="relative aspect-square overflow-hidden bg-gray-100">
           <OptimizedImage
             src={product.image_url || '/placeholder.svg'}
             alt={product.name}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
             width={300} // Optimized for grid card size
           />
           <div className="absolute top-2 start-2 flex flex-col gap-1.5 sm:gap-2 sm:top-3 sm:start-3">
