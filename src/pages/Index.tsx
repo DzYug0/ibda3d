@@ -201,23 +201,20 @@ export default function Index() {
                                   <span className="text-sm text-muted-foreground line-through">{pack.compare_at_price.toFixed(0)} {t.common.da}</span>
                                 )}
                               </div>
-                              {user ? (
-                                <Button
-                                  className="w-full"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    addPackToCart.mutate({ packId: pack.id });
-                                  }}
-                                  disabled={addPackToCart.isPending}
-                                >
-                                  <ShoppingCart className="h-4 w-4 me-2" /> {t.products.addToCart}
-                                </Button>
-                              ) : (
-                                <Link to="/auth" onClick={(e) => e.stopPropagation()} className="block">
-                                  <Button className="w-full">{t.products.signInToShop}</Button>
-                                </Link>
-                              )}
+                              <Button
+                                className="w-full"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  addPackToCart.mutate({
+                                    packId: pack.id,
+                                    packDetails: pack // Pass pack details for guest cart
+                                  });
+                                }}
+                                disabled={addPackToCart.isPending}
+                              >
+                                <ShoppingCart className="h-4 w-4 me-2" /> {t.products.addToCart}
+                              </Button>
                             </div>
                           </div>
                         </div>
