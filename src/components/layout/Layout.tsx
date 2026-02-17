@@ -1,3 +1,5 @@
+import { Header } from './Header';
+import { Footer } from './Footer';
 import { WhatsAppButton } from '../ui/WhatsAppButton';
 
 interface LayoutProps {
