@@ -120,7 +120,11 @@ export function useCreateOrder() {
 
       const { data: { user } } = await supabase.auth.getUser();
 
+      // Generate ID client-side to assume ownership without needing SELECT permissions
+      const orderId = crypto.randomUUID();
+
       const orderData = {
+        id: orderId,
         user_id: user ? user.id : null,
         status: 'pending' as OrderStatus,
         total_amount: totalAmount,
@@ -133,18 +137,15 @@ export function useCreateOrder() {
       };
 
       // 1. Create Order
-      const { data: order, error: orderError } = await supabase
+      const { error: orderError } = await supabase
         .from('orders')
-        .insert(orderData)
-        .select()
-        .single();
+        .insert(orderData); // No .select() to avoid RLS Select policy issues for guests
 
       if (orderError) throw orderError;
-      if (!order) throw new Error('Failed to create order');
 
       // 2. Create Order Items
       const orderItemsData = items.map(item => ({
-        order_id: order.id,
+        order_id: orderId,
         product_id: item.product_id,
         pack_id: item.pack_id,
         quantity: item.quantity,
@@ -165,7 +166,7 @@ export function useCreateOrder() {
         throw itemsError;
       }
 
-      return { id: order.id };
+      return { id: orderId };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
