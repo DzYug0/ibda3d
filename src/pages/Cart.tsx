@@ -12,18 +12,7 @@ export default function Cart() {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
 
-  if (!user) {
-    return (
-      <Layout>
-        <div className="container mx-auto px-4 py-16 text-center">
-          <ShoppingBag className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-foreground mb-2">{t.cart.pleaseSignIn}</h1>
-          <p className="text-muted-foreground mb-6">{t.cart.signInToView}</p>
-          <Link to="/auth"><Button size="lg">{t.nav.signIn}</Button></Link>
-        </div>
-      </Layout>
-    );
-  }
+  // if (!user) block removed for guest access
 
   if (isLoading) {
     return (

@@ -82,39 +82,27 @@ export default function ProductDetail() {
     : (hasColors && !selectedColor) || (hasVersions && !selectedVersion);
 
   const handleAddToCart = () => {
-    if (!user) {
-      navigate('/auth');
-      return;
-    }
     addToCart.mutate({
       productId: product.id,
       quantity,
       selectedColor: selectedColor || undefined,
       selectedVersion: selectedVersion || undefined,
-      selectedOptions: Object.keys(selectedOptions).length > 0 ? selectedOptions : undefined
+      selectedOptions: Object.keys(selectedOptions).length > 0 ? selectedOptions : undefined,
+      productDetails: product
     });
   };
 
   const handleBuyNow = () => {
-    if (user) {
-      addToCart.mutate({
-        productId: product.id,
-        quantity,
-        selectedColor: selectedColor || undefined,
-        selectedVersion: selectedVersion || undefined,
-        selectedOptions: Object.keys(selectedOptions).length > 0 ? selectedOptions : undefined
-      }, {
-        onSuccess: () => navigate('/checkout'),
-      });
-    } else {
-      let url = `/checkout?buyNow=${product.id}&qty=${quantity}`;
-      if (selectedColor) url += `&color=${encodeURIComponent(selectedColor)}`;
-      if (selectedVersion) url += `&version=${encodeURIComponent(selectedVersion)}`;
-      if (Object.keys(selectedOptions).length > 0) {
-        url += `&options=${encodeURIComponent(JSON.stringify(selectedOptions))}`;
-      }
-      navigate(url);
-    }
+    addToCart.mutate({
+      productId: product.id,
+      quantity,
+      selectedColor: selectedColor || undefined,
+      selectedVersion: selectedVersion || undefined,
+      selectedOptions: Object.keys(selectedOptions).length > 0 ? selectedOptions : undefined,
+      productDetails: product
+    }, {
+      onSuccess: () => navigate('/checkout'),
+    });
   };
 
 
