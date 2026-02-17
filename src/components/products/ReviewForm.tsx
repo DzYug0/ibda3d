@@ -57,7 +57,7 @@ export function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
                     interactive
                     onRatingChange={setRating}
                 />
-                {rating === 0 && <p className="text-xs text-destructive">Please select a rating</p>}
+                {rating === 0 && <p className="text-xs text-muted-foreground animate-pulse">Select stars to rate</p>}
             </div>
 
             <div className="space-y-2">

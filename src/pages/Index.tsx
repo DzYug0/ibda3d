@@ -3,6 +3,7 @@ import { ArrowRight, Truck, Shield, RefreshCw, Headphones, Printer, Box, Layers,
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Layout } from '@/components/layout/Layout';
+import { ScrollReveal } from '@/components/ui/ScrollReveal';
 import { ProductGrid } from '@/components/products/ProductGrid';
 import {
   Carousel,
@@ -86,10 +87,14 @@ export default function Index() {
       />
 
       {/* Hero Section */}
-      <HeroBanner banners={heroBanners} />
+      <ScrollReveal>
+        <HeroBanner banners={heroBanners} />
+      </ScrollReveal>
 
       {/* Promo Banners */}
-      <PromoBanner banners={promoBanners} />
+      <ScrollReveal delay={100}>
+        <PromoBanner banners={promoBanners} />
+      </ScrollReveal>
 
       {/* Features */}
       <section className="py-12 border-b border-border">
@@ -113,7 +118,7 @@ export default function Index() {
       {/* Featured Packs - CAROUSEL & FIRST */}
       {featuredPacks.length > 0 && (
         <section className="py-16">
-          <div className="container mx-auto px-4">
+          <ScrollReveal className="container mx-auto px-4">
             <div className="flex justify-between items-center mb-8">
               <div>
                 <h2 className="text-3xl font-bold text-foreground">{t.packs.featuredPacks}</h2>
@@ -226,13 +231,13 @@ export default function Index() {
               <CarouselPrevious className="left-4" />
               <CarouselNext className="right-4" />
             </Carousel>
-          </div>
+          </ScrollReveal>
         </section>
       )}
 
       {/* Featured Products - Grid & SECOND */}
       <section className="py-16 bg-muted/50">
-        <div className="container mx-auto px-4">
+        <ScrollReveal className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
             <div>
               <h2 className="text-3xl font-bold text-foreground">{t.products.featuredProducts}</h2>
@@ -245,13 +250,13 @@ export default function Index() {
             </Link>
           </div>
           <ProductGrid products={featuredProducts} isLoading={productsLoading} />
-        </div>
+        </ScrollReveal>
       </section>
 
       {/* Categories - CAROUSEL & THIRD */}
       {categories.length > 0 && (
         <section className="py-16 bg-muted/30">
-          <div className="container mx-auto px-4">
+          <ScrollReveal className="container mx-auto px-4">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-3xl font-bold text-foreground">{t.categories.shopByCategory}</h2>
               <Link to="/products">
@@ -292,14 +297,14 @@ export default function Index() {
               <CarouselPrevious className="left-4" />
               <CarouselNext className="right-4" />
             </Carousel>
-          </div>
+          </ScrollReveal>
         </section>
       )}
 
       {/* CTA Section - Only for guests */}
       {!user && (
         <section className="py-20 bg-gradient-to-r from-secondary via-primary to-secondary text-white">
-          <div className="container mx-auto px-4 text-center">
+          <ScrollReveal className="container mx-auto px-4 text-center">
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-6">
               <Printer className="h-4 w-4 text-accent" />
               <span className="text-sm font-medium">{t.cta.badge}</span>
@@ -311,7 +316,7 @@ export default function Index() {
                 {t.cta.createAccount}
               </Button>
             </Link>
-          </div>
+          </ScrollReveal>
         </section>
       )}
     </Layout>
