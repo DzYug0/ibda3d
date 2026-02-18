@@ -168,7 +168,7 @@ export default function ProductDetail() {
           })
         }}
       />
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 pb-24 md:pb-12">
         <nav className="mb-6">
           <Link to="/products" className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors group">
             <div className="bg-muted group-hover:bg-primary/10 rounded-full p-1 me-2 transition-colors">

@@ -416,7 +416,7 @@ export default function Checkout() {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <div className="container mx-auto px-4 py-8 pb-32 md:pb-12 max-w-6xl">
         <h1 className="text-4xl font-extrabold text-foreground mb-10 tracking-tight text-center lg:text-left">{t.checkout?.title || "Checkout"}</h1>
 
         <form id="checkout-form" onSubmit={handleSubmit}>
@@ -783,24 +783,26 @@ export default function Checkout() {
                   </div>
                 </div>
 
-                <Button
-                  type="submit"
-                  size="xl"
-                  className="hidden lg:flex w-full mt-8 text-lg font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-1"
-                  disabled={isProcessing || !shippingInfo.companyId}
-                >
-                  {isProcessing ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      {t.checkout?.processing || "Processing..."}
-                    </>
-                  ) : (
-                    <>
-                      {t.checkout?.confirmOrder || "Confirm Order"}
-                      <ChevronRight className="ml-2 h-5 w-5" />
-                    </>
-                  )}
-                </Button>
+                <div className="hidden lg:block mt-8">
+                  <Button
+                    type="submit"
+                    size="xl"
+                    className="w-full text-lg font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-1"
+                    disabled={isProcessing || !shippingInfo.companyId}
+                  >
+                    {isProcessing ? (
+                      <>
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        {t.checkout?.processing || "Processing..."}
+                      </>
+                    ) : (
+                      <>
+                        {t.checkout?.confirmOrder || "Confirm Order"}
+                        <ChevronRight className="ml-2 h-5 w-5" />
+                      </>
+                    )}
+                  </Button>
+                </div>
 
                 <p className="text-xs text-muted-foreground text-center mt-4">
                   {t.cart?.algeriaOnly || "Shipping to all 58 Wilayas"}

@@ -47,7 +47,7 @@ export default function Cart() {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-12 max-w-6xl">
+      <div className="container mx-auto px-4 py-12 pb-24 md:pb-12 max-w-6xl">
         <Link to="/products" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-8 group transition-colors">
           <div className="bg-muted/50 group-hover:bg-primary/10 p-2 rounded-full mr-3 transition-colors">
             <ArrowLeft className="h-4 w-4" />
@@ -164,13 +164,15 @@ export default function Cart() {
                 </div>
               </div>
 
-              <Button
-                size="xl"
-                className="w-full text-lg font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-1"
-                onClick={() => navigate('/checkout')}
-              >
-                {t.cart?.placeOrder || "Checkout"} <ArrowRight className="ms-2 h-5 w-5" />
-              </Button>
+              <div className="hidden lg:block">
+                <Button
+                  size="xl"
+                  className="w-full text-lg font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-1"
+                  onClick={() => navigate('/checkout')}
+                >
+                  {t.cart?.placeOrder || "Checkout"} <ArrowRight className="ms-2 h-5 w-5" />
+                </Button>
+              </div>
 
               <div className="text-center">
                 <p className="text-xs text-muted-foreground/80 flex items-center justify-center gap-2">
