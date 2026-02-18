@@ -10,6 +10,7 @@ import {
     CarouselItem,
     CarouselNext,
     CarouselPrevious,
+    CarouselDots,
 } from "@/components/ui/carousel";
 import logo from '@/assets/logo.png';
 import { cn } from '@/lib/utils';
@@ -144,10 +145,9 @@ export function HeroBanner({ banners }: { banners: Banner[] }) {
                     ))}
                 </CarouselContent>
                 {banners.length > 1 && (
-                    <>
-                        <CarouselPrevious className="left-4" />
-                        <CarouselNext className="right-4" />
-                    </>
+                    <div className="absolute bottom-8 left-0 right-0 flex justify-center z-20">
+                        <CarouselDots className="gap-3 [&>button]:bg-white/50 [&>button.bg-primary]:bg-white [&>button.bg-primary]:w-8" />
+                    </div>
                 )}
             </Carousel>
         </section>

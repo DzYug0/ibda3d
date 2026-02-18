@@ -11,6 +11,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  CarouselDots,
 } from "@/components/ui/carousel"
 import { useFeaturedProducts, useCategories } from '@/hooks/useProducts';
 import { usePacks } from '@/hooks/usePacks';
@@ -90,7 +91,7 @@ export default function Index() {
       </ScrollReveal>
 
       {/* Features - Floating Cards */}
-      <section className="py-12 relative z-20 -mt-8 sm:-mt-12 container mx-auto px-4">
+      <section className="py-12 relative z-20 container mx-auto px-4 mt-8">
         <ScrollReveal delay={100} className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-xl p-4 sm:p-6">
           {features.map((feature) => (
             <div key={feature.title} className="flex flex-col sm:flex-row items-center sm:items-start lg:items-center gap-3 text-center sm:text-start group">
@@ -307,34 +308,34 @@ export default function Index() {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <div className="flex justify-end gap-2 mt-4 sm:hidden">
-                <CarouselPrevious className="static translate-y-0" />
-                <CarouselNext className="static translate-y-0" />
+              <div className="flex justify-center mt-8">
+                <CarouselDots />
               </div>
-              <CarouselPrevious className="left-4 hidden sm:flex bg-background/50 hover:bg-background border-0 backdrop-blur-md" />
-              <CarouselNext className="right-4 hidden sm:flex bg-background/50 hover:bg-background border-0 backdrop-blur-md" />
             </Carousel>
           </ScrollReveal>
         </section>
-      )}
+      )
+      }
 
       {/* CTA Section - Simple & Effective */}
-      {!user && (
-        <section className="py-24 relative overflow-hidden">
-          <div className="absolute inset-0 bg-primary/5 clip-path-slant" />
-          <ScrollReveal className="container mx-auto px-4 text-center relative z-10">
-            <div className="max-w-3xl mx-auto space-y-8">
-              <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight">{t.cta.title}</h2>
-              <p className="text-xl text-muted-foreground">{t.cta.subtitle}</p>
-              <Link to="/auth?tab=signup">
-                <Button size="lg" className="rounded-full px-10 h-14 text-lg shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all hover:-translate-y-1">
-                  {t.cta.createAccount} <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-            </div>
-          </ScrollReveal>
-        </section>
-      )}
-    </Layout>
+      {
+        !user && (
+          <section className="py-24 relative overflow-hidden">
+            <div className="absolute inset-0 bg-primary/5 clip-path-slant" />
+            <ScrollReveal className="container mx-auto px-4 text-center relative z-10">
+              <div className="max-w-3xl mx-auto space-y-8">
+                <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight">{t.cta.title}</h2>
+                <p className="text-xl text-muted-foreground">{t.cta.subtitle}</p>
+                <Link to="/auth?tab=signup">
+                  <Button size="lg" className="rounded-full px-10 h-14 text-lg shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all hover:-translate-y-1">
+                    {t.cta.createAccount} <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
+              </div>
+            </ScrollReveal>
+          </section>
+        )
+      }
+    </Layout >
   );
 }
