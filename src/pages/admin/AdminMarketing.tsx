@@ -215,7 +215,8 @@ export default function AdminMarketing() {
                 </div>
             </div>
 
-            <div className="bg-card/60 backdrop-blur-md rounded-xl border border-border/50 overflow-hidden shadow-sm">
+            {/* Coupons Table (Desktop) */}
+            <div className="hidden md:block bg-card/60 backdrop-blur-md rounded-xl border border-border/50 overflow-hidden shadow-sm">
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -283,6 +284,64 @@ export default function AdminMarketing() {
                         )}
                     </TableBody>
                 </Table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden grid grid-cols-1 gap-4">
+                {isLoading ? (
+                    Array.from({ length: 3 }).map((_, i) => (
+                        <div key={i} className="h-24 bg-card/60 rounded-xl border border-border/50 animate-pulse" />
+                    ))
+                ) : filteredCoupons.length === 0 ? (
+                    <div className="text-center py-12 text-muted-foreground">
+                        No coupons found
+                    </div>
+                ) : (
+                    filteredCoupons.map((coupon) => (
+                        <div key={coupon.id} className="bg-card/60 backdrop-blur-md rounded-xl border border-border/50 p-4 shadow-sm flex flex-col gap-3">
+                            <div className="flex items-start justify-between">
+                                <div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="font-mono font-bold text-lg">{coupon.code}</span>
+                                        <Badge variant={coupon.is_active ? 'default' : 'secondary'} className="h-5 px-1.5 text-[10px]">
+                                            {coupon.is_active ? 'Active' : 'Inactive'}
+                                        </Badge>
+                                    </div>
+                                    <p className="text-sm text-primary font-medium mt-1">
+                                        {coupon.discount_type === 'percentage' ? `${coupon.discount_value}%` : `${coupon.discount_value} DA`} OFF
+                                        {coupon.min_spend > 0 && <span className="text-muted-foreground ml-1 font-normal text-xs">(Min: {coupon.min_spend} DA)</span>}
+                                    </p>
+                                </div>
+                                <div className="flex gap-1">
+                                    <Button variant="ghost" size="icon" onClick={() => handleEdit(coupon)} className="h-8 w-8 hover:bg-primary/10 hover:text-primary">
+                                        <Pencil className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                        onClick={() => {
+                                            if (confirm('Delete this coupon?')) deleteMutation.mutate({ id: coupon.id, code: coupon.code });
+                                        }}
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-border/50">
+                                <div className="flex items-center gap-1.5">
+                                    <Tag className="h-3.5 w-3.5" />
+                                    <span>Used: {coupon.used_count} / {coupon.usage_limit || '∞'}</span>
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                    <CalendarIcon className="h-3.5 w-3.5" />
+                                    <span>{coupon.expires_at ? format(new Date(coupon.expires_at), 'MMM d, yyyy') : 'No Expiry'}</span>
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                )}
             </div>
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

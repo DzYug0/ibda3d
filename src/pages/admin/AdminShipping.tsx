@@ -167,12 +167,12 @@ function CompanyRow({
 
   return (
     <div
-      className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${isSelected ? 'border-primary bg-primary/5' : 'border-border'
+      className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 rounded-lg border transition-colors gap-3 ${isSelected ? 'border-primary bg-primary/5' : 'border-border'
         }`}
     >
-      <div className="flex items-center gap-3 flex-1">
+      <div className="flex items-center gap-3 flex-1 w-full sm:w-auto">
         {/* Logo */}
-        <div className="relative group">
+        <div className="relative group shrink-0">
           <div className="w-10 h-10 rounded-lg border border-border bg-muted flex items-center justify-center overflow-hidden flex-shrink-0">
             {company.logo_url ? (
               <img src={company.logo_url} alt={company.name} className="w-full h-full object-contain" />
@@ -201,7 +201,7 @@ function CompanyRow({
         </div>
 
         {isEditing ? (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-1">
             <Input
               value={editName}
               onChange={(e) => onEditChange(e.target.value)}
@@ -216,31 +216,35 @@ function CompanyRow({
             </Button>
           </div>
         ) : (
-          <>
+          <div className="flex items-center gap-2">
             <span className="font-medium text-foreground">{company.name}</span>
-            <Button size="sm" variant="ghost" onClick={onEditStart}>
+            <Button size="sm" variant="ghost" onClick={onEditStart} className="h-6 w-6 p-0">
               <Pencil className="h-3 w-3" />
             </Button>
-          </>
+          </div>
         )}
       </div>
 
-      <div className="flex items-center gap-3">
-        {company.logo_url && (
-          <Button size="sm" variant="ghost" onClick={onLogoRemove} className="text-muted-foreground text-xs">
-            Remove logo
-          </Button>
-        )}
+      <div className="flex items-center justify-between w-full sm:w-auto gap-3">
         <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">{company.is_active ? 'Active' : 'Inactive'}</span>
-          <Switch checked={company.is_active} onCheckedChange={onToggleActive} />
+          {company.logo_url && (
+            <Button size="sm" variant="ghost" onClick={onLogoRemove} className="text-muted-foreground text-xs h-6 px-2 sm:h-8 sm:px-3">
+              Remove
+            </Button>
+          )}
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground sm:hidden">{company.is_active ? 'On' : 'Off'}</span>
+            <Switch checked={company.is_active} onCheckedChange={onToggleActive} className="scale-75 sm:scale-100" />
+          </div>
         </div>
-        <Button size="sm" variant="outline" onClick={onSelectRates}>
-          Set Rates
-        </Button>
-        <Button size="sm" variant="destructive" onClick={onDelete}>
-          <Trash2 className="h-3 w-3" />
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="outline" onClick={onSelectRates} className="h-8 text-xs sm:text-sm">
+            Rates
+          </Button>
+          <Button size="sm" variant="destructive" onClick={onDelete} className="h-8 w-8 p-0">
+            <Trash2 className="h-3 w-3" />
+          </Button>
+        </div>
       </div>
     </div>
   );
@@ -319,31 +323,31 @@ function RatesEditor({ companyId, companyName }: { companyId: string; companyNam
         </div>
       </div>
 
-      <div className="max-h-[500px] overflow-y-auto border border-border rounded-lg">
+      <div className="max-h-[500px] overflow-auto border border-border/50 rounded-lg">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-16">Code</TableHead>
+              <TableHead className="w-12 sm:w-16">Code</TableHead>
               <TableHead>Wilaya</TableHead>
-              <TableHead className="w-32">Desk (DA)</TableHead>
-              <TableHead className="w-32">Home (DA)</TableHead>
+              <TableHead className="w-24 sm:w-32">Desk (DA)</TableHead>
+              <TableHead className="w-24 sm:w-32">Home (DA)</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {ALGERIA_WILAYAS.map((w) => (
               <TableRow key={w.code}>
-                <TableCell className="font-mono text-muted-foreground">{w.code}</TableCell>
-                <TableCell className="font-medium">{w.name}</TableCell>
+                <TableCell className="font-mono text-muted-foreground text-xs sm:text-sm">{w.code}</TableCell>
+                <TableCell className="font-medium text-xs sm:text-sm">{w.name}</TableCell>
                 <TableCell>
                   <Input
-                    type="number" min="0" className="h-8 w-24"
+                    type="number" min="0" className="h-8 w-20 sm:w-24 text-xs sm:text-sm"
                     value={rates[w.code]?.desk || '0'}
                     onChange={(e) => setRates((prev) => ({ ...prev, [w.code]: { ...prev[w.code], desk: e.target.value } }))}
                   />
                 </TableCell>
                 <TableCell>
                   <Input
-                    type="number" min="0" className="h-8 w-24"
+                    type="number" min="0" className="h-8 w-20 sm:w-24 text-xs sm:text-sm"
                     value={rates[w.code]?.home || '0'}
                     onChange={(e) => setRates((prev) => ({ ...prev, [w.code]: { ...prev[w.code], home: e.target.value } }))}
                   />

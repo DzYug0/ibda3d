@@ -81,39 +81,39 @@ export function OrderDetailsDialog({ order, trigger }: OrderDetailsDialogProps) 
             <DialogTrigger asChild>
                 {trigger || <Button variant="outline" size="sm" className="hover:bg-primary/10 hover:text-primary transition-colors">View Details</Button>}
             </DialogTrigger>
-            <DialogContent className="max-w-5xl h-[90vh] flex flex-col p-0 gap-0 bg-background/80 backdrop-blur-xl border-border/50">
-                <DialogHeader className="p-6 border-b border-border/50 pb-4 bg-muted/20">
+            <DialogContent className="max-w-5xl w-full h-[100dvh] sm:h-[90vh] flex flex-col p-0 gap-0 bg-background/80 backdrop-blur-xl border-border/50 sm:rounded-xl">
+                <DialogHeader className="p-4 sm:p-6 border-b border-border/50 pb-4 bg-muted/20 shrink-0">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <div>
-                            <DialogTitle className="text-2xl font-bold flex items-center gap-3">
+                        <div className="pr-8 sm:pr-0">
+                            <DialogTitle className="text-xl sm:text-2xl font-bold flex flex-wrap items-center gap-2 sm:gap-3">
                                 Order #{order.id.slice(0, 8)}
-                                <Badge variant="outline" className={`text-base font-normal px-3 py-0.5 ${getStatusColor(order.status)}`}>
+                                <Badge variant="outline" className={`text-sm sm:text-base font-normal px-2 py-0.5 ${getStatusColor(order.status)}`}>
                                     {formatStatus(order.status)}
                                 </Badge>
                             </DialogTitle>
-                            <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
+                            <p className="text-xs sm:text-sm text-muted-foreground mt-1 flex items-center gap-2">
                                 <Calendar className="h-3.5 w-3.5" />
                                 {format(new Date(order.created_at), 'PPP p')}
                             </p>
                         </div>
-                        <div className="flex gap-2 w-full sm:w-auto">
+                        <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
                             <Dialog open={isInvoiceOpen} onOpenChange={setIsInvoiceOpen}>
                                 <DialogTrigger asChild>
-                                    <Button variant="outline" className="gap-2 flex-1 sm:flex-none shadow-sm hover:bg-primary/5">
+                                    <Button variant="outline" size="sm" className="gap-2 flex-1 sm:flex-none shadow-sm hover:bg-primary/5 whitespace-nowrap">
                                         <Eye className="h-4 w-4" />
                                         View Invoice
                                     </Button>
                                 </DialogTrigger>
                                 <DialogContent className="max-w-4xl h-[90vh] p-0 overflow-hidden">
                                     <ScrollArea className="h-full">
-                                        <div className="p-8 flex justify-center bg-gray-100 min-h-full">
+                                        <div className="p-4 sm:p-8 flex justify-center bg-gray-100 min-h-full">
                                             <OrderInvoice order={order} />
                                         </div>
                                     </ScrollArea>
                                 </DialogContent>
                             </Dialog>
 
-                            <Button onClick={handleDownloadPdf} className="gap-2 flex-1 sm:flex-none shadow-md hover:shadow-lg transition-all">
+                            <Button onClick={handleDownloadPdf} size="sm" className="gap-2 flex-1 sm:flex-none shadow-md hover:shadow-lg transition-all whitespace-nowrap">
                                 <Download className="h-4 w-4" />
                                 Download PDF
                             </Button>
@@ -121,10 +121,10 @@ export function OrderDetailsDialog({ order, trigger }: OrderDetailsDialogProps) 
                     </div>
                 </DialogHeader>
 
-                <ScrollArea className="flex-1 p-6 bg-muted/5">
-                    <div className="grid lg:grid-cols-3 gap-6">
+                <ScrollArea className="flex-1 p-4 sm:p-6 bg-muted/5">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pb-6">
                         {/* Left Column: Order Items & Totals */}
-                        <div className="lg:col-span-2 space-y-6">
+                        <div className="lg:col-span-2 space-y-6 order-2 lg:order-1">
                             {/* Order Items */}
                             <div className="bg-card/60 backdrop-blur-md border border-border/50 rounded-xl overflow-hidden shadow-sm">
                                 <div className="p-4 border-b border-border/50 bg-muted/20 flex items-center gap-2">
@@ -133,7 +133,7 @@ export function OrderDetailsDialog({ order, trigger }: OrderDetailsDialogProps) 
                                 </div>
                                 <div className="divide-y divide-border/50">
                                     {order.items?.map((item, i) => (
-                                        <div key={i} className="p-4 flex gap-4 hover:bg-muted/10 transition-colors">
+                                        <div key={i} className="p-4 flex gap-3 sm:gap-4 hover:bg-muted/10 transition-colors">
                                             <div className="h-16 w-16 rounded-lg bg-muted overflow-hidden shrink-0 border border-border/50">
                                                 {/* Placeholder for product image if available in item, otherwise generic icon */}
                                                 <div className="w-full h-full flex items-center justify-center bg-muted/50 text-muted-foreground">
@@ -199,14 +199,14 @@ export function OrderDetailsDialog({ order, trigger }: OrderDetailsDialogProps) 
                         </div>
 
                         {/* Right Column: Customer Info & Actions */}
-                        <div className="space-y-6">
+                        <div className="space-y-6 order-1 lg:order-2">
                             {/* Update Status */}
                             <div className="bg-card/60 backdrop-blur-md border border-border/50 rounded-xl shadow-sm overflow-hidden">
                                 <div className="p-4 border-b border-border/50 bg-muted/20 flex items-center gap-2">
                                     <CheckCircle className="h-4 w-4 text-primary" />
                                     <h3 className="font-semibold text-sm uppercase tracking-wider">Update Status</h3>
                                 </div>
-                                <div className="p-4 grid grid-cols-2 gap-2">
+                                <div className="p-4 grid grid-cols-2 sm:grid-cols-2 gap-2">
                                     <StatusButton
                                         current={order.status}
                                         target="pending"
@@ -272,8 +272,8 @@ export function OrderDetailsDialog({ order, trigger }: OrderDetailsDialogProps) 
                                         </div>
                                         <div>
                                             <p className="font-medium">{info.name || 'N/A'}</p>
-                                            <p className="text-sm text-muted-foreground">{info.phone || 'N/A'}</p>
-                                            {info.email && <p className="text-xs text-muted-foreground mt-0.5">{info.email}</p>}
+                                            <p className="text-sm text-muted-foreground break-all">{info.phone || 'N/A'}</p>
+                                            {info.email && <p className="text-xs text-muted-foreground mt-0.5 break-all">{info.email}</p>}
                                         </div>
                                     </div>
                                     {info.company && (
