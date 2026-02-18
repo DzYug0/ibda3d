@@ -64,7 +64,17 @@ export function OrderDetailsDialog({ order, trigger }: OrderDetailsDialogProps) 
 
     // Calculate generic stats
     const shippingCost = info.shipping ? parseInt(info.shipping.replace(/\D/g, '')) || 0 : 0;
-    const subtotal = order.total_amount - shippingCost;
+
+    // Calculate accurate subtotal from items
+    const itemsSubtotal = order.items?.reduce((sum, item) => sum + (item.quantity * item.product_price), 0) || order.total_amount;
+
+    // If order.total_amount matches itemsSubtotal, it means it doesn't include shipping
+    // If order.total_amount > itemsSubtotal, it might already include shipping
+    const isTotalInclusive = Math.abs(order.total_amount - (itemsSubtotal + shippingCost)) < 1;
+
+    // Final calculations
+    const displaySubtotal = itemsSubtotal;
+    const displayTotal = itemsSubtotal + shippingCost;
 
     return (
         <Dialog>
@@ -173,7 +183,7 @@ export function OrderDetailsDialog({ order, trigger }: OrderDetailsDialogProps) 
                                 <div className="space-y-3 text-sm">
                                     <div className="flex justify-between text-muted-foreground">
                                         <span>Subtotal</span>
-                                        <span>{subtotal.toLocaleString()} DA</span>
+                                        <span>{displaySubtotal.toLocaleString()} DA</span>
                                     </div>
                                     <div className="flex justify-between text-muted-foreground">
                                         <span>Shipping</span>
@@ -182,7 +192,7 @@ export function OrderDetailsDialog({ order, trigger }: OrderDetailsDialogProps) 
                                     <Separator className="bg-border/50 my-2" />
                                     <div className="flex justify-between font-bold text-lg text-foreground">
                                         <span>Total</span>
-                                        <span>{order.total_amount.toLocaleString()} DA</span>
+                                        <span>{displayTotal.toLocaleString()} DA</span>
                                     </div>
                                 </div>
                             </div>

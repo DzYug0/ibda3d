@@ -20,6 +20,7 @@ export const OrderInvoice = React.forwardRef<HTMLDivElement, OrderInvoiceProps>(
                 phone: extract('Phone'),
                 address: extract('Address') || order.shipping_address,
                 company: extract('Company'),
+                shipping: extract('Shipping'),
             };
         };
 
@@ -113,12 +114,20 @@ export const OrderInvoice = React.forwardRef<HTMLDivElement, OrderInvoiceProps>(
                     <div className="w-72 space-y-3">
                         <div className="flex justify-between text-sm text-gray-600">
                             <span>Subtotal</span>
-                            <span>{order.total_amount.toLocaleString()} DA</span>
+                            <span>{order.items?.reduce((sum: number, item: any) => sum + (item.quantity * Number(item.product_price)), 0).toLocaleString()} DA</span>
                         </div>
-                        {/* Add tax/shipping logic if available in order object */}
+                        <div className="flex justify-between text-sm text-gray-600">
+                            <span>Shipping</span>
+                            <span>{customer.shipping ? `${customer.shipping}` : 'Free'}</span>
+                        </div>
                         <div className="flex justify-between py-3 border-t border-gray-100 mt-3">
                             <span className="font-bold text-lg text-gray-900">Total</span>
-                            <span className="font-bold text-lg text-primary">{order.total_amount.toLocaleString()} DA</span>
+                            <span className="font-bold text-lg text-primary">
+                                {(
+                                    (order.items?.reduce((sum: number, item: any) => sum + (item.quantity * Number(item.product_price)), 0) || 0) +
+                                    (customer.shipping ? (parseInt(customer.shipping.replace(/\D/g, '')) || 0) : 0)
+                                ).toLocaleString()} DA
+                            </span>
                         </div>
                     </div>
                 </div>
