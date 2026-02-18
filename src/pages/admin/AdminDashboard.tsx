@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { Package, FolderOpen, ShoppingBag, DollarSign, Calendar } from 'lucide-react';
+import { Package, FolderOpen, ShoppingBag, DollarSign, Calendar, Plus, ExternalLink, ArrowRight } from 'lucide-react';
 import { useAdminProducts } from '@/hooks/useProducts';
 import { useAdminOrders } from '@/hooks/useOrders';
 import { useCategories } from '@/hooks/useProducts';
 import { RevenueChart, OrderStatusChart, TopProductsChart } from '@/components/admin/AnalyticsCharts';
 import { LowStockAlerts } from '@/components/admin/LowStockAlerts';
+import { DashboardStats } from '@/components/admin/DashboardStats';
 import { format, subDays, isSameDay, isAfter, startOfDay } from 'date-fns';
+import { Link } from 'react-router-dom';
 import {
   Select,
   SelectContent,
@@ -14,6 +16,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 
 type DateRange = 'today' | '7d' | '30d' | '90d' | 'all';
 type TopProductsType = 'quantity' | 'revenue';
@@ -44,48 +47,53 @@ export default function AdminDashboard() {
   });
 
   const totalRevenue = filteredOrders.reduce((sum, order) => sum + order.total_amount, 0);
-  const pendingOrders = orders.filter((o) => o.status === 'pending').length; // Keep total pending regardless of date range
+  const pendingOrders = orders.filter((o) => o.status === 'pending').length;
 
+  // Mock trends (in a real app, calculate vs previous period)
   const stats = [
     {
+      icon: DollarSign,
+      label: 'Total Revenue',
+      value: `${totalRevenue.toFixed(0)} DA`,
+      trend: 12,
+      trendLabel: 'vs last period',
+      color: 'text-primary', // Blueish
+    },
+    {
+      icon: ShoppingBag,
+      label: 'Orders',
+      value: filteredOrders.length.toString(),
+      trend: 8,
+      trendLabel: 'vs last period',
+      color: 'text-purple-600',
+    },
+    {
       icon: Package,
-      label: 'Total Products',
-      value: products.length,
-      color: 'text-primary bg-primary/10',
+      label: 'Products',
+      value: products.length.toString(),
+      color: 'text-orange-600',
     },
     {
       icon: FolderOpen,
       label: 'Categories',
-      value: categories.length,
-      color: 'text-accent bg-accent/10',
-    },
-    {
-      icon: ShoppingBag,
-      label: `${dateRange === 'all' ? 'Total' : 'Period'} Orders`,
-      value: filteredOrders.length,
-      subtext: `${pendingOrders} pending total`,
-      color: 'text-warning bg-warning/10',
-    },
-    {
-      icon: DollarSign,
-      label: `${dateRange === 'all' ? 'Total' : 'Period'} Revenue`,
-      value: `${totalRevenue.toFixed(0)} DA`,
-      color: 'text-success bg-success/10',
+      value: categories.length.toString(),
+      color: 'text-pink-600',
     },
   ];
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="space-y-8">
+      {/* Header Section */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground">Welcome to your admin dashboard</p>
+          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground">Overview of your store's performance.</p>
         </div>
 
         <div className="flex items-center gap-2">
-          <Calendar className="h-4 w-4 text-muted-foreground" />
           <Select value={dateRange} onValueChange={(v) => setDateRange(v as DateRange)}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[160px]">
+              <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
               <SelectValue placeholder="Select period" />
             </SelectTrigger>
             <SelectContent>
@@ -96,47 +104,69 @@ export default function AdminDashboard() {
               <SelectItem value="all">All Time</SelectItem>
             </SelectContent>
           </Select>
+          <Button>
+            <ExternalLink className="mr-2 h-4 w-4" />
+            View Live Store
+          </Button>
         </div>
       </div>
 
-      {/* Stats grid */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat) => (
-          <div
-            key={stat.label}
-            className="bg-card rounded-xl border border-border p-6"
-          >
-            <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.color}`}>
-                <stat.icon className="h-6 w-6" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">{stat.label}</p>
-                <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                {stat.subtext && (
-                  <p className="text-xs text-muted-foreground">{stat.subtext}</p>
-                )}
-              </div>
-            </div>
-          </div>
-        ))}
+      {/* Stats Components */}
+      <DashboardStats stats={stats} />
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Link to="/admin/products/new">
+          <Button variant="outline" className="w-full h-auto py-4 flex flex-col gap-2 hover:bg-primary/5 hover:border-primary/50 transition-all">
+            <Plus className="h-6 w-6 text-primary" />
+            <span className="font-medium">Add Product</span>
+          </Button>
+        </Link>
+        <Link to="/admin/orders">
+          <Button variant="outline" className="w-full h-auto py-4 flex flex-col gap-2 hover:bg-primary/5 hover:border-primary/50 transition-all">
+            <ShoppingBag className="h-6 w-6 text-primary" />
+            <span className="font-medium">View Orders</span>
+          </Button>
+        </Link>
+        <Link to="/admin/users">
+          <Button variant="outline" className="w-full h-auto py-4 flex flex-col gap-2 hover:bg-primary/5 hover:border-primary/50 transition-all">
+            <Package className="h-6 w-6 text-primary" />
+            <span className="font-medium">Customers</span>
+          </Button>
+        </Link>
+        <div className="p-4 rounded-xl border border-dashed border-border flex items-center justify-center text-sm text-muted-foreground">
+          More actions coming soon
+        </div>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Main Charts Area */}
         <div className="lg:col-span-2 space-y-8">
-          {/* Analytics Charts */}
-          <div className="grid lg:grid-cols-2 gap-8">
-            <div className="bg-card rounded-xl border border-border p-6 shadow-sm">
-              <RevenueChart data={getRevenueData(filteredOrders, dateRange)} />
-            </div>
-            <div className="bg-card rounded-xl border border-border p-6 shadow-sm">
-              <OrderStatusChart data={getOrderStatusData(filteredOrders)} />
-            </div>
+          <div className="grid md:grid-cols-2 gap-8">
+            <Card className="hover:shadow-sm transition-shadow">
+              <CardHeader>
+                <CardTitle>Revenue Over Time</CardTitle>
+              </CardHeader>
+              <CardContent className="pl-0">
+                <RevenueChart data={getRevenueData(filteredOrders, dateRange)} />
+              </CardContent>
+            </Card>
+            <Card className="hover:shadow-sm transition-shadow">
+              <CardHeader>
+                <CardTitle>Order Status</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <OrderStatusChart data={getOrderStatusData(filteredOrders)} />
+              </CardContent>
+            </Card>
           </div>
 
-          <div className="bg-card rounded-xl border border-border p-6 shadow-sm">
-            <div className="flex justify-end mb-2">
+          <Card className="hover:shadow-sm transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Top Products</CardTitle>
+                <CardDescription>Best performing products by {topProductsType}</CardDescription>
+              </div>
               <div className="flex bg-muted rounded-lg p-1">
                 <Button
                   variant={topProductsType === 'quantity' ? 'secondary' : 'ghost'}
@@ -144,7 +174,7 @@ export default function AdminDashboard() {
                   className="h-7 text-xs"
                   onClick={() => setTopProductsType('quantity')}
                 >
-                  By Quantity
+                  Quantity
                 </Button>
                 <Button
                   variant={topProductsType === 'revenue' ? 'secondary' : 'ghost'}
@@ -152,50 +182,62 @@ export default function AdminDashboard() {
                   className="h-7 text-xs"
                   onClick={() => setTopProductsType('revenue')}
                 >
-                  By Revenue
+                  Revenue
                 </Button>
               </div>
-            </div>
-            <TopProductsChart data={getTopProductsData(filteredOrders, topProductsType)} type={topProductsType} />
-          </div>
+            </CardHeader>
+            <CardContent>
+              <TopProductsChart data={getTopProductsData(filteredOrders, topProductsType)} type={topProductsType} />
+            </CardContent>
+          </Card>
         </div>
 
         {/* Sidebar Area */}
         <div className="space-y-8">
           <LowStockAlerts products={products} />
 
-          {/* Recent orders */}
-          <div className="bg-card rounded-xl border border-border h-fit">
-            <div className="p-6 border-b border-border">
-              <h2 className="text-xl font-bold text-foreground">Recent Orders</h2>
-            </div>
-            <div className="divide-y divide-border">
-              {orders.slice(0, 5).map((order) => (
-                <div key={order.id} className="p-4 flex items-center justify-between">
-                  <div className="min-w-0">
-                    <p className="font-medium text-foreground truncate">Order #{order.id.slice(0, 8)}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {new Date(order.created_at).toLocaleDateString()}
-                    </p>
+          {/* Recent Orders List */}
+          <Card className="h-fit">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Recent Orders</CardTitle>
+              <Link to="/admin/orders">
+                <Button variant="ghost" size="sm" className="text-xs">
+                  View All <ArrowRight className="ml-1 h-3 w-3" />
+                </Button>
+              </Link>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="divide-y divide-border">
+                {orders.slice(0, 5).map((order) => (
+                  <div key={order.id} className="p-4 flex items-center justify-between hover:bg-muted/50 transition-colors">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-sm">#{order.id.slice(0, 8)}</span>
+                        {order.status === 'pending' && <span className="h-2 w-2 rounded-full bg-orange-500" />}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {new Date(order.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-sm">{order.total_amount.toFixed(0)} DA</p>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wide font-medium ${order.status === 'pending' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' :
+                          order.status === 'delivered' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                            'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                        }`}>
+                        {order.status}
+                      </span>
+                    </div>
                   </div>
-                  <div className="text-right shrink-0 ml-4">
-                    <p className="font-bold text-foreground">{order.total_amount.toFixed(0)} DA</p>
-                    <span className={`text-xs px-2 py-1 rounded-full ${order.status === 'pending' ? 'bg-warning/10 text-warning' :
-                      order.status === 'delivered' ? 'bg-success/10 text-success' :
-                        'bg-primary/10 text-primary'
-                      }`}>
-                      {order.status}
-                    </span>
+                ))}
+                {orders.length === 0 && (
+                  <div className="p-8 text-center text-muted-foreground text-sm">
+                    No orders yet
                   </div>
-                </div>
-              ))}
-              {orders.length === 0 && (
-                <div className="p-8 text-center text-muted-foreground">
-                  No orders yet
-                </div>
-              )}
-            </div>
-          </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
