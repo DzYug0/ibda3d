@@ -180,19 +180,19 @@ export default function AdminContent() {
     };
 
     return (
-        <div className="p-8">
-            <div className="flex justify-between items-center mb-8">
+        <div className="p-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-foreground">Content Management</h1>
-                    <p className="text-muted-foreground">Manage website banners and visual content</p>
+                    <h1 className="text-3xl font-bold text-foreground tracking-tight">Content Management</h1>
+                    <p className="text-muted-foreground mt-1">Manage website banners and visual content</p>
                 </div>
-                <Button onClick={() => { resetForm(); setIsDialogOpen(true); }}>
+                <Button onClick={() => { resetForm(); setIsDialogOpen(true); }} className="shadow-lg hover:shadow-xl transition-all duration-300">
                     <Plus className="h-4 w-4 mr-2" />
                     Add Banner
                 </Button>
             </div>
 
-            <div className="bg-card rounded-xl border border-border overflow-hidden">
+            <div className="bg-card/60 backdrop-blur-md rounded-xl border border-border/50 overflow-hidden shadow-sm">
                 <Table>
                     <TableHeader>
                         <TableRow>

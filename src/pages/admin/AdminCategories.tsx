@@ -121,18 +121,18 @@ export default function AdminCategories() {
   const parentOptions = categories.filter(c => !editingCategory || c.id !== editingCategory.id);
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-8">
+    <div className="p-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Categories</h1>
-          <p className="text-muted-foreground">Organize your products</p>
+          <h1 className="text-3xl font-bold text-foreground tracking-tight">Categories</h1>
+          <p className="text-muted-foreground mt-1">Organize your products into collections</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={(open) => {
           setIsDialogOpen(open);
           if (!open) resetForm();
         }}>
           <DialogTrigger asChild>
-            <Button onClick={openCreateDialog}>
+            <Button onClick={openCreateDialog} className="shadow-lg hover:shadow-xl transition-all duration-300">
               <Plus className="h-4 w-4 mr-2" />
               Add Category
             </Button>
@@ -223,59 +223,81 @@ export default function AdminCategories() {
             <div key={i} className="h-48 skeleton rounded-xl" />
           ))
         ) : enhancedCategories.length === 0 ? (
-          <div className="col-span-full text-center py-12 text-muted-foreground">
-            No categories yet. Click "Add Category" to create one.
+          <div className="col-span-full py-12 text-center">
+            <div className="flex flex-col items-center justify-center p-8 bg-card/30 backdrop-blur-sm border border-border/50 rounded-xl border-dashed">
+              <div className="bg-muted/50 p-4 rounded-full mb-4">
+                <Plus className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <h3 className="text-lg font-semibold">No categories yet</h3>
+              <p className="text-muted-foreground max-w-sm mt-2 mb-4">
+                Create categories to organize your products and help customers find what they are looking for.
+              </p>
+              <Button onClick={openCreateDialog} variant="outline">
+                Create Category
+              </Button>
+            </div>
           </div>
         ) : (
           enhancedCategories.map((category) => (
             <div
               key={category.id}
-              className="bg-card rounded-xl border border-border overflow-hidden group"
+              className="group bg-card/60 backdrop-blur-md rounded-xl border border-border/50 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 hover:bg-card/80"
             >
-              <div className="aspect-video bg-muted relative">
+              <div className="aspect-video bg-muted relative overflow-hidden">
                 {category.image_url ? (
                   <img
                     src={category.image_url}
                     alt={category.name}
                     loading="lazy"
                     decoding="async"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                    No Image
+                  <div className="w-full h-full flex items-center justify-center bg-muted/50 text-muted-foreground">
+                    <span className="text-xs">No Image</span>
                   </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 to-transparent" />
-                <h3 className="absolute bottom-3 left-3 text-lg font-bold text-secondary-foreground">
-                  {category.name}
-                </h3>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-70 transition-opacity" />
+
+                <div className="absolute bottom-0 left-0 p-4 w-full">
+                  <h3 className="text-lg font-bold text-white drop-shadow-sm mb-1">
+                    {category.name}
+                  </h3>
+                  {category.description && (
+                    <p className="text-xs text-white/80 line-clamp-1">
+                      {category.description}
+                    </p>
+                  )}
+                </div>
+
                 {category.parentName && (
-                  <Badge variant="secondary" className="absolute top-3 left-3 bg-background/80 backdrop-blur-sm">
-                    {category.parentName} &gt;
+                  <Badge variant="secondary" className="absolute top-3 left-3 bg-white/90 text-black backdrop-blur-md shadow-sm border-0">
+                    {category.parentName}
                   </Badge>
                 )}
-              </div>
-              <div className="p-4 flex justify-between items-center">
-                <p className="text-sm text-muted-foreground truncate flex-1">
-                  {category.description || 'No description'}
-                </p>
-                <div className="flex gap-1 flex-shrink-0">
+
+                <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-[-10px] group-hover:translate-y-0">
                   <Button
-                    variant="ghost"
+                    variant="secondary"
                     size="icon"
-                    className="text-muted-foreground hover:text-foreground"
-                    onClick={() => openEditDialog(category)}
+                    className="h-8 w-8 bg-white/90 hover:bg-white text-black shadow-sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openEditDialog(category);
+                    }}
                   >
-                    <Pencil className="h-4 w-4" />
+                    <Pencil className="h-3.5 w-3.5" />
                   </Button>
                   <Button
-                    variant="ghost"
+                    variant="destructive"
                     size="icon"
-                    className="text-destructive hover:text-destructive"
-                    onClick={() => setDeletingCategory({ id: category.id, name: category.name })}
+                    className="h-8 w-8 shadow-sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDeletingCategory({ id: category.id, name: category.name });
+                    }}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </div>
               </div>

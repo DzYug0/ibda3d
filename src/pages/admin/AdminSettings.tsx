@@ -116,13 +116,13 @@ export default function AdminSettings() {
     }
 
     return (
-        <div className="p-8 max-w-4xl mx-auto">
-            <div className="flex justify-between items-center mb-8">
+        <div className="p-8 max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-foreground">Store Settings</h1>
-                    <p className="text-muted-foreground">Manage general store configuration</p>
+                    <h1 className="text-3xl font-bold text-foreground tracking-tight">Store Settings</h1>
+                    <p className="text-muted-foreground mt-1">Manage general store configuration</p>
                 </div>
-                <Button onClick={handleSubmit} disabled={saveMutation.isPending}>
+                <Button onClick={handleSubmit} disabled={saveMutation.isPending} className="shadow-lg hover:shadow-xl transition-all duration-300">
                     <Save className="h-4 w-4 mr-2" />
                     {saveMutation.isPending ? 'Saving...' : 'Save Changes'}
                 </Button>
@@ -130,9 +130,11 @@ export default function AdminSettings() {
 
             <div className="space-y-6">
                 {/* General Info */}
-                <div className="bg-card rounded-xl border border-border p-6 space-y-4">
+                <div className="bg-card/60 backdrop-blur-md rounded-xl border border-border/50 p-6 space-y-4 shadow-sm hover:shadow-md transition-all duration-300">
                     <div className="flex items-center gap-2 mb-4">
-                        <Store className="h-5 w-5 text-primary" />
+                        <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                            <Store className="h-4 w-4 text-primary" />
+                        </div>
                         <h2 className="text-xl font-semibold">General Information</h2>
                     </div>
 
@@ -143,6 +145,7 @@ export default function AdminSettings() {
                                 id="store_name"
                                 value={settings.store_name}
                                 onChange={(e) => handleChange('store_name', e.target.value)}
+                                className="bg-background/50"
                             />
                         </div>
                     </div>
@@ -155,7 +158,7 @@ export default function AdminSettings() {
                                 <Input
                                     id="contact_email"
                                     type="email"
-                                    className="pl-9"
+                                    className="pl-9 bg-background/50"
                                     value={settings.contact_email}
                                     onChange={(e) => handleChange('contact_email', e.target.value)}
                                 />
@@ -167,7 +170,7 @@ export default function AdminSettings() {
                                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                 <Input
                                     id="contact_phone"
-                                    className="pl-9"
+                                    className="pl-9 bg-background/50"
                                     value={settings.contact_phone}
                                     onChange={(e) => handleChange('contact_phone', e.target.value)}
                                 />
@@ -177,9 +180,11 @@ export default function AdminSettings() {
                 </div>
 
                 {/* Social Media */}
-                <div className="bg-card rounded-xl border border-border p-6 space-y-4">
+                <div className="bg-card/60 backdrop-blur-md rounded-xl border border-border/50 p-6 space-y-4 shadow-sm hover:shadow-md transition-all duration-300">
                     <div className="flex items-center gap-2 mb-4">
-                        <Facebook className="h-5 w-5 text-blue-600" />
+                        <div className="h-8 w-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                            <Facebook className="h-4 w-4 text-blue-600" />
+                        </div>
                         <h2 className="text-xl font-semibold">Social Links</h2>
                     </div>
 
@@ -191,6 +196,7 @@ export default function AdminSettings() {
                                 placeholder="https://facebook.com/..."
                                 value={settings.social_facebook}
                                 onChange={(e) => handleChange('social_facebook', e.target.value)}
+                                className="bg-background/50"
                             />
                         </div>
                         <div className="space-y-2">
@@ -200,6 +206,7 @@ export default function AdminSettings() {
                                 placeholder="https://instagram.com/..."
                                 value={settings.social_instagram}
                                 onChange={(e) => handleChange('social_instagram', e.target.value)}
+                                className="bg-background/50"
                             />
                         </div>
                         <div className="space-y-2">
@@ -209,20 +216,23 @@ export default function AdminSettings() {
                                 placeholder="https://twitter.com/..."
                                 value={settings.social_twitter}
                                 onChange={(e) => handleChange('social_twitter', e.target.value)}
+                                className="bg-background/50"
                             />
                         </div>
                     </div>
                 </div>
 
                 {/* System Settings */}
-                <div className="bg-card rounded-xl border border-border p-6 space-y-4">
+                <div className="bg-card/60 backdrop-blur-md rounded-xl border border-border/50 p-6 space-y-4 shadow-sm hover:shadow-md transition-all duration-300">
                     <div className="flex items-center gap-2 mb-4">
-                        <AlertTriangle className="h-5 w-5 text-amber-500" />
+                        <div className="h-8 w-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                            <AlertTriangle className="h-4 w-4 text-amber-500" />
+                        </div>
                         <h2 className="text-xl font-semibold">System & Maintenance</h2>
                     </div>
 
                     <div className="space-y-4">
-                        <div className="flex items-center justify-between rounded-lg border p-4">
+                        <div className="flex items-center justify-between rounded-lg border border-border/50 bg-background/50 p-4">
                             <div className="space-y-0.5">
                                 <Label className="text-base">Maintenance Mode</Label>
                                 <div className="text-sm text-muted-foreground">
@@ -236,12 +246,13 @@ export default function AdminSettings() {
                         </div>
 
                         {settings.maintenance_mode && (
-                            <div className="space-y-2">
+                            <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
                                 <Label htmlFor="maintenance_msg">Maintenance Message</Label>
                                 <Input
                                     id="maintenance_msg"
                                     value={settings.maintenance_message}
                                     onChange={(e) => handleChange('maintenance_message', e.target.value)}
+                                    className="bg-background/50"
                                 />
                             </div>
                         )}
@@ -256,6 +267,7 @@ export default function AdminSettings() {
                                 min="0"
                                 value={settings.shipping_free_threshold}
                                 onChange={(e) => handleChange('shipping_free_threshold', parseFloat(e.target.value) || 0)}
+                                className="bg-background/50"
                             />
                             <p className="text-xs text-muted-foreground">Set to 0 to disable automatic free shipping.</p>
                         </div>

@@ -64,29 +64,29 @@ export default function AdminShipping() {
   };
 
   return (
-    <div className="p-6 space-y-8">
-      <div className="flex items-center justify-between">
+    <div className="p-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Shipping Management</h1>
-          <p className="text-muted-foreground">Manage shipping companies and rates per wilaya</p>
+          <h1 className="text-3xl font-bold text-foreground tracking-tight">Shipping Management</h1>
+          <p className="text-muted-foreground mt-1">Manage shipping companies and rates per wilaya</p>
         </div>
       </div>
 
       {/* Add Company */}
-      <div className="bg-card rounded-xl border border-border p-6">
+      <div className="bg-card/60 backdrop-blur-md rounded-xl border border-border/50 p-6 shadow-sm hover:shadow-md transition-all duration-300">
         <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
           <Truck className="h-5 w-5 text-primary" />
           Shipping Companies
         </h2>
-        <div className="flex gap-2 mb-4">
+        <div className="flex gap-2 mb-6">
           <Input
             placeholder="Company name..."
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
-            className="max-w-xs"
+            className="max-w-xs bg-background/50"
           />
-          <Button onClick={handleAdd} disabled={createCompany.isPending}>
+          <Button onClick={handleAdd} disabled={createCompany.isPending} className="shadow-lg hover:shadow-xl transition-all duration-300">
             <Plus className="h-4 w-4 mr-1" /> Add
           </Button>
         </div>
@@ -96,7 +96,7 @@ export default function AdminShipping() {
         ) : companies.length === 0 ? (
           <p className="text-muted-foreground">No shipping companies yet. Add one above.</p>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {companies.map((company) => (
               <CompanyRow
                 key={company.id}
@@ -121,10 +121,12 @@ export default function AdminShipping() {
       </div>
 
       {selectedCompany && (
-        <RatesEditor
-          companyId={selectedCompany}
-          companyName={companies.find(c => c.id === selectedCompany)?.name || ''}
-        />
+        <div className="mt-8 animate-in fade-in slide-in-from-bottom-2">
+          <RatesEditor
+            companyId={selectedCompany}
+            companyName={companies.find(c => c.id === selectedCompany)?.name || ''}
+          />
+        </div>
       )}
     </div>
   );
@@ -165,9 +167,8 @@ function CompanyRow({
 
   return (
     <div
-      className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${
-        isSelected ? 'border-primary bg-primary/5' : 'border-border'
-      }`}
+      className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${isSelected ? 'border-primary bg-primary/5' : 'border-border'
+        }`}
     >
       <div className="flex items-center gap-3 flex-1">
         {/* Logo */}

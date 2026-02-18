@@ -149,15 +149,15 @@ export default function AdminPacks() {
   }, 0);
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-8">
+    <div className="p-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Packs</h1>
-          <p className="text-muted-foreground">Create product bundles for better deals</p>
+          <h1 className="text-3xl font-bold text-foreground tracking-tight">Packs</h1>
+          <p className="text-muted-foreground mt-1">Create product bundles for better deals</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={openCreate}>
+            <Button onClick={openCreate} className="shadow-lg hover:shadow-xl transition-all duration-300">
               <Plus className="h-4 w-4 mr-2" />
               Add Pack
             </Button>

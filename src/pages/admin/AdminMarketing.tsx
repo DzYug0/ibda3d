@@ -191,31 +191,31 @@ export default function AdminMarketing() {
     );
 
     return (
-        <div className="p-8">
-            <div className="flex justify-between items-center mb-8">
+        <div className="p-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-foreground">Marketing</h1>
-                    <p className="text-muted-foreground">Manage coupons and discounts</p>
+                    <h1 className="text-3xl font-bold text-foreground tracking-tight">Marketing</h1>
+                    <p className="text-muted-foreground mt-1">Manage coupons and discounts</p>
                 </div>
-                <Button onClick={() => { resetForm(); setIsDialogOpen(true); }}>
+                <Button onClick={() => { resetForm(); setIsDialogOpen(true); }} className="shadow-lg hover:shadow-xl transition-all duration-300">
                     <Plus className="h-4 w-4 mr-2" />
                     Create Coupon
                 </Button>
             </div>
 
-            <div className="bg-card rounded-xl border border-border p-4 mb-6">
+            <div className="bg-card/50 backdrop-blur-sm border border-border/50 p-4 rounded-xl shadow-sm mb-6">
                 <div className="relative max-w-sm">
                     <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                         placeholder="Search coupons..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="pl-9"
+                        className="pl-9 bg-background/50 border-border/50 focus:bg-background transition-colors"
                     />
                 </div>
             </div>
 
-            <div className="bg-card rounded-xl border border-border overflow-hidden">
+            <div className="bg-card/60 backdrop-blur-md rounded-xl border border-border/50 overflow-hidden shadow-sm">
                 <Table>
                     <TableHeader>
                         <TableRow>

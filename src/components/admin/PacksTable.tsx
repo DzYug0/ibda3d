@@ -4,6 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import {
     Select,
     SelectContent,
     SelectItem,
@@ -69,20 +77,20 @@ export function PacksTable({
     return (
         <div className="space-y-4">
             {/* Search and Filters */}
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-4 bg-card/50 backdrop-blur-sm border border-border/50 p-4 rounded-xl shadow-sm">
                 <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                         placeholder="Search packs..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-9"
+                        className="pl-9 bg-background/50 border-border/50 focus:bg-background transition-colors"
                     />
                 </div>
 
                 <div className="flex gap-2 flex-wrap">
                     <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
-                        <SelectTrigger className="w-[140px]">
+                        <SelectTrigger className="w-[140px] bg-background/50 border-border/50">
                             <SelectValue placeholder="Status" />
                         </SelectTrigger>
                         <SelectContent>
@@ -94,7 +102,7 @@ export function PacksTable({
                     </Select>
 
                     {hasActiveFilters && (
-                        <Button variant="ghost" size="icon" onClick={clearFilters}>
+                        <Button variant="ghost" size="icon" onClick={clearFilters} className="text-muted-foreground hover:text-foreground">
                             <X className="h-4 w-4" />
                         </Button>
                     )}
@@ -103,142 +111,147 @@ export function PacksTable({
 
             {/* Active filters display */}
             {hasActiveFilters && (
-                <div className="flex items-center gap-2 flex-wrap">
-                    <Filter className="h-4 w-4 text-muted-foreground" />
+                <div className="flex items-center gap-2 flex-wrap px-1">
+                    <Filter className="h-3.5 w-3.5 text-muted-foreground" />
                     <span className="text-sm text-muted-foreground">Filters:</span>
                     {searchQuery && (
-                        <Badge variant="secondary" className="gap-1">
+                        <Badge variant="secondary" className="gap-1 bg-secondary/50">
                             Search: {searchQuery}
-                            <X className="h-3 w-3 cursor-pointer" onClick={() => setSearchQuery('')} />
+                            <X className="h-3 w-3 cursor-pointer hover:text-primary" onClick={() => setSearchQuery('')} />
                         </Badge>
                     )}
                     {statusFilter !== 'all' && (
-                        <Badge variant="secondary" className="gap-1">
+                        <Badge variant="secondary" className="gap-1 bg-secondary/50">
                             {statusFilter}
-                            <X className="h-3 w-3 cursor-pointer" onClick={() => setStatusFilter('all')} />
+                            <X className="h-3 w-3 cursor-pointer hover:text-primary" onClick={() => setStatusFilter('all')} />
                         </Badge>
                     )}
-                    <span className="text-sm text-muted-foreground ml-2">
+                    <span className="text-sm text-muted-foreground ml-auto">
                         {filteredPacks.length} of {packs.length} packs
                     </span>
                 </div>
             )}
 
             {/* Packs table */}
-            <div className="bg-card rounded-xl border border-border overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead className="bg-muted/50">
-                            <tr>
-                                <th className="text-left p-4 font-semibold text-foreground">Pack</th>
-                                <th className="text-left p-4 font-semibold text-foreground">Products</th>
-                                <th className="text-left p-4 font-semibold text-foreground">Price</th>
-                                <th className="text-left p-4 font-semibold text-foreground">Status</th>
-                                <th className="text-right p-4 font-semibold text-foreground">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-border">
-                            {isLoading ? (
-                                Array.from({ length: 3 }).map((_, i) => (
-                                    <tr key={i}>
-                                        <td colSpan={5} className="p-4">
-                                            <div className="h-12 skeleton rounded" />
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : filteredPacks.length === 0 ? (
-                                <tr>
-                                    <td colSpan={5} className="p-8 text-center text-muted-foreground">
-                                        {packs.length === 0
-                                            ? 'No packs yet. Click "Add Pack" to create one.'
-                                            : 'No packs match your filters.'}
-                                    </td>
-                                </tr>
-                            ) : (
-                                filteredPacks.map((pack) => (
-                                    <tr key={pack.id} className="hover:bg-muted/30">
-                                        <td className="p-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted flex-shrink-0">
-                                                    {pack.image_url ? (
-                                                        <img
-                                                            src={pack.image_url}
-                                                            alt=""
-                                                            loading="lazy"
-                                                            decoding="async"
-                                                            className="w-full h-full object-cover"
-                                                        />
-                                                    ) : (
-                                                        <div className="w-full h-full flex items-center justify-center">
-                                                            <Package className="h-5 w-5 text-muted-foreground" />
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <div>
-                                                    <p className="font-medium text-foreground">{pack.name}</p>
-                                                    <p className="text-sm text-muted-foreground">{pack.slug}</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="p-4">
-                                            <div className="flex flex-wrap gap-1">
-                                                {pack.items?.map((item) => (
-                                                    <Badge key={item.id} variant="secondary" className="text-xs">
-                                                        {item.product?.name} ×{item.quantity}
-                                                    </Badge>
-                                                ))}
-                                                {(!pack.items || pack.items.length === 0) && (
-                                                    <span className="text-muted-foreground">—</span>
+            <div className="bg-card/60 backdrop-blur-md rounded-xl border border-border/50 overflow-hidden shadow-sm">
+                <Table>
+                    <TableHeader>
+                        <TableRow className="bg-muted/30 hover:bg-muted/30">
+                            <TableHead className="w-[300px]">Pack</TableHead>
+                            <TableHead>Products</TableHead>
+                            <TableHead>Price</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {isLoading ? (
+                            <TableRow>
+                                <TableCell colSpan={5} className="text-center py-8">
+                                    <div className="flex items-center justify-center">
+                                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        ) : filteredPacks.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">
+                                    {packs.length === 0
+                                        ? 'No packs yet. Click "Add Pack" to create one.'
+                                        : 'No packs match your filters.'}
+                                </TableCell>
+                            </TableRow>
+                        ) : (
+                            filteredPacks.map((pack) => (
+                                <TableRow key={pack.id} className="hover:bg-muted/30 transition-colors">
+                                    <TableCell>
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted flex-shrink-0 border border-border/50">
+                                                {pack.image_url ? (
+                                                    <img
+                                                        src={pack.image_url}
+                                                        alt=""
+                                                        loading="lazy"
+                                                        decoding="async"
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center">
+                                                        <Package className="h-5 w-5 text-muted-foreground/50" />
+                                                    </div>
                                                 )}
                                             </div>
-                                        </td>
-                                        <td className="p-4">
-                                            <span className="font-medium text-foreground">{pack.price.toFixed(0)} DA</span>
+                                            <div>
+                                                <p className="font-medium text-foreground">{pack.name}</p>
+                                                <p className="text-xs text-muted-foreground">{pack.slug}</p>
+                                            </div>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell>
+                                        <div className="flex flex-wrap gap-1">
+                                            {pack.items?.map((item) => (
+                                                <Badge key={item.id} variant="outline" className="text-[10px] bg-background/50">
+                                                    {item.product?.name} <span className="text-muted-foreground ml-1">×{item.quantity}</span>
+                                                </Badge>
+                                            ))}
+                                            {(!pack.items || pack.items.length === 0) && (
+                                                <span className="text-muted-foreground text-sm">—</span>
+                                            )}
+                                        </div>
+                                    </TableCell>
+                                    <TableCell>
+                                        <div className="flex flex-col">
+                                            <span className="font-medium text-foreground">{pack.price.toLocaleString()} DA</span>
                                             {pack.compare_at_price && (
-                                                <span className="text-sm text-muted-foreground line-through ml-2">
-                                                    {pack.compare_at_price.toFixed(0)} DA
+                                                <span className="text-xs text-muted-foreground line-through">
+                                                    {pack.compare_at_price.toLocaleString()} DA
                                                 </span>
                                             )}
-                                        </td>
-                                        <td className="p-4">
-                                            <div className="flex gap-2">
-                                                {pack.is_active ? (
-                                                    <span className="px-2 py-1 rounded-full text-xs bg-success/10 text-success">
-                                                        Active
-                                                    </span>
-                                                ) : (
-                                                    <span className="px-2 py-1 rounded-full text-xs bg-muted text-muted-foreground">
-                                                        Inactive
-                                                    </span>
-                                                )}
-                                                {pack.is_featured && (
-                                                    <span className="px-2 py-1 rounded-full text-xs bg-primary/10 text-primary">
-                                                        Featured
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="p-4">
-                                            <div className="flex justify-end gap-2">
-                                                <Button variant="ghost" size="icon" onClick={() => onEdit(pack)}>
-                                                    <Pencil className="h-4 w-4" />
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="text-destructive hover:text-destructive"
-                                                    onClick={() => handleDelete(pack.id)}
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell>
+                                        <div className="flex gap-2">
+                                            {pack.is_active ? (
+                                                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
+                                                    Active
+                                                </Badge>
+                                            ) : (
+                                                <Badge variant="secondary" className="text-muted-foreground">
+                                                    Inactive
+                                                </Badge>
+                                            )}
+                                            {pack.is_featured && (
+                                                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+                                                    Featured
+                                                </Badge>
+                                            )}
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <div className="flex justify-end gap-1">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => onEdit(pack)}
+                                                className="h-8 w-8 hover:bg-primary/10 hover:text-primary"
+                                            >
+                                                <Pencil className="h-4 w-4" />
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                                                onClick={() => handleDelete(pack.id)}
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        )}
+                    </TableBody>
+                </Table>
             </div>
         </div>
     );

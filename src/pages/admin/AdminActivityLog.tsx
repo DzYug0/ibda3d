@@ -260,25 +260,25 @@ export default function AdminActivityLog() {
   };
 
   return (
-    <div className="p-8">
+    <div className="p-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground">Activity Log</h1>
-        <p className="text-muted-foreground">Track all admin actions and changes</p>
+        <h1 className="text-3xl font-bold text-foreground tracking-tight">Activity Log</h1>
+        <p className="text-muted-foreground mt-1">Track all admin actions and changes</p>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row gap-4 mb-6 bg-card/50 backdrop-blur-sm border border-border/50 p-4 rounded-xl shadow-sm">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search by user..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-10"
+            className="pl-9 bg-background/50 border-border/50 focus:bg-background transition-colors"
           />
         </div>
         <Select value={actionFilter} onValueChange={setActionFilter}>
-          <SelectTrigger className="w-full sm:w-48">
+          <SelectTrigger className="w-full sm:w-48 bg-background/50 border-border/50">
             <SelectValue placeholder="Filter by action" />
           </SelectTrigger>
           <SelectContent>
@@ -313,7 +313,7 @@ export default function AdminActivityLog() {
       </div>
 
       {/* Activity table */}
-      <div className="bg-card rounded-xl border border-border overflow-hidden">
+      <div className="bg-card/60 backdrop-blur-md rounded-xl border border-border/50 overflow-hidden shadow-sm">
         <Table>
           <TableHeader>
             <TableRow>
