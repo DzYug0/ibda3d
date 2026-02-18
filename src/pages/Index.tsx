@@ -115,99 +115,9 @@ export default function Index() {
         </section>
       )}
 
-      {/* Categories - Modern Glassmorphic Cards */}
-      {categories.length > 0 && (
-        <section className="py-16">
-          <ScrollReveal className="container mx-auto px-4">
-            <div className="flex justify-between items-end mb-8">
-              <div>
-                <h2 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">{t.categories.shopByCategory}</h2>
-                <div className="h-1 w-20 bg-primary mt-2 rounded-full" />
-              </div>
-              <Link to="/products">
-                <Button variant="ghost" className="hidden sm:flex group">
-                  {t.products.viewAll} <ArrowRight className="ms-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Button>
-              </Link>
-            </div>
-
-            <Carousel
-              opts={{ align: "start", loop: true }}
-              className="w-full"
-            >
-              <CarouselContent className="-ml-5 py-4">
-                {categories.filter(c => !c.parent_id).map((category, index) => (
-                  <CarouselItem key={category.id} className="pl-5 basis-[80%] xs:basis-[60%] sm:basis-1/2 md:basis-1/3 lg:basis-1/5">
-                    <Link to={`/products?category=${category.slug}`} className="block group relative aspect-[3/4] rounded-3xl overflow-hidden bg-muted shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 ring-1 ring-border/10">
-                      {category.image_url ? (
-                        <OptimizedImage
-                          src={category.image_url}
-                          alt={category.name}
-                          width={400}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
-                          <Layers className="h-16 w-16 text-muted-foreground/30" />
-                        </div>
-                      )}
-
-                      {/* Gradient Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
-
-                      {/* Content */}
-                      <div className="absolute bottom-0 inset-x-0 p-6 flex flex-col items-start justify-end h-full">
-                        <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                          <h3 className="text-2xl font-bold text-white mb-2 leading-none">{category.name}</h3>
-                          <p className="text-white/70 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100 flex items-center gap-1">
-                            Explore <ArrowRight className="h-3 w-3" />
-                          </p>
-                        </div>
-                      </div>
-                    </Link>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <div className="flex justify-end gap-2 mt-4 sm:hidden">
-                <CarouselPrevious className="static translate-y-0" />
-                <CarouselNext className="static translate-y-0" />
-              </div>
-              <CarouselPrevious className="left-4 hidden sm:flex bg-background/50 hover:bg-background border-0 backdrop-blur-md" />
-              <CarouselNext className="right-4 hidden sm:flex bg-background/50 hover:bg-background border-0 backdrop-blur-md" />
-            </Carousel>
-          </ScrollReveal>
-        </section>
-      )}
-
-      {/* Featured Products */}
-      <section className="py-20 bg-muted/30 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-5 pointer-events-none" />
-        <ScrollReveal className="container mx-auto px-4 relative z-10">
-          <div className="flex justify-between items-end mb-10">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground">{t.products.featuredProducts}</h2>
-              <p className="text-muted-foreground mt-2 text-lg">{t.products.handpicked}</p>
-            </div>
-            <Link to="/products">
-              <Button variant="outline" className="hidden sm:flex rounded-full border-primary/20 hover:bg-primary/5 hover:text-primary transition-colors">
-                {t.products.viewAll} <ArrowRight className="ms-2 h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
-          <ProductGrid products={featuredProducts} isLoading={productsLoading} />
-          <div className="mt-10 text-center sm:hidden">
-            <Link to="/products">
-              <Button variant="outline" className="w-full rounded-full border-primary/20">
-                {t.products.viewAll} <ArrowRight className="ms-2 h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
-        </ScrollReveal>
-      </section>
-
       {/* Featured Packs */}
       {featuredPacks.length > 0 && (
-        <section className="py-20">
+        <section className="py-20 relative z-10">
           <ScrollReveal className="container mx-auto px-4">
             <div className="text-center max-w-2xl mx-auto mb-12">
               <Badge variant="outline" className="mb-4 text-primary border-primary/30 px-4 py-1 rounded-full text-sm">Best Value</Badge>
@@ -235,7 +145,7 @@ export default function Index() {
                   return (
                     <CarouselItem key={pack.id} className="pl-6 basis-full md:basis-1/2 lg:basis-1/3">
                       <Link to={`/packs/${pack.slug}`} className="block h-full group">
-                        <div className="bg-card rounded-3xl overflow-hidden shadow-xl border border-border/50 h-full flex flex-col hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 relative">
+                        <div className="bg-card/40 backdrop-blur-md rounded-3xl overflow-hidden shadow-xl border border-border/50 h-full flex flex-col hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 relative">
                           {/* Floating Badge */}
                           {savings > 0 && (
                             <div className="absolute top-4 right-4 z-20">
@@ -313,6 +223,96 @@ export default function Index() {
               </CarouselContent>
               <CarouselPrevious className="left-0 md:-left-8 bg-background/50 hover:bg-background border-0 backdrop-blur-md" />
               <CarouselNext className="right-0 md:-right-8 bg-background/50 hover:bg-background border-0 backdrop-blur-md" />
+            </Carousel>
+          </ScrollReveal>
+        </section>
+      )}
+
+      {/* Featured Products */}
+      <section className="py-20 bg-muted/30 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-5 pointer-events-none" />
+        <ScrollReveal className="container mx-auto px-4 relative z-10">
+          <div className="flex justify-between items-end mb-10">
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground">{t.products.featuredProducts}</h2>
+              <p className="text-muted-foreground mt-2 text-lg">{t.products.handpicked}</p>
+            </div>
+            <Link to="/products">
+              <Button variant="outline" className="hidden sm:flex rounded-full border-primary/20 hover:bg-primary/5 hover:text-primary transition-colors">
+                {t.products.viewAll} <ArrowRight className="ms-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+          <ProductGrid products={featuredProducts} isLoading={productsLoading} />
+          <div className="mt-10 text-center sm:hidden">
+            <Link to="/products">
+              <Button variant="outline" className="w-full rounded-full border-primary/20">
+                {t.products.viewAll} <ArrowRight className="ms-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </ScrollReveal>
+      </section>
+
+      {/* Categories - Modern Glassmorphic Cards */}
+      {categories.length > 0 && (
+        <section className="py-16">
+          <ScrollReveal className="container mx-auto px-4">
+            <div className="flex justify-between items-end mb-8">
+              <div>
+                <h2 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">{t.categories.shopByCategory}</h2>
+                <div className="h-1 w-20 bg-primary mt-2 rounded-full" />
+              </div>
+              <Link to="/products">
+                <Button variant="ghost" className="hidden sm:flex group">
+                  {t.products.viewAll} <ArrowRight className="ms-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Button>
+              </Link>
+            </div>
+
+            <Carousel
+              opts={{ align: "start", loop: true }}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-5 py-4">
+                {categories.filter(c => !c.parent_id).map((category, index) => (
+                  <CarouselItem key={category.id} className="pl-5 basis-[80%] xs:basis-[60%] sm:basis-1/2 md:basis-1/3 lg:basis-1/5">
+                    <Link to={`/products?category=${category.slug}`} className="block group relative aspect-[3/4] rounded-3xl overflow-hidden bg-muted shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 ring-1 ring-border/10">
+                      {category.image_url ? (
+                        <OptimizedImage
+                          src={category.image_url}
+                          alt={category.name}
+                          width={400}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
+                          <Layers className="h-16 w-16 text-muted-foreground/30" />
+                        </div>
+                      )}
+
+                      {/* Gradient Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+
+                      {/* Content */}
+                      <div className="absolute bottom-0 inset-x-0 p-6 flex flex-col items-start justify-end h-full">
+                        <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                          <h3 className="text-2xl font-bold text-white mb-2 leading-none">{category.name}</h3>
+                          <p className="text-white/70 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100 flex items-center gap-1">
+                            Explore <ArrowRight className="h-3 w-3" />
+                          </p>
+                        </div>
+                      </div>
+                    </Link>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <div className="flex justify-end gap-2 mt-4 sm:hidden">
+                <CarouselPrevious className="static translate-y-0" />
+                <CarouselNext className="static translate-y-0" />
+              </div>
+              <CarouselPrevious className="left-4 hidden sm:flex bg-background/50 hover:bg-background border-0 backdrop-blur-md" />
+              <CarouselNext className="right-4 hidden sm:flex bg-background/50 hover:bg-background border-0 backdrop-blur-md" />
             </Carousel>
           </ScrollReveal>
         </section>
