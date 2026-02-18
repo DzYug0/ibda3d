@@ -786,7 +786,7 @@ export default function Checkout() {
                 <Button
                   type="submit"
                   size="xl"
-                  className="w-full mt-8 text-lg font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-1"
+                  className="hidden lg:flex w-full mt-8 text-lg font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-1"
                   disabled={isProcessing || !shippingInfo.companyId}
                 >
                   {isProcessing ? (

@@ -198,24 +198,22 @@ export default function Index() {
                               <p className="text-sm text-muted-foreground line-clamp-2">{pack.description}</p>
                             </div>
 
-                            <div className="mt-auto pt-4 border-t border-border/50">
-                              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                                <div className="flex flex-col">
-                                  <span className="text-sm text-muted-foreground line-through decoration-red-500/50">{individualTotal.toFixed(0)} DA</span>
-                                  <span className="text-2xl font-bold text-primary">{pack.price.toFixed(0)} <span className="text-sm font-normal text-foreground">DA</span></span>
-                                </div>
-                                <Button
-                                  className="w-full sm:w-12 h-11 sm:h-12 rounded-xl sm:rounded-full shadow-lg bg-foreground text-background hover:bg-primary hover:text-white transition-all duration-300 flex items-center justify-center"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    addPackToCart.mutate({ packId: pack.id, packDetails: pack });
-                                  }}
-                                >
-                                  <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5 sm:mx-auto mr-2" />
-                                  <span className="sm:hidden font-bold">Add to Cart</span>
-                                </Button>
+                            <div className="mt-auto flex items-center justify-between pt-4 border-t border-border/50">
+                              <div className="flex flex-col">
+                                <span className="text-sm text-muted-foreground line-through decoration-red-500/50">{individualTotal.toFixed(0)} DA</span>
+                                <span className="text-2xl font-bold text-primary">{pack.price.toFixed(0)} <span className="text-sm font-normal text-foreground">DA</span></span>
                               </div>
+                              <Button
+                                size="icon"
+                                className="h-12 w-12 rounded-full shadow-lg bg-foreground text-background hover:bg-primary hover:text-white transition-all duration-300"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  addPackToCart.mutate({ packId: pack.id, packDetails: pack });
+                                }}
+                              >
+                                <ShoppingCart className="h-5 w-5" />
+                              </Button>
                             </div>
                           </div>
                         </div>
