@@ -179,23 +179,25 @@ function ProfileContent() {
 
               {/* Mobile Tabs Navigation (Desktop Hidden) */}
               <div className="lg:hidden bg-card/60 backdrop-blur-xl border border-border/50 rounded-2xl p-2 shadow-sm overflow-x-auto">
-                <TabsList className="w-full justify-start md:justify-center bg-transparent gap-2 p-0 h-auto">
-                  {['overview', 'addresses', 'orders', 'security'].map(tab => (
-                    <TabsTrigger
-                      key={tab}
-                      value={tab}
-                      onClick={() => setActiveTab(tab)}
-                      data-state={activeTab === tab ? 'active' : 'inactive'}
-                      className="rounded-xl px-4 py-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all flex items-center gap-2"
-                    >
-                      {tab === 'overview' && <LayoutDashboard className="h-4 w-4" />}
-                      {tab === 'addresses' && <MapPin className="h-4 w-4" />}
-                      {tab === 'orders' && <Package className="h-4 w-4" />}
-                      {tab === 'security' && <Shield className="h-4 w-4" />}
-                      <span className="capitalize">{tab}</span>
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
+                <Tabs value={activeTab} onValueChange={setActiveTab}>
+                  <TabsList className="w-full justify-start md:justify-center bg-transparent gap-2 p-0 h-auto">
+                    {['overview', 'addresses', 'orders', 'security'].map(tab => (
+                      <TabsTrigger
+                        key={tab}
+                        value={tab}
+                        onClick={() => setActiveTab(tab)}
+                        data-state={activeTab === tab ? 'active' : 'inactive'}
+                        className="rounded-xl px-4 py-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all flex items-center gap-2"
+                      >
+                        {tab === 'overview' && <LayoutDashboard className="h-4 w-4" />}
+                        {tab === 'addresses' && <MapPin className="h-4 w-4" />}
+                        {tab === 'orders' && <Package className="h-4 w-4" />}
+                        {tab === 'security' && <Shield className="h-4 w-4" />}
+                        <span className="capitalize">{tab}</span>
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                </Tabs>
               </div>
 
               {/* Desktop Navigation */}
