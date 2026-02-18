@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCategories } from "@/hooks/useProducts";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { X } from "lucide-react";
+import { X, Filter } from "lucide-react";
 
 interface FilterSidebarProps {
     selectedCategories: string[];
@@ -36,138 +36,154 @@ export function FilterSidebar({
     const { t } = useLanguage();
 
     return (
-        <div className={`space-y-8 ${className}`}>
+        <div className={`space-y-8 p-6 rounded-2xl bg-card/50 backdrop-blur-xl border border-border/50 shadow-sm ${className}`}>
             {/* Header with Clear button */}
-            <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-lg">{t.common?.filters || "Filters"}</h3>
+            <div className="flex items-center justify-between pb-4 border-b border-border/50">
+                <h3 className="font-bold text-lg flex items-center gap-2">
+                    <Filter className="h-4 w-4 text-primary" />
+                    {t.common?.filters || "Filters"}
+                </h3>
                 {(selectedCategories.length > 0 || priceRange[0] > 0 || priceRange[1] < 100000 || inStock) && (
-                    <Button variant="ghost" size="sm" onClick={onClear} className="h-auto p-0 text-muted-foreground hover:text-destructive">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={onClear}
+                        className="h-8 px-2 text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                    >
                         {t.common?.clearAll || "Clear all"}
                     </Button>
                 )}
             </div>
 
-            {/* Availability */}
-            <div className="space-y-4">
-                <h4 className="font-medium text-sm text-foreground/80">{t.products?.availability || "Availability"}</h4>
-                <div className="flex items-center space-x-2">
-                    <Checkbox id="instock" checked={inStock} onCheckedChange={(checked) => onInStockChange(checked as boolean)} />
-                    <Label htmlFor="instock" className="text-sm cursor-pointer font-normal">
-                        {t.products?.inStockOnly || "In Stock Only"}
-                    </Label>
-                </div>
-            </div>
-
-            {/* Price Range */}
-            <div className="space-y-4">
-                <h4 className="font-medium text-sm text-foreground/80">{t.products?.priceRange || "Price Range"}</h4>
-                <div className="pt-2 px-2">
-                    <Slider
-                        defaultValue={[0, 100000]}
-                        value={priceRange}
-                        max={100000}
-                        step={500}
-                        minStepsBetweenThumbs={1}
-                        onValueChange={(value) => onPriceChange(value as [number, number])}
-                        className="mb-6"
-                    />
-                    <div className="flex items-center gap-4">
-                        <div className="space-y-1">
-                            <span className="text-xs text-muted-foreground">Min (DA)</span>
-                            <Input
-                                type="number"
-                                value={priceRange[0]}
-                                onChange={(e) => onPriceChange([Number(e.target.value), priceRange[1]])}
-                                className="h-8 text-sm"
-                            />
-                        </div>
-                        <div className="space-y-1">
-                            <span className="text-xs text-muted-foreground">Max (DA)</span>
-                            <Input
-                                type="number"
-                                value={priceRange[1]}
-                                onChange={(e) => onPriceChange([priceRange[0], Number(e.target.value)])}
-                                className="h-8 text-sm"
-                            />
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Categories */}
-            <div className="space-y-4">
-                <h4 className="font-medium text-sm text-foreground/80">{t.categories?.title || "Categories"}</h4>
-                <ScrollArea className="h-[400px] w-full rounded-md pr-4">
-                    <div className="space-y-3">
-                        {/* 'All' Option */}
-                        <div className="flex items-center space-x-2">
-                            <Checkbox
-                                id="category-all"
-                                checked={selectedCategories.length === 0}
-                                onCheckedChange={(checked) => {
-                                    if (checked) onClear();
-                                }}
-                            />
-                            <Label htmlFor="category-all" className="text-sm cursor-pointer font-normal leading-none filter-all-label">
-                                {t.products?.allProducts || "All Products"}
+            <ScrollArea className="h-[calc(100vh-250px)] pr-4">
+                <div className="space-y-8">
+                    {/* Availability */}
+                    <div className="space-y-4">
+                        <h4 className="font-semibold text-sm text-foreground">{t.products?.availability || "Availability"}</h4>
+                        <div className="flex items-center space-x-3 p-3 rounded-xl bg-background/50 border border-border/50 hover:border-primary/30 transition-colors">
+                            <Checkbox id="instock" checked={inStock} onCheckedChange={(checked) => onInStockChange(checked as boolean)} />
+                            <Label htmlFor="instock" className="text-sm cursor-pointer font-medium flex-1">
+                                {t.products?.inStockOnly || "In Stock Only"}
                             </Label>
                         </div>
+                    </div>
 
-                        {/* Hierarchical Categories */}
-                        {categories.filter(c => !c.parent_id).map((parent) => {
-                            const children = categories.filter(c => c.parent_id === parent.id);
-                            const isParentSelected = selectedCategories.includes(parent.slug);
-
-                            // Check if any child is selected to auto-expand accordion
-                            const hasSelectedChild = children.some(child => selectedCategories.includes(child.slug));
-
-                            if (children.length === 0) {
-                                return (
-                                    <div key={parent.id} className="flex items-center space-x-2">
-                                        <Checkbox
-                                            id={parent.slug}
-                                            checked={isParentSelected}
-                                            onCheckedChange={() => onCategoryChange(parent.slug)}
+                    {/* Price Range */}
+                    <div className="space-y-5">
+                        <div className="flex items-center justify-between">
+                            <h4 className="font-semibold text-sm text-foreground">{t.products?.priceRange || "Price Range"}</h4>
+                            <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{priceRange[0]} - {priceRange[1]} DA</span>
+                        </div>
+                        <div className="pt-2 px-1">
+                            <Slider
+                                defaultValue={[0, 100000]}
+                                value={priceRange}
+                                max={100000}
+                                step={500}
+                                minStepsBetweenThumbs={1}
+                                onValueChange={(value) => onPriceChange(value as [number, number])}
+                                className="mb-6"
+                            />
+                            <div className="flex items-center gap-3">
+                                <div className="space-y-1.5 flex-1">
+                                    <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Min</span>
+                                    <div className="relative">
+                                        <Input
+                                            type="number"
+                                            value={priceRange[0]}
+                                            onChange={(e) => onPriceChange([Number(e.target.value), priceRange[1]])}
+                                            className="h-9 text-sm bg-background/50 border-border/50 focus:ring-primary/20"
                                         />
-                                        <Label htmlFor={parent.slug} className="text-sm cursor-pointer font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                                            {parent.name}
-                                        </Label>
-                                    </div>
-                                );
-                            }
-
-                            return (
-                                <div key={parent.id} className="space-y-2">
-                                    <div className="flex items-center space-x-2">
-                                        <Checkbox
-                                            id={parent.slug}
-                                            checked={isParentSelected}
-                                            onCheckedChange={() => onCategoryChange(parent.slug)}
-                                        />
-                                        <Label htmlFor={parent.slug} className="text-sm cursor-pointer font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                                            {parent.name}
-                                        </Label>
-                                    </div>
-                                    <div className="pl-6 flex flex-col gap-2 border-l-2 border-muted ml-2">
-                                        {children.map(child => (
-                                            <div key={child.id} className="flex items-center space-x-2">
-                                                <Checkbox
-                                                    id={child.slug}
-                                                    checked={selectedCategories.includes(child.slug)}
-                                                    onCheckedChange={() => onCategoryChange(child.slug)}
-                                                />
-                                                <Label htmlFor={child.slug} className="text-sm cursor-pointer font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                                                    {child.name}
-                                                </Label>
-                                            </div>
-                                        ))}
+                                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">DA</span>
                                     </div>
                                 </div>
-                            );
-                        })}
+                                <div className="space-y-1.5 flex-1">
+                                    <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Max</span>
+                                    <div className="relative">
+                                        <Input
+                                            type="number"
+                                            value={priceRange[1]}
+                                            onChange={(e) => onPriceChange([priceRange[0], Number(e.target.value)])}
+                                            className="h-9 text-sm bg-background/50 border-border/50 focus:ring-primary/20"
+                                        />
+                                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">DA</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </ScrollArea>
-            </div>
+
+                    {/* Categories */}
+                    <div className="space-y-4">
+                        <h4 className="font-semibold text-sm text-foreground">{t.categories?.title || "Categories"}</h4>
+                        <div className="space-y-2">
+                            {/* 'All' Option */}
+                            <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                                <Checkbox
+                                    id="category-all"
+                                    checked={selectedCategories.length === 0}
+                                    onCheckedChange={(checked) => {
+                                        if (checked) onClear();
+                                    }}
+                                />
+                                <Label htmlFor="category-all" className="text-sm cursor-pointer font-medium leading-none filter-all-label flex-1">
+                                    {t.products?.allProducts || "All Products"}
+                                </Label>
+                            </div>
+
+                            {/* Hierarchical Categories */}
+                            {categories.filter(c => !c.parent_id).map((parent) => {
+                                const children = categories.filter(c => c.parent_id === parent.id);
+                                const isParentSelected = selectedCategories.includes(parent.slug);
+
+                                if (children.length === 0) {
+                                    return (
+                                        <div key={parent.id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                                            <Checkbox
+                                                id={parent.slug}
+                                                checked={isParentSelected}
+                                                onCheckedChange={() => onCategoryChange(parent.slug)}
+                                            />
+                                            <Label htmlFor={parent.slug} className="text-sm cursor-pointer font-medium leading-none flex-1">
+                                                {parent.name}
+                                            </Label>
+                                        </div>
+                                    );
+                                }
+
+                                return (
+                                    <div key={parent.id} className="space-y-1">
+                                        <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                                            <Checkbox
+                                                id={parent.slug}
+                                                checked={isParentSelected}
+                                                onCheckedChange={() => onCategoryChange(parent.slug)}
+                                            />
+                                            <Label htmlFor={parent.slug} className="text-sm cursor-pointer font-bold leading-none flex-1">
+                                                {parent.name}
+                                            </Label>
+                                        </div>
+                                        <div className="pl-6 ml-2 border-l border-border/50 space-y-1 my-1">
+                                            {children.map(child => (
+                                                <div key={child.id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                                                    <Checkbox
+                                                        id={child.slug}
+                                                        checked={selectedCategories.includes(child.slug)}
+                                                        onCheckedChange={() => onCategoryChange(child.slug)}
+                                                    />
+                                                    <Label htmlFor={child.slug} className="text-sm cursor-pointer font-normal leading-none flex-1">
+                                                        {child.name}
+                                                    </Label>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+            </ScrollArea>
         </div>
     );
 }
