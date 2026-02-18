@@ -288,70 +288,75 @@ export default function AdminUsers() {
   });
 
   return (
-    <div className="p-8">
+    <div className="p-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground">User Management</h1>
-        <p className="text-muted-foreground">Manage user roles and permissions</p>
+        <h1 className="text-3xl font-bold text-foreground tracking-tight">User Management</h1>
+        <p className="text-muted-foreground mt-1">Manage user roles and permissions</p>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row gap-4 mb-6 bg-card/50 backdrop-blur-sm border border-border/50 p-4 rounded-xl shadow-sm">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search by email or username..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-10"
+            className="pl-10 bg-background/50 border-border/50 focus:bg-background transition-colors"
           />
         </div>
-        <Select value={roleFilter} onValueChange={setRoleFilter}>
-          <SelectTrigger className="w-full sm:w-40">
-            <SelectValue placeholder="Filter by role" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Roles</SelectItem>
-            <SelectItem value="owner">Owner</SelectItem>
-            <SelectItem value="admin">Admin</SelectItem>
-            <SelectItem value="user">User</SelectItem>
-          </SelectContent>
-        </Select>
-        <Button variant="outline" onClick={() => {
-          const headers = ['ID', 'Email', 'Username', 'Role', 'Status', 'Joined', 'LTV (DA)'];
-          const rows = filteredUsers.map(u => [
-            u.id,
-            u.email,
-            u.username || '',
-            u.role,
-            u.is_banned ? 'Banned' : 'Active',
-            new Date(u.created_at).toLocaleDateString(),
-            u.ltv?.toFixed(2) || '0.00'
-          ]);
+        <div className="flex gap-2">
+          <Select value={roleFilter} onValueChange={setRoleFilter}>
+            <SelectTrigger className="w-full sm:w-40 bg-background/50 border-border/50">
+              <SelectValue placeholder="Filter by role" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Roles</SelectItem>
+              <SelectItem value="owner">Owner</SelectItem>
+              <SelectItem value="admin">Admin</SelectItem>
+              <SelectItem value="user">User</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button
+            variant="outline"
+            className="bg-background/50 border-primary/20 hover:bg-primary/5 hover:text-primary transition-colors"
+            onClick={() => {
+              const headers = ['ID', 'Email', 'Username', 'Role', 'Status', 'Joined', 'LTV (DA)'];
+              const rows = filteredUsers.map(u => [
+                u.id,
+                u.email,
+                u.username || '',
+                u.role,
+                u.is_banned ? 'Banned' : 'Active',
+                new Date(u.created_at).toLocaleDateString(),
+                u.ltv?.toFixed(2) || '0.00'
+              ]);
 
-          const csvContent = [
-            headers.join(','),
-            ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
-          ].join('\n');
+              const csvContent = [
+                headers.join(','),
+                ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+              ].join('\n');
 
-          const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-          const link = document.createElement('a');
-          const url = URL.createObjectURL(blob);
-          link.setAttribute('href', url);
-          link.setAttribute('download', `customers_${new Date().toISOString().split('T')[0]}.csv`);
-          link.style.visibility = 'hidden';
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        }}>
-          Export CSV
-        </Button>
+              const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+              const link = document.createElement('a');
+              const url = URL.createObjectURL(blob);
+              link.setAttribute('href', url);
+              link.setAttribute('download', `customers_${new Date().toISOString().split('T')[0]}.csv`);
+              link.style.visibility = 'hidden';
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            }}>
+            Export CSV
+          </Button>
+        </div>
       </div>
 
       {/* Users table */}
-      <div className="bg-card rounded-xl border border-border overflow-hidden">
+      <div className="bg-card/60 backdrop-blur-md rounded-xl border border-border/50 overflow-hidden shadow-sm">
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow className="bg-muted/30 hover:bg-muted/30">
               <TableHead>User</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Role</TableHead>
@@ -382,13 +387,13 @@ export default function AdminUsers() {
                 const canEdit = isOwner || (currentUserRole === 'admin' && user.role === 'user');
 
                 return (
-                  <TableRow key={user.id}>
+                  <TableRow key={user.id} className="hover:bg-muted/30 transition-colors">
                     <TableCell>
                       <div>
-                        <p className="font-medium text-foreground">
+                        <p className="font-medium text-foreground flex items-center gap-2">
                           @{user.username || 'No username'}
                           {isCurrentUser && (
-                            <span className="ml-2 text-xs text-muted-foreground">(You)</span>
+                            <Badge variant="secondary" className="text-[10px] h-4 px-1">You</Badge>
                           )}
                         </p>
                         <p className="text-sm text-muted-foreground">{user.email}</p>
@@ -398,19 +403,19 @@ export default function AdminUsers() {
                       {user.is_banned ? (
                         <Badge variant="destructive">Banned</Badge>
                       ) : (
-                        <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/20">Active</Badge>
+                        <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">Active</Badge>
                       )}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={roleColors[user.role]}>
-                        <RoleIcon className="h-3 w-3 mr-1" />
+                      <Badge variant="outline" className={roleColors[user.role] + " gap-1"}>
+                        <RoleIcon className="h-3 w-3" />
                         {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                       </Badge>
                     </TableCell>
-                    <TableCell>
-                      {user.ltv ? `${user.ltv.toFixed(0)} DA` : '0 DA'}
+                    <TableCell className="font-medium">
+                      {user.ltv ? `${user.ltv.toLocaleString()} DA` : '0 DA'}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="text-muted-foreground text-sm">
                       {new Date(user.created_at).toLocaleDateString()}
                     </TableCell>
                     <TableCell className="text-right">
@@ -419,6 +424,7 @@ export default function AdminUsers() {
                           variant="ghost"
                           size="sm"
                           onClick={() => setDetailsUser(user)}
+                          className="hover:bg-primary/10 hover:text-primary"
                         >
                           <Eye className="h-4 w-4 mr-1" />
                           Details
@@ -429,7 +435,7 @@ export default function AdminUsers() {
                             onValueChange={(value) => handleRoleChange(user.id, value as AppRole)}
                             disabled={updateRoleMutation.isPending}
                           >
-                            <SelectTrigger className="w-28">
+                            <SelectTrigger className="w-28 h-8 text-xs bg-transparent">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -447,26 +453,27 @@ export default function AdminUsers() {
                                 size="sm"
                                 onClick={() => manageUserMutation.mutate({ action: 'unban', userId: user.id, userEmail: user.email })}
                                 disabled={manageUserMutation.isPending}
+                                className="h-8 text-xs border-success/30 text-success hover:bg-success/10 hover:text-success"
                               >
-                                <ShieldOff className="h-4 w-4 mr-1" />
+                                <ShieldOff className="h-3 w-3 mr-1" />
                                 Unban
                               </Button>
                             ) : (
                               <Button
-                                variant="secondary"
+                                variant="ghost"
                                 size="sm"
                                 onClick={() => { setBanTarget(user); setBanReason(''); setBanDialogOpen(true); }}
                                 disabled={manageUserMutation.isPending}
+                                className="h-8 text-xs text-destructive hover:bg-destructive/10"
                               >
-                                <Ban className="h-4 w-4 mr-1" />
+                                <Ban className="h-3 w-3 mr-1" />
                                 Ban
                               </Button>
                             )}
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
-                                <Button variant="destructive" size="sm" disabled={manageUserMutation.isPending}>
-                                  <Trash2 className="h-4 w-4 mr-1" />
-                                  Delete
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10" disabled={manageUserMutation.isPending}>
+                                  <Trash2 className="h-4 w-4" />
                                 </Button>
                               </AlertDialogTrigger>
                               <AlertDialogContent>
@@ -489,7 +496,7 @@ export default function AdminUsers() {
                             </AlertDialog>
                           </>
                         )}
-                        {isCurrentUser && <span className="text-sm text-muted-foreground">—</span>}
+                        {isCurrentUser && <span className="text-sm text-muted-foreground w-8 text-center">—</span>}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -501,8 +508,8 @@ export default function AdminUsers() {
       </div>
 
       {/* Role explanation */}
-      < div className="mt-8 grid sm:grid-cols-3 gap-4" >
-        <div className="bg-card rounded-lg border border-border p-4">
+      <div className="mt-8 grid sm:grid-cols-3 gap-4">
+        <div className="bg-card/50 backdrop-blur-sm rounded-xl border border-border/50 p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-2">
             <Crown className="h-5 w-5 text-amber-500" />
             <h3 className="font-semibold text-foreground">Owner</h3>
@@ -511,7 +518,7 @@ export default function AdminUsers() {
             Full access to all features. Can manage all users including other owners and admins.
           </p>
         </div>
-        <div className="bg-card rounded-lg border border-border p-4">
+        <div className="bg-card/50 backdrop-blur-sm rounded-xl border border-border/50 p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-2">
             <Shield className="h-5 w-5 text-primary" />
             <h3 className="font-semibold text-foreground">Admin</h3>
@@ -520,7 +527,7 @@ export default function AdminUsers() {
             Can manage products, categories, and orders. Can promote users to admin.
           </p>
         </div>
-        <div className="bg-card rounded-lg border border-border p-4">
+        <div className="bg-card/50 backdrop-blur-sm rounded-xl border border-border/50 p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-2">
             <User className="h-5 w-5 text-muted-foreground" />
             <h3 className="font-semibold text-foreground">User</h3>
@@ -529,9 +536,9 @@ export default function AdminUsers() {
             Standard customer access. Can browse products, place orders, and view order history.
           </p>
         </div>
-      </div >
+      </div>
       {/* Ban Dialog */}
-      < Dialog open={banDialogOpen} onOpenChange={setBanDialogOpen} >
+      <Dialog open={banDialogOpen} onOpenChange={setBanDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Ban User</DialogTitle>
@@ -568,14 +575,14 @@ export default function AdminUsers() {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog >
+      </Dialog>
 
       {/* Customer Details Dialog */}
-      < CustomerDetailsDialog
+      <CustomerDetailsDialog
         open={!!detailsUser}
         onOpenChange={(open) => !open && setDetailsUser(null)}
         user={detailsUser}
       />
-    </div >
+    </div>
   );
 }

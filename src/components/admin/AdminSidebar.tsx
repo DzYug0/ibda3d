@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import {
     LayoutDashboard, Package, FolderOpen, ShoppingBag, Users, History,
-    LeftStartOnRectangle, PanelLeftClose, PanelLeft, Tag, Layout, Settings,
+    PanelLeftClose, PanelLeft, Tag, Layout, Settings,
     Star, Truck, Boxes, LogOut, ChevronLeft
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
