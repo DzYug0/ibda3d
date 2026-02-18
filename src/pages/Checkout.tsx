@@ -416,7 +416,7 @@ export default function Checkout() {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <div className="container mx-auto px-4 py-8 pb-32 md:pb-12 max-w-6xl">
         <h1 className="text-4xl font-extrabold text-foreground mb-10 tracking-tight text-center lg:text-left">{t.checkout?.title || "Checkout"}</h1>
 
         <form id="checkout-form" onSubmit={handleSubmit}>

@@ -47,7 +47,7 @@ export default function Cart() {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-12 max-w-6xl">
+      <div className="container mx-auto px-4 py-12 pb-24 md:pb-12 max-w-6xl">
         <Link to="/products" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-8 group transition-colors">
           <div className="bg-muted/50 group-hover:bg-primary/10 p-2 rounded-full mr-3 transition-colors">
             <ArrowLeft className="h-4 w-4" />
