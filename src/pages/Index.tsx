@@ -118,7 +118,7 @@ export default function Index() {
 
       {/* Featured Packs */}
       {featuredPacks.length > 0 && (
-        <section className="py-20 relative z-10">
+        <section className="py-12 md:py-20 relative z-10">
           <ScrollReveal className="container mx-auto px-4">
             <div className="text-center max-w-2xl mx-auto mb-12">
               <Badge variant="outline" className="mb-4 text-primary border-primary/30 px-4 py-1 rounded-full text-sm">Best Value</Badge>
@@ -231,7 +231,7 @@ export default function Index() {
       )}
 
       {/* Featured Products */}
-      <section className="py-20 bg-muted/30 relative overflow-hidden">
+      <section className="py-12 md:py-20 bg-muted/30 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 pointer-events-none" />
         <ScrollReveal className="container mx-auto px-4 relative z-10">
           <div className="flex justify-between items-end mb-10">
@@ -258,7 +258,7 @@ export default function Index() {
 
       {/* Categories - Modern Glassmorphic Cards */}
       {categories.length > 0 && (
-        <section className="py-16">
+        <section className="py-12 md:py-16">
           <ScrollReveal className="container mx-auto px-4">
             <div className="flex justify-between items-end mb-8">
               <div>
