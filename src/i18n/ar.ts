@@ -82,6 +82,7 @@ export const ar: DeepPartial<TranslationKeys> = {
 
   wishlist: {
     title: 'قائمة رغباتي',
+    subtitle: 'احفظ عناصرك المفضلة لوقت لاحق.',
     emptyTitle: 'قائمة رغباتك فارغة',
     emptyDescription: 'تصفح المنتجات وأضف مفضلاتك لرؤيتها هنا.',
     addToWishlist: 'أضف إلى قائمة الرغبات',
@@ -284,6 +285,7 @@ export const ar: DeepPartial<TranslationKeys> = {
     clearAll: 'مسح الكل',
     apply: 'تطبيق',
     discount: 'خصم',
+    viewDetails: 'عرض التفاصيل',
   },
 
   // Reviews

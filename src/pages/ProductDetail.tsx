@@ -40,7 +40,8 @@ export default function ProductDetail() {
   const { data: reviews = [] } = useProductReviews(product?.id || '');
 
   // Parse product options if they exist
-  const productOptions: ProductOption[] = (product as any)?.options ? (typeof (product as any).options === 'string' ? JSON.parse((product as any).options) : (product as any).options) : [];
+  const rawOptions = (product as any)?.product_options || (product as any)?.options;
+  const productOptions: ProductOption[] = rawOptions ? (typeof rawOptions === 'string' ? JSON.parse(rawOptions) : rawOptions) : [];
 
   // Initialize default options
   useEffect(() => {
