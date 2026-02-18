@@ -72,9 +72,8 @@ export default function ProductDetail() {
     </Layout>
   );
 
-  const images = product.images && product.images.length > 0
-    ? product.images
-    : [product.image_url || '/placeholder.svg'];
+  const rawImages = [product.image_url, ...(product.images || [])].filter(Boolean) as string[];
+  const images = rawImages.length > 0 ? Array.from(new Set(rawImages)) : ['/placeholder.svg'];
 
   const hasDiscount = product.compare_at_price && product.compare_at_price > product.price;
   const discountPercent = hasDiscount

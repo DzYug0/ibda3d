@@ -48,22 +48,30 @@ function PackCard({ pack }: { pack: ReturnType<typeof usePacks>['data'] extends 
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
         {allImages.length > 0 ? (
-          <div className="w-full h-full flex">
-            {allImages.slice(0, 4).map((img, i) => (
-              <div key={i} className="relative flex-1 overflow-hidden h-full border-r border-background/20 last:border-0">
-                <OptimizedImage
-                  src={img}
-                  alt=""
-                  width={300}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-              </div>
-            ))}
-            {allImages.length > 4 && (
-              <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
-                +{allImages.length - 4}
-              </div>
-            )}
+          <div className="w-full h-full p-2 grid grid-cols-2 grid-rows-2 gap-2">
+            <div className="col-span-2 row-span-2 relative rounded-2xl overflow-hidden">
+              <OptimizedImage
+                src={allImages[0]}
+                alt={pack.name}
+                width={400}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              {/* Overlay generic items if more than 1 */}
+              {allImages.length > 1 && (
+                <div className="absolute bottom-2 right-2 flex -space-x-3">
+                  {allImages.slice(1, 4).map((img, i) => (
+                    <div key={i} className="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-white">
+                      <OptimizedImage src={img} alt="" width={50} className="w-full h-full object-cover" />
+                    </div>
+                  ))}
+                  {allImages.length > 4 && (
+                    <div className="w-10 h-10 rounded-full border-2 border-white bg-black/80 text-white text-[10px] flex items-center justify-center font-bold">
+                      +{allImages.length - 4}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-muted/50"><Package className="h-16 w-16 text-muted-foreground/30" /></div>
