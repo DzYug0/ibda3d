@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Menu, Bell } from 'lucide-react';
 import { AdminSidebar } from './AdminSidebar';
 import { AdminSearch } from './AdminSearch';
+import { AdminSearchDialog } from './AdminSearchDialog';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,8 +20,10 @@ export function AdminHeader({ mobileOpen, setMobileOpen, isOwner }: AdminHeaderP
     const { user } = useAuth();
     const { t } = useLanguage();
 
+    const [searchOpen, setSearchOpen] = useState(false);
+
     return (
-        <header className="sticky top-0 z-20 h-16 bg-background/80backdrop-blur-md border-b border-border/50 px-6 flex items-center justify-between gap-4 transition-all duration-300">
+        <header className="sticky top-0 z-20 h-16 bg-background/80 backdrop-blur-md border-b border-border/50 px-6 flex items-center justify-between gap-4 transition-all duration-300">
 
             {/* Mobile Menu Trigger */}
             <div className="flex items-center gap-4 lg:hidden">
@@ -43,7 +47,8 @@ export function AdminHeader({ mobileOpen, setMobileOpen, isOwner }: AdminHeaderP
 
             {/* Search Bar (Desktop) */}
             <div className="flex-1 flex justify-start">
-                <AdminSearch />
+                <AdminSearch onSearchClick={() => setSearchOpen(true)} />
+                <AdminSearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
             </div>
 
             {/* Right Actions */}
