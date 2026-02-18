@@ -104,9 +104,11 @@ export default function AdminDashboard() {
               <SelectItem value="all">All Time</SelectItem>
             </SelectContent>
           </Select>
-          <Button>
-            <ExternalLink className="mr-2 h-4 w-4" />
-            View Live Store
+          <Button asChild variant="outline">
+            <Link to="/" target="_blank" rel="noopener noreferrer">
+              <ExternalLink className="mr-2 h-4 w-4" />
+              View Live Store
+            </Link>
           </Button>
         </div>
       </div>
@@ -222,8 +224,8 @@ export default function AdminDashboard() {
                     <div className="text-right">
                       <p className="font-bold text-sm">{order.total_amount.toFixed(0)} DA</p>
                       <span className={`text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wide font-medium ${order.status === 'pending' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' :
-                          order.status === 'delivered' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
-                            'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                        order.status === 'delivered' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                          'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
                         }`}>
                         {order.status}
                       </span>

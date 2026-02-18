@@ -1,7 +1,12 @@
 import * as React from "react";
 import {
+    Calculator,
     Calendar,
+    CreditCard,
     Settings,
+    Smile,
+    User,
+    Search,
     Package,
     ShoppingBag,
     ExternalLink
@@ -19,6 +24,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useAdminProducts } from "@/hooks/useProducts";
 import { useAdminOrders } from "@/hooks/useOrders";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface AdminSearchProps {
     open: boolean;
@@ -29,6 +35,7 @@ export function AdminSearch({ open, setOpen }: AdminSearchProps) {
     const navigate = useNavigate();
     const { data: products = [] } = useAdminProducts();
     const { data: orders = [] } = useAdminOrders();
+    const { signOut } = useAuth();
 
     React.useEffect(() => {
         const down = (e: KeyboardEvent) => {
@@ -54,7 +61,7 @@ export function AdminSearch({ open, setOpen }: AdminSearchProps) {
                 <CommandEmpty>No results found.</CommandEmpty>
 
                 <CommandGroup heading="Suggestions">
-                    <CommandItem onSelect={() => runCommand(() => navigate("/admin"))}>
+                    <CommandItem onSelect={() => runCommand(() => navigate("/admin/dashboard"))}>
                         <Calendar className="mr-2 h-4 w-4" />
                         <span>Dashboard</span>
                     </CommandItem>
@@ -66,7 +73,7 @@ export function AdminSearch({ open, setOpen }: AdminSearchProps) {
                         <Package className="mr-2 h-4 w-4" />
                         <span>Products</span>
                     </CommandItem>
-                    <CommandItem onSelect={() => runCommand(() => window.location.href = "/")}>
+                    <CommandItem onSelect={() => runCommand(() => navigate("/"))}>
                         <ExternalLink className="mr-2 h-4 w-4" />
                         <span>View Store</span>
                     </CommandItem>
@@ -85,7 +92,7 @@ export function AdminSearch({ open, setOpen }: AdminSearchProps) {
                 </CommandGroup>
 
                 <CommandGroup heading="Products">
-                    {products.slice(0, 3).map(product => (
+                    {products.slice(0, 5).map(product => (
                         <CommandItem key={product.id} onSelect={() => runCommand(() => navigate(`/admin/products/${product.id}`))}>
                             <Package className="mr-2 h-4 w-4 text-muted-foreground" />
                             <span>{product.name}</span>
