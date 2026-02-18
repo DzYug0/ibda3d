@@ -78,6 +78,7 @@ export const en = {
 
   wishlist: {
     title: 'My Wishlist',
+    subtitle: 'Save your favorite items for later.',
     emptyTitle: 'Your wishlist is empty',
     emptyDescription: 'Browse products and add your favorites to see them here.',
     addToWishlist: 'Add to Wishlist',
@@ -280,6 +281,7 @@ export const en = {
     clearAll: 'Clear all',
     apply: 'Apply',
     discount: 'Discount',
+    viewDetails: 'View Details',
   },
 
   // Reviews

@@ -43,13 +43,15 @@ export function ReviewList({ productId }: ReviewListProps) {
             <RatingDistribution reviews={reviews} />
 
             <div className="space-y-6">
-                <h3 className="text-xl font-bold">{t.reviews?.latestReviews || "Latest Reviews"}</h3>
+                <h3 className="text-xl font-bold flex items-center gap-2">
+                    {t.reviews?.latestReviews || "Latest Reviews"}
+                    <span className="text-muted-foreground text-sm font-normal">({reviews.length})</span>
+                </h3>
                 {reviews.map((review) => (
-                    <div key={review.id} className="flex gap-4 p-5 rounded-2xl bg-card border border-border transition-all hover:shadow-sm">
-
-                        <Avatar className="h-10 w-10 border border-border">
+                    <div key={review.id} className="flex gap-4 p-5 rounded-2xl bg-card border border-border/60 transition-all hover:bg-card/80 hover:shadow-md hover:border-primary/20">
+                        <Avatar className="h-10 w-10 border border-border ring-2 ring-background">
                             <AvatarImage src={review.user?.avatar_url || ''} />
-                            <AvatarFallback className="bg-primary/5 text-primary font-medium">
+                            <AvatarFallback className="bg-gradient-to-br from-primary/10 to-primary/5 text-primary font-bold">
                                 {review.user?.username?.charAt(0).toUpperCase() || 'U'}
                             </AvatarFallback>
                         </Avatar>
@@ -57,9 +59,8 @@ export function ReviewList({ productId }: ReviewListProps) {
                             <div className="flex justify-between items-start">
                                 <div>
                                     <div className="flex items-center gap-2 mb-1">
-                                        <p className="font-semibold text-foreground text-sm">@{review.user?.username || 'Anonymous'}</p>
-                                        {/* Mock Verified Badge - In real app, check order history */}
-                                        <Badge variant="secondary" className="text-[10px] px-1.5 h-5 gap-1 bg-green-500/10 text-green-600 border-green-200 hover:bg-green-500/20">
+                                        <p className="font-bold text-foreground text-sm">@{review.user?.username || 'Anonymous'}</p>
+                                        <Badge variant="secondary" className="text-[10px] px-1.5 h-5 gap-0.5 bg-green-500/10 text-green-600 border-green-200/50 hover:bg-green-500/20">
                                             <CheckCircle2 className="h-3 w-3" />
                                             {t.reviews?.verifiedPurchase || "Verified"}
                                         </Badge>
@@ -71,7 +72,7 @@ export function ReviewList({ productId }: ReviewListProps) {
                                 </div>
                             </div>
                             {review.comment && (
-                                <p className="text-muted-foreground text-sm leading-relaxed">
+                                <p className="text-foreground/80 text-sm leading-relaxed bg-muted/30 p-3 rounded-xl rounded-tl-none">
                                     {review.comment}
                                 </p>
                             )}

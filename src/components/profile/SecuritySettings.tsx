@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Lock } from 'lucide-react';
+import { Loader2, Lock, Mail, ShieldCheck } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
 
 export function SecuritySettings() {
     const { toast } = useToast();
@@ -15,6 +16,7 @@ export function SecuritySettings() {
 
     const handlePasswordChange = async (e: React.FormEvent) => {
         e.preventDefault();
+
         if (password !== confirmPassword) {
             toast({ title: 'Error', description: 'Passwords do not match', variant: 'destructive' });
             return;
@@ -38,48 +40,62 @@ export function SecuritySettings() {
     };
 
     return (
-        <div className="max-w-md">
-            <h3 className="text-lg font-medium mb-4">Change Password</h3>
-            <form onSubmit={handlePasswordChange} className="space-y-4">
-                <div className="space-y-2">
-                    <Label htmlFor="password">New Password</Label>
-                    <div className="relative">
-                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            id="password"
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="pl-9"
-                            placeholder="••••••••"
-                            required
-                        />
-                    </div>
+        <div className="max-w-xl space-y-8">
+            <div>
+                <div className="flex items-center gap-2 mb-4">
+                    <ShieldCheck className="h-5 w-5 text-primary" />
+                    <h3 className="text-lg font-bold text-foreground">Change Password</h3>
                 </div>
-                <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                    <div className="relative">
-                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            id="confirmPassword"
-                            type="password"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="pl-9"
-                            placeholder="••••••••"
-                            required
-                        />
+                <form onSubmit={handlePasswordChange} className="space-y-5 bg-card/40 backdrop-blur-sm border border-border/40 rounded-2xl p-6 shadow-sm">
+                    <div className="space-y-2">
+                        <Label htmlFor="password">New Password</Label>
+                        <div className="relative">
+                            <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                            <Input
+                                id="password"
+                                type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="pl-9 bg-background/50 border-border/50"
+                                placeholder="••••••••"
+                                required
+                            />
+                        </div>
                     </div>
-                </div>
-                <Button type="submit" disabled={loading} className="w-full">
-                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Update Password
-                </Button>
-            </form>
+                    <div className="space-y-2">
+                        <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                        <div className="relative">
+                            <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                            <Input
+                                id="confirmPassword"
+                                type="password"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                className="pl-9 bg-background/50 border-border/50"
+                                placeholder="••••••••"
+                                required
+                            />
+                        </div>
+                    </div>
+                    <div className="pt-2">
+                        <Button type="submit" disabled={loading} className="w-full sm:w-auto min-w-[160px] rounded-full shadow-lg shadow-primary/20">
+                            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Update Password
+                        </Button>
+                    </div>
+                </form>
+            </div>
 
-            <div className="border-t pt-6 mt-6">
-                <h3 className="text-lg font-medium mb-4">Change Email</h3>
-                <EmailChangeForm />
+            <Separator className="bg-border/50" />
+
+            <div>
+                <div className="flex items-center gap-2 mb-4">
+                    <Mail className="h-5 w-5 text-primary" />
+                    <h3 className="text-lg font-bold text-foreground">Change Email</h3>
+                </div>
+                <div className="bg-card/40 backdrop-blur-sm border border-border/40 rounded-2xl p-6 shadow-sm">
+                    <EmailChangeForm />
+                </div>
             </div>
         </div>
     );
@@ -105,23 +121,26 @@ function EmailChangeForm() {
     };
 
     return (
-        <form onSubmit={handleEmailChange} className="space-y-4">
+        <form onSubmit={handleEmailChange} className="space-y-5">
             <div className="space-y-2">
                 <Label htmlFor="new-email">New Email Address</Label>
                 <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                         id="new-email"
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="pl-9"
+                        className="pl-9 bg-background/50 border-border/50"
                         placeholder="new@example.com"
                         required
                     />
                 </div>
+                <p className="text-xs text-muted-foreground ml-1">
+                    You will need to confirm this change via email on both your current and new addresses.
+                </p>
             </div>
-            <Button type="submit" disabled={loading} variant="outline" className="w-full">
+            <Button type="submit" disabled={loading} variant="outline" className="w-full sm:w-auto min-w-[160px] rounded-full border-primary/20 hover:bg-primary/5 hover:text-primary">
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Update Email
             </Button>

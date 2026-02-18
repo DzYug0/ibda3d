@@ -181,7 +181,7 @@ export default function Products() {
 
         <div className="flex gap-8">
           <aside className={`${showFilters ? 'block' : 'hidden'} md:block w-full md:w-64 flex-shrink-0`}>
-            <div className="bg-card rounded-xl p-6 border border-border sticky top-24">
+            <div className="sticky top-24 space-y-4">
               <FilterSidebar
                 selectedCategories={selectedSlugs}
                 onCategoryChange={toggleCategory}

@@ -70,93 +70,128 @@ export default function PackDetail() {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8">
-        <nav className="mb-6">
-          <Link to="/packs" className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors">
-            <ChevronLeft className="h-4 w-4 me-1" />
-            {t.packs.backToPacks}
-          </Link>
-        </nav>
+      <div className="min-h-screen bg-muted/30 pb-20">
+        <div className="container mx-auto px-4 py-8">
+          <nav className="mb-8">
+            <Link to="/packs" className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors group">
+              <div className="bg-card group-hover:bg-primary/10 border border-border/50 rounded-full p-2 me-2 transition-colors">
+                <ChevronLeft className="h-4 w-4" />
+              </div>
+              <span className="font-medium">{t.packs?.backToPacks || 'Back to Packs'}</span>
+            </Link>
+          </nav>
 
-        <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
-          {galleryImages.length > 0 ? (
-            <ProductGallery images={galleryImages} productName={pack.name} />
-          ) : pack.items && pack.items.length > 0 && pack.items[0].product?.image_url ? (
-            <div className="aspect-square rounded-2xl overflow-hidden bg-gray-100">
-              <OptimizedImage
-                src={pack.items[0].product.image_url}
-                alt={pack.name}
-                className="w-full h-full object-cover"
-                width={800}
-                priority
-              />
+          <div className="grid md:grid-cols-2 gap-10 lg:gap-16 items-start">
+            {/* Gallery Section */}
+            <div className="space-y-6">
+              {galleryImages.length > 0 ? (
+                <ProductGallery images={galleryImages} productName={pack.name} />
+              ) : pack.items && pack.items.length > 0 && pack.items[0].product?.image_url ? (
+                <div className="aspect-square rounded-3xl overflow-hidden bg-card border border-border shadow-sm">
+                  <OptimizedImage
+                    src={pack.items[0].product.image_url}
+                    alt={pack.name}
+                    className="w-full h-full object-cover"
+                    width={800}
+                    priority
+                  />
+                </div>
+              ) : (
+                <div className="aspect-square rounded-3xl bg-card border border-border flex items-center justify-center shadow-sm">
+                  <Package className="h-24 w-24 text-muted-foreground/30" />
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="aspect-square rounded-2xl bg-muted flex items-center justify-center">
-              <Package className="h-20 w-20 text-muted-foreground" />
-            </div>
-          )}
 
-          <div className="space-y-6">
-            <div className="flex flex-wrap gap-2">
-              {hasDiscount && <Badge variant="destructive">-{discountPercent}%</Badge>}
-              {savings > 0 && <Badge className="bg-success text-success-foreground">{t.packs.save} {savings.toFixed(0)} {t.common.da}</Badge>}
-            </div>
+            {/* Info Section */}
+            <div className="space-y-8 sticky top-24">
+              <div className="space-y-4">
+                <div className="flex flex-wrap gap-3">
+                  {hasDiscount && <Badge variant="destructive" className="px-3 py-1 text-sm rounded-full shadow-lg shadow-destructive/20">-{discountPercent}% OFF</Badge>}
+                  {savings > 0 && <Badge className="bg-success text-success-foreground px-3 py-1 text-sm rounded-full shadow-lg shadow-success/20">{t.packs?.save || 'Save'} {savings.toFixed(0)} {t.common?.da || 'DA'}</Badge>}
+                </div>
 
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground">
-              {language === 'ar' ? (pack.name_ar || pack.name) : pack.name}
-            </h1>
-            {(language === 'ar' ? (pack.description_ar || pack.description) : pack.description) && (
-              <p className="text-muted-foreground leading-relaxed">
-                {language === 'ar' ? (pack.description_ar || pack.description) : pack.description}
-              </p>
-            )}
+                <h1 className="text-4xl md:text-5xl font-extrabold text-foreground tracking-tight leading-tight">
+                  {language === 'ar' ? (pack.name_ar || pack.name) : pack.name}
+                </h1>
 
-            <div className="flex items-baseline gap-3">
-              <span className="text-3xl font-bold text-foreground">{pack.price.toFixed(0)} {t.common.da}</span>
-              {hasDiscount && <span className="text-xl text-muted-foreground line-through">{pack.compare_at_price!.toFixed(0)} {t.common.da}</span>}
-            </div>
-            {individualTotal > 0 && <p className="text-sm text-muted-foreground">{t.packs.individualTotal} {individualTotal.toFixed(0)} {t.common.da}</p>}
+                {(language === 'ar' ? (pack.description_ar || pack.description) : pack.description) && (
+                  <p className="text-lg text-muted-foreground leading-relaxed border-l-4 border-primary/20 pl-4">
+                    {language === 'ar' ? (pack.description_ar || pack.description) : pack.description}
+                  </p>
+                )}
 
-            {pack.items && pack.items.length > 0 && (
-              <div className="space-y-3 border border-border rounded-xl p-4">
-                <h3 className="font-semibold text-foreground">{t.packs.whatsIncluded}</h3>
-                <div className="space-y-3">
-                  {pack.items.map(item => (
-                    <Link key={item.id} to={`/products/${item.product?.slug}`} className="flex items-center gap-3 hover:bg-muted/50 rounded-lg p-2 -mx-2 transition-colors">
-                      <div className="w-14 h-14 rounded-lg bg-muted overflow-hidden flex-shrink-0">
-                        {item.product?.image_url ?
-                          <OptimizedImage src={item.product.image_url} alt="" className="w-full h-full object-cover" width={64} />
-                          : <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">—</div>
-                        }
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-foreground truncate">
-                          {item.product ? (language === 'ar' ? (item.product.name /* types don't have name_ar in nested product yet? */ || item.product.name) : item.product.name) : 'Product'}
-                        </p>
-                        <p className="text-sm text-muted-foreground">{item.product?.price?.toFixed(0)} {t.common.da} {t.packs.each}</p>
-                      </div>
-                      <span className="text-sm font-medium text-muted-foreground">×{item.quantity}</span>
-                    </Link>
-                  ))}
+                <div className="flex items-center gap-3 pt-2">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-4xl font-black text-primary">{pack.price.toFixed(0)} <span className="text-xl font-normal text-muted-foreground">{t.common?.da || 'DA'}</span></span>
+                    {hasDiscount && (
+                      <span className="text-xl text-muted-foreground line-through decoration-destructive/30">{pack.compare_at_price!.toFixed(0)}</span>
+                    )}
+                  </div>
+                </div>
+                {individualTotal > 0 && <p className="text-sm font-medium text-muted-foreground bg-muted/50 inline-block px-3 py-1 rounded-full">{t.packs?.individualTotal || 'Individual Total'}: {individualTotal.toFixed(0)} {t.common?.da || 'DA'}</p>}
+              </div>
+
+              <div className="bg-card/60 backdrop-blur-md rounded-3xl p-6 border border-border/50 shadow-sm space-y-6">
+
+                {/* Pack Items List */}
+                {pack.items && pack.items.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="font-bold text-foreground flex items-center gap-2">
+                      <Package className="h-5 w-5 text-primary" />
+                      {t.packs?.whatsIncluded || "What's Included"}
+                    </h3>
+                    <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                      {pack.items.map(item => (
+                        <Link key={item.id} to={`/products/${item.product?.slug}`} className="group flex items-center gap-3 bg-background/50 hover:bg-primary/5 rounded-xl p-3 border border-border/50 hover:border-primary/20 transition-all duration-300">
+                          <div className="w-16 h-16 rounded-xl bg-background border border-border/50 overflow-hidden flex-shrink-0 shadow-sm group-hover:shadow-md transition-all">
+                            {item.product?.image_url ?
+                              <OptimizedImage src={item.product.image_url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" width={64} />
+                              : <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">—</div>
+                            }
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold text-foreground truncate group-hover:text-primary transition-colors">
+                              {item.product ? (language === 'ar' && (item.product as any).name_ar ? (item.product as any).name_ar : item.product.name) : 'Product'}
+                            </p>
+                            <p className="text-xs text-muted-foreground">{item.product?.price?.toFixed(0)} {t.common?.da || 'DA'} {t.packs?.each || 'each'}</p>
+                          </div>
+                          <div className="flex flex-col items-end">
+                            <span className="text-sm font-bold text-foreground bg-muted w-8 h-8 flex items-center justify-center rounded-lg">×{item.quantity}</span>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="pt-4 border-t border-border/50 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-foreground">{t.products?.quantity || 'Quantity'}</span>
+                    <div className="flex items-center bg-muted/50 rounded-xl border border-border/50 p-1">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-background shadow-none" onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}>
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                      <span className="w-10 text-center font-bold font-mono">{quantity}</span>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-background shadow-none" onClick={() => setQuantity(quantity + 1)}>
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  {quantity > 1 && (
+                    <div className="flex justify-between items-center text-sm font-medium text-muted-foreground bg-primary/5 p-2 rounded-lg">
+                      <span>{t.packs?.total || 'Total'}</span>
+                      <span className="text-primary font-bold">{(pack.price * quantity).toFixed(0)} {t.common?.da || 'DA'}</span>
+                    </div>
+                  )}
+
+                  <Button size="xl" className="w-full text-base font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-0.5" onClick={handleAddPackToCart} disabled={addPackToCart.isPending}>
+                    <ShoppingCart className="h-5 w-5 me-2" />
+                    {addPackToCart.isPending ? t.products?.adding || 'Adding...' : quantity > 1 ? (t.packs?.addPacksToCart || 'Add Packs to Cart').replace('{count}', String(quantity)) : t.packs?.addPackToCart || 'Add to Cart'}
+                  </Button>
                 </div>
               </div>
-            )}
-
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <span className="font-medium text-foreground">{t.products.quantity}</span>
-                <div className="flex items-center border border-border rounded-lg">
-                  <Button variant="ghost" size="icon" onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}><Minus className="h-4 w-4" /></Button>
-                  <span className="w-12 text-center font-semibold">{quantity}</span>
-                  <Button variant="ghost" size="icon" onClick={() => setQuantity(quantity + 1)}><Plus className="h-4 w-4" /></Button>
-                </div>
-                {quantity > 1 && <span className="text-sm text-muted-foreground">{t.packs.total} {(pack.price * quantity).toFixed(0)} {t.common.da}</span>}
-              </div>
-              <Button size="xl" className="w-full" onClick={handleAddPackToCart} disabled={addPackToCart.isPending}>
-                <ShoppingCart className="h-5 w-5 me-2" />
-                {addPackToCart.isPending ? t.products.adding : quantity > 1 ? t.packs.addPacksToCart.replace('{count}', String(quantity)) : t.packs.addPackToCart}
-              </Button>
             </div>
           </div>
         </div>

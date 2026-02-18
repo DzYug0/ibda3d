@@ -5,9 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Switch } from "@/components/ui/switch";
 import { useCategories } from "@/hooks/useProducts";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { X } from "lucide-react";
+import { X, Filter, ChevronRight, Check } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 interface FilterSidebarProps {
     selectedCategories: string[];
@@ -34,140 +37,192 @@ export function FilterSidebar({
 }: FilterSidebarProps) {
     const { data: categories = [] } = useCategories();
     const { t } = useLanguage();
+    const [priceInput, setPriceInput] = useState<[string, string]>([priceRange[0].toString(), priceRange[1].toString()]);
+
+    const handlePriceInputChange = (index: 0 | 1, value: string) => {
+        const newInputs = [...priceInput] as [string, string];
+        newInputs[index] = value;
+        setPriceInput(newInputs);
+
+        const numVal = parseInt(value);
+        if (!isNaN(numVal)) {
+            const newRange = [...priceRange] as [number, number];
+            newRange[index] = numVal;
+            onPriceChange(newRange);
+        }
+    };
 
     return (
-        <div className={`space-y-8 ${className}`}>
-            {/* Header with Clear button */}
+        <div className={cn("space-y-6 p-6 rounded-3xl bg-card/60 backdrop-blur-xl border border-border/50 shadow-sm transition-all hover:shadow-md", className)}>
+            {/* Header */}
             <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-lg">{t.common?.filters || "Filters"}</h3>
+                <h3 className="font-bold text-lg flex items-center gap-2 text-foreground">
+                    <Filter className="h-5 w-5 text-primary" />
+                    {t.common?.filters || "Filters"}
+                </h3>
                 {(selectedCategories.length > 0 || priceRange[0] > 0 || priceRange[1] < 100000 || inStock) && (
-                    <Button variant="ghost" size="sm" onClick={onClear} className="h-auto p-0 text-muted-foreground hover:text-destructive">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={onClear}
+                        className="h-8 px-2 text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                    >
                         {t.common?.clearAll || "Clear all"}
                     </Button>
                 )}
             </div>
 
-            {/* Availability */}
-            <div className="space-y-4">
-                <h4 className="font-medium text-sm text-foreground/80">{t.products?.availability || "Availability"}</h4>
-                <div className="flex items-center space-x-2">
-                    <Checkbox id="instock" checked={inStock} onCheckedChange={(checked) => onInStockChange(checked as boolean)} />
-                    <Label htmlFor="instock" className="text-sm cursor-pointer font-normal">
-                        {t.products?.inStockOnly || "In Stock Only"}
-                    </Label>
-                </div>
-            </div>
+            <ScrollArea className="h-[calc(100vh-280px)] pr-4 -mr-4">
+                <div className="space-y-8 pr-4">
 
-            {/* Price Range */}
-            <div className="space-y-4">
-                <h4 className="font-medium text-sm text-foreground/80">{t.products?.priceRange || "Price Range"}</h4>
-                <div className="pt-2 px-2">
-                    <Slider
-                        defaultValue={[0, 100000]}
-                        value={priceRange}
-                        max={100000}
-                        step={500}
-                        minStepsBetweenThumbs={1}
-                        onValueChange={(value) => onPriceChange(value as [number, number])}
-                        className="mb-6"
-                    />
-                    <div className="flex items-center gap-4">
-                        <div className="space-y-1">
-                            <span className="text-xs text-muted-foreground">Min (DA)</span>
-                            <Input
-                                type="number"
-                                value={priceRange[0]}
-                                onChange={(e) => onPriceChange([Number(e.target.value), priceRange[1]])}
-                                className="h-8 text-sm"
-                            />
-                        </div>
-                        <div className="space-y-1">
-                            <span className="text-xs text-muted-foreground">Max (DA)</span>
-                            <Input
-                                type="number"
-                                value={priceRange[1]}
-                                onChange={(e) => onPriceChange([priceRange[0], Number(e.target.value)])}
-                                className="h-8 text-sm"
+                    {/* Availability Toggle */}
+                    <div className="rounded-2xl bg-muted/30 p-4 border border-border/50">
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor="instock" className="text-sm font-semibold cursor-pointer">
+                                {t.products?.inStockOnly || "In Stock Only"}
+                            </Label>
+                            <Switch
+                                id="instock"
+                                checked={inStock}
+                                onCheckedChange={onInStockChange}
+                                className="scale-90"
                             />
                         </div>
                     </div>
-                </div>
-            </div>
 
-            {/* Categories */}
-            <div className="space-y-4">
-                <h4 className="font-medium text-sm text-foreground/80">{t.categories?.title || "Categories"}</h4>
-                <ScrollArea className="h-[400px] w-full rounded-md pr-4">
-                    <div className="space-y-3">
-                        {/* 'All' Option */}
-                        <div className="flex items-center space-x-2">
-                            <Checkbox
-                                id="category-all"
-                                checked={selectedCategories.length === 0}
-                                onCheckedChange={(checked) => {
-                                    if (checked) onClear();
-                                }}
-                            />
-                            <Label htmlFor="category-all" className="text-sm cursor-pointer font-normal leading-none filter-all-label">
-                                {t.products?.allProducts || "All Products"}
-                            </Label>
+                    {/* Price Range */}
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h4 className="font-semibold text-sm text-foreground/80 lowercase small-caps">{t.products?.priceRange || "Price Range"}</h4>
                         </div>
 
-                        {/* Hierarchical Categories */}
-                        {categories.filter(c => !c.parent_id).map((parent) => {
-                            const children = categories.filter(c => c.parent_id === parent.id);
-                            const isParentSelected = selectedCategories.includes(parent.slug);
+                        <Slider
+                            defaultValue={[0, 100000]}
+                            value={priceRange}
+                            max={100000}
+                            step={500}
+                            minStepsBetweenThumbs={1}
+                            onValueChange={(value) => {
+                                onPriceChange(value as [number, number]);
+                                setPriceInput([value[0].toString(), value[1].toString()]);
+                            }}
+                            className="py-4"
+                        />
 
-                            // Check if any child is selected to auto-expand accordion
-                            const hasSelectedChild = children.some(child => selectedCategories.includes(child.slug));
+                        <div className="flex items-center gap-3">
+                            <div className="relative flex-1">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-mono">DA</span>
+                                <Input
+                                    type="number"
+                                    value={priceInput[0]}
+                                    onChange={(e) => handlePriceInputChange(0, e.target.value)}
+                                    className="h-10 pl-9 text-sm bg-background/50 border-border/50 rounded-xl focus:ring-primary/20 font-mono"
+                                />
+                            </div>
+                            <span className="text-muted-foreground font-light">-</span>
+                            <div className="relative flex-1">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-mono">DA</span>
+                                <Input
+                                    type="number"
+                                    value={priceInput[1]}
+                                    onChange={(e) => handlePriceInputChange(1, e.target.value)}
+                                    className="h-10 pl-9 text-sm bg-background/50 border-border/50 rounded-xl focus:ring-primary/20 font-mono"
+                                />
+                            </div>
+                        </div>
+                    </div>
 
-                            if (children.length === 0) {
+                    {/* Categories */}
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h4 className="font-semibold text-sm text-foreground/80 lowercase small-caps">{t.categories?.title || "Categories"}</h4>
+                            {selectedCategories.length > 0 && (
+                                <button onClick={onClearCategories} className="text-[10px] text-primary hover:underline">
+                                    Reset
+                                </button>
+                            )}
+                        </div>
+
+                        <div className="space-y-1">
+                            {/* 'All' Option */}
+                            <button
+                                onClick={() => onClear()}
+                                className={cn(
+                                    "w-full flex items-center justify-between p-2.5 rounded-xl text-sm transition-all text-left group",
+                                    selectedCategories.length === 0
+                                        ? "bg-primary text-primary-foreground shadow-md shadow-primary/20 font-semibold"
+                                        : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                                )}
+                            >
+                                <span>{t.products?.allProducts || "All Products"}</span>
+                                {selectedCategories.length === 0 && <Check className="h-3.5 w-3.5" />}
+                            </button>
+
+                            <div className="h-px bg-border/50 my-2" />
+
+                            {/* Hierarchical Categories */}
+                            {categories.filter(c => !c.parent_id).map((parent) => {
+                                const children = categories.filter(c => c.parent_id === parent.id);
+                                const isParentSelected = selectedCategories.includes(parent.slug);
+                                const isChildSelected = children.some(c => selectedCategories.includes(c.slug));
+                                const isExpanded = true; // Could use state for accordion effect
+
                                 return (
-                                    <div key={parent.id} className="flex items-center space-x-2">
-                                        <Checkbox
-                                            id={parent.slug}
-                                            checked={isParentSelected}
-                                            onCheckedChange={() => onCategoryChange(parent.slug)}
-                                        />
-                                        <Label htmlFor={parent.slug} className="text-sm cursor-pointer font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                                            {parent.name}
-                                        </Label>
+                                    <div key={parent.id} className="space-y-1">
+                                        <div
+                                            className={cn(
+                                                "flex items-center gap-2 p-2 rounded-lg transition-colors cursor-pointer group select-none",
+                                                isParentSelected ? "bg-muted/60" : "hover:bg-muted/30"
+                                            )}
+                                            onClick={() => onCategoryChange(parent.slug)}
+                                        >
+                                            <div className={cn(
+                                                "w-4 h-4 rounded border flex items-center justify-center transition-colors",
+                                                isParentSelected ? "bg-primary border-primary text-primary-foreground" : "border-muted-foreground/40 group-hover:border-primary"
+                                            )}>
+                                                {isParentSelected && <Check className="h-3 w-3" />}
+                                            </div>
+                                            <span className={cn("text-sm flex-1", isParentSelected ? "font-semibold text-foreground" : "text-muted-foreground group-hover:text-foreground")}>
+                                                {parent.name}
+                                            </span>
+                                            {children.length > 0 && (
+                                                <ChevronRight className={cn("h-3 w-3 text-muted-foreground transition-transform", isChildSelected ? "rotate-90" : "")} />
+                                            )}
+                                        </div>
+
+                                        {children.length > 0 && (
+                                            <div className="pl-6 space-y-1 border-l ml-3.5 border-border/40 py-1">
+                                                {children.map(child => {
+                                                    const isSelected = selectedCategories.includes(child.slug);
+                                                    return (
+                                                        <div
+                                                            key={child.id}
+                                                            className={cn(
+                                                                "flex items-center gap-2 p-1.5 rounded-md transition-colors cursor-pointer group select-none hover:bg-muted/50",
+                                                            )}
+                                                            onClick={() => onCategoryChange(child.slug)}
+                                                        >
+                                                            <div className={cn(
+                                                                "w-3.5 h-3.5 rounded-sm border flex items-center justify-center transition-colors",
+                                                                isSelected ? "bg-primary border-primary text-primary-foreground" : "border-muted-foreground/40 group-hover:border-primary"
+                                                            )}>
+                                                                {isSelected && <Check className="h-2.5 w-2.5" />}
+                                                            </div>
+                                                            <span className={cn("text-sm", isSelected ? "font-medium text-foreground" : "text-muted-foreground group-hover:text-foreground")}>
+                                                                {child.name}
+                                                            </span>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
                                     </div>
                                 );
-                            }
-
-                            return (
-                                <div key={parent.id} className="space-y-2">
-                                    <div className="flex items-center space-x-2">
-                                        <Checkbox
-                                            id={parent.slug}
-                                            checked={isParentSelected}
-                                            onCheckedChange={() => onCategoryChange(parent.slug)}
-                                        />
-                                        <Label htmlFor={parent.slug} className="text-sm cursor-pointer font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                                            {parent.name}
-                                        </Label>
-                                    </div>
-                                    <div className="pl-6 flex flex-col gap-2 border-l-2 border-muted ml-2">
-                                        {children.map(child => (
-                                            <div key={child.id} className="flex items-center space-x-2">
-                                                <Checkbox
-                                                    id={child.slug}
-                                                    checked={selectedCategories.includes(child.slug)}
-                                                    onCheckedChange={() => onCategoryChange(child.slug)}
-                                                />
-                                                <Label htmlFor={child.slug} className="text-sm cursor-pointer font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                                                    {child.name}
-                                                </Label>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            );
-                        })}
+                            })}
+                        </div>
                     </div>
-                </ScrollArea>
-            </div>
+                </div>
+            </ScrollArea>
         </div>
     );
 }

@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { MapPin, CheckCircle, Truck, Building2, Home, Loader2, X } from 'lucide-react';
+import { MapPin, CheckCircle, Truck, Building2, Home, Loader2, X, ChevronRight, ShoppingBag } from 'lucide-react';
 import { z } from 'zod';
 import { Layout } from '@/components/layout/Layout';
 import { useLanguage } from '@/i18n/LanguageContext';
@@ -15,6 +15,7 @@ import { useCreateOrder } from '@/hooks/useOrders';
 import { useAuth } from '@/contexts/AuthContext';
 import { useActiveShippingCompanies, useShippingRates } from '@/hooks/useShipping';
 import { ALGERIA_WILAYAS } from '@/data/wilayas';
+import { cn } from "@/lib/utils";
 
 type DeliveryType = 'desk' | 'home';
 
@@ -73,6 +74,7 @@ export default function Checkout() {
   const { data: companies = [], isLoading: companiesLoading } = useActiveShippingCompanies();
   const { data: allRates = [] } = useShippingRates();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -287,8 +289,8 @@ export default function Checkout() {
   if (buyNowLoading) {
     return (
       <Layout>
-        <div className="container mx-auto px-4 py-16 text-center">
-          <p className="text-muted-foreground">{t.common.loading}</p>
+        <div className="flex h-screen items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       </Layout>
     );
@@ -297,9 +299,12 @@ export default function Checkout() {
   if (checkoutItems.length === 0 && !orderPlaced) {
     return (
       <Layout>
-        <div className="container mx-auto px-4 py-16 text-center">
-          <h1 className="text-2xl font-bold text-foreground mb-4">{t.checkout.cartEmpty}</h1>
-          <Link to="/products"><Button size="lg">{t.checkout.viewProducts}</Button></Link>
+        <div className="container mx-auto px-4 py-24 text-center max-w-md">
+          <div className="bg-muted/30 p-12 rounded-full h-48 w-48 mx-auto mb-8 flex items-center justify-center animate-in zoom-in duration-500">
+            <ShoppingBag className="h-24 w-24 text-muted-foreground/50" />
+          </div>
+          <h1 className="text-3xl font-extrabold text-foreground mb-4">{t.checkout?.cartEmpty || "Cart is Empty"}</h1>
+          <Link to="/products"><Button size="xl" className="rounded-full px-8">{t.checkout?.viewProducts || "View Products"}</Button></Link>
         </div>
       </Layout>
     );
@@ -308,23 +313,23 @@ export default function Checkout() {
   if (orderPlaced) {
     return (
       <Layout>
-        <div className="container mx-auto px-4 py-16 text-center max-w-lg">
-          <div className="bg-success/10 rounded-full w-20 h-20 mx-auto mb-6 flex items-center justify-center">
-            <CheckCircle className="h-10 w-10 text-success" />
+        <div className="container mx-auto px-4 py-24 text-center max-w-lg">
+          <div className="bg-success/10 rounded-full w-24 h-24 mx-auto mb-8 flex items-center justify-center animate-in zoom-in spin-in-180 duration-700">
+            <CheckCircle className="h-12 w-12 text-success" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground mb-4">{t.checkout.orderConfirmed}</h1>
-          <p className="text-muted-foreground mb-8">
-            {t.checkout.thankYou}
+          <h1 className="text-4xl font-extrabold text-foreground mb-4 tracking-tight">{t.checkout?.orderConfirmed || "Order Confirmed!"}</h1>
+          <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
+            {t.checkout?.thankYou || "Thank you for your purchase."}
             <br />
-            <strong className="text-foreground">{t.checkout.cashOnDelivery}</strong>
+            <strong className="text-foreground">{t.checkout?.cashOnDelivery || "Cash on Delivery"}</strong>
           </p>
-          <div className="flex gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             {user ? (
-              <Link to="/orders"><Button>{t.checkout.viewMyOrders}</Button></Link>
+              <Link to="/orders"><Button size="lg" className="rounded-full w-full sm:w-auto">{t.checkout?.viewMyOrders || "View My Orders"}</Button></Link>
             ) : (
-              <Link to="/"><Button>{t.common.home || 'Home'}</Button></Link>
+              <Link to="/"><Button size="lg" className="rounded-full w-full sm:w-auto">{t.common?.home || 'Home'}</Button></Link>
             )}
-            <Link to="/products"><Button variant="outline">{t.checkout.continueShopping}</Button></Link>
+            <Link to="/products"><Button variant="outline" size="lg" className="rounded-full w-full sm:w-auto">{t.checkout?.continueShopping || "Continue Shopping"}</Button></Link>
           </div>
         </div>
       </Layout>
@@ -341,6 +346,8 @@ export default function Checkout() {
         if (err.path[0]) newErrors[err.path[0] as string] = err.message;
       });
       setErrors(newErrors);
+      // Scroll to top of error
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
@@ -399,6 +406,7 @@ export default function Checkout() {
       }
 
       setOrderPlaced(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch {
       // Error handled by mutation
     } finally {
@@ -408,19 +416,21 @@ export default function Checkout() {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-foreground mb-8">{t.checkout.title}</h1>
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
+        <h1 className="text-4xl font-extrabold text-foreground mb-10 tracking-tight text-center lg:text-left">{t.checkout?.title || "Checkout"}</h1>
 
         <form onSubmit={handleSubmit}>
-          <div className="grid lg:grid-cols-3 gap-8">
+          <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
             {/* Shipping info */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-7 space-y-8">
 
               {/* Saved Addresses Selector */}
               {user && savedAddresses.length > 0 && (
-                <div className="bg-card rounded-xl border border-border p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <Home className="h-5 w-5 text-primary" />
+                <div className="bg-card/40 backdrop-blur-xl rounded-3xl border border-border/50 p-6 shadow-sm">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                      <Home className="h-5 w-5" />
+                    </div>
                     <h2 className="text-xl font-bold text-foreground">Saved Addresses</h2>
                   </div>
                   <div className="grid sm:grid-cols-2 gap-4">
@@ -428,14 +438,19 @@ export default function Checkout() {
                       <div
                         key={addr.id}
                         onClick={() => selectAddress(addr)}
-                        className="border border-border rounded-lg p-3 cursor-pointer hover:border-primary hover:bg-muted/50 transition-colors"
+                        className={cn(
+                          "group border rounded-2xl p-4 cursor-pointer transition-all duration-300 hover:shadow-md relative overflow-hidden",
+                          shippingInfo.address === addr.address_line1 && shippingInfo.wilaya === addr.zip_code
+                            ? "border-primary bg-primary/5 ring-1 ring-primary"
+                            : "border-border/50 hover:border-primary/50 bg-background/50"
+                        )}
                       >
-                        <div className="flex justify-between items-start">
-                          <span className="font-semibold">{addr.label}</span>
-                          {/* Simple visual check if this address matches current form state */}
-                          {(shippingInfo.address === addr.address_line1 && shippingInfo.wilaya === addr.zip_code) && <CheckCircle className="h-4 w-4 text-primary" />}
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="flex justify-between items-start relative z-10">
+                          <span className="font-bold text-foreground group-hover:text-primary transition-colors">{addr.label}</span>
+                          {(shippingInfo.address === addr.address_line1 && shippingInfo.wilaya === addr.zip_code) && <CheckCircle className="h-5 w-5 text-primary" />}
                         </div>
-                        <p className="text-sm text-muted-foreground">{addr.full_name}</p>
+                        <p className="text-sm text-muted-foreground mt-2 font-medium">{addr.full_name}</p>
                         <p className="text-xs text-muted-foreground truncate">{addr.address_line1}, {addr.city}</p>
                       </div>
                     ))}
@@ -444,121 +459,143 @@ export default function Checkout() {
               )}
 
               {/* Personal & Wilaya */}
-              <div className="bg-card rounded-xl border border-border p-6">
-                <div className="flex items-center gap-3 mb-6">
-                  <MapPin className="h-5 w-5 text-primary" />
-                  <h2 className="text-xl font-bold text-foreground">{t.checkout.deliveryInfo}</h2>
+              <div className="bg-card/40 backdrop-blur-xl rounded-3xl border border-border/50 p-6 md:p-8 shadow-sm space-y-6">
+                <div className="flex items-center gap-3 border-b border-border/50 pb-4">
+                  <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                    <MapPin className="h-5 w-5" />
+                  </div>
+                  <h2 className="text-xl font-bold text-foreground">{t.checkout?.deliveryInfo || "Delivery Information"}</h2>
                 </div>
 
-                <div className="grid gap-4">
+                <div className="grid gap-6">
                   <div>
-                    <Label htmlFor="fullName">{t.checkout.fullName}</Label>
+                    <Label htmlFor="fullName" className="text-sm font-semibold mb-2 block">{t.checkout?.fullName || "Full Name"}</Label>
                     <Input
                       id="fullName"
                       value={shippingInfo.fullName}
                       onChange={(e) => setShippingInfo({ ...shippingInfo, fullName: e.target.value })}
-                      placeholder={t.checkout.enterFullName}
+                      placeholder={t.checkout?.enterFullName || "Enter your full name"}
+                      className="h-12 rounded-xl bg-background/50 border-border/50 focus-visible:ring-primary"
                     />
-                    {errors.fullName && <p className="text-sm text-destructive mt-1">{errors.fullName}</p>}
+                    {errors.fullName && <p className="text-sm text-destructive mt-1 font-medium">{errors.fullName}</p>}
                   </div>
 
-                  <div>
-                    <Label htmlFor="wilaya">{t.checkout.selectWilaya}</Label>
-                    <Select
-                      value={shippingInfo.wilaya}
-                      onValueChange={(value) =>
-                        setShippingInfo({ ...shippingInfo, wilaya: value, companyId: '' })
-                      }
-                    >
-                      <SelectTrigger className="w-full bg-background">
-                        <SelectValue placeholder={t.checkout.chooseWilaya} />
-                      </SelectTrigger>
-                      <SelectContent className="bg-background border border-border z-50 max-h-[300px]">
-                        {ALGERIA_WILAYAS.map((wilaya) => (
-                          <SelectItem key={wilaya.code} value={wilaya.code}>
-                            {wilaya.code} - {wilaya.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {errors.wilaya && <p className="text-sm text-destructive mt-1">{errors.wilaya}</p>}
-                  </div>
-
-                  <div>
-                    <Label htmlFor="phone">{t.checkout.phoneNumber}</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={shippingInfo.phone}
-                      onChange={(e) => setShippingInfo({ ...shippingInfo, phone: e.target.value })}
-                      placeholder="0555 123 456"
-                    />
-                    {errors.phone && <p className="text-sm text-destructive mt-1">{errors.phone}</p>}
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <Label htmlFor="phone" className="text-sm font-semibold mb-2 block">{t.checkout?.phoneNumber || "Phone Number"}</Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        value={shippingInfo.phone}
+                        onChange={(e) => setShippingInfo({ ...shippingInfo, phone: e.target.value })}
+                        placeholder="0555 123 456"
+                        className="h-12 rounded-xl bg-background/50 border-border/50 focus-visible:ring-primary"
+                      />
+                      {errors.phone && <p className="text-sm text-destructive mt-1 font-medium">{errors.phone}</p>}
+                    </div>
+                    <div>
+                      <Label htmlFor="wilaya" className="text-sm font-semibold mb-2 block">{t.checkout?.selectWilaya || "Select Wilaya"}</Label>
+                      <Select
+                        value={shippingInfo.wilaya}
+                        onValueChange={(value) =>
+                          setShippingInfo({ ...shippingInfo, wilaya: value, companyId: '' })
+                        }
+                      >
+                        <SelectTrigger className="h-12 rounded-xl bg-background/50 border-border/50 w-full">
+                          <SelectValue placeholder={t.checkout?.chooseWilaya || "Choose Wilaya"} />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[300px] rounded-xl border-border/50 bg-card/95 backdrop-blur-md">
+                          {ALGERIA_WILAYAS.map((wilaya) => (
+                            <SelectItem key={wilaya.code} value={wilaya.code} className="cursor-pointer">
+                              <span className="font-mono text-muted-foreground mr-2">{wilaya.code}</span> {wilaya.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {errors.wilaya && <p className="text-sm text-destructive mt-1 font-medium">{errors.wilaya}</p>}
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Shipping Company */}
-              <div className="bg-card rounded-xl border border-border p-6">
-                <div className="flex items-center gap-3 mb-6">
-                  <Truck className="h-5 w-5 text-primary" />
-                  <h2 className="text-xl font-bold text-foreground">{t.checkout.shippingCompany}</h2>
+              <div className="bg-card/40 backdrop-blur-xl rounded-3xl border border-border/50 p-6 md:p-8 shadow-sm space-y-6">
+                <div className="flex items-center gap-3 border-b border-border/50 pb-4">
+                  <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                    <Truck className="h-5 w-5" />
+                  </div>
+                  <h2 className="text-xl font-bold text-foreground">{t.checkout?.shippingCompany || "Shipping Company"}</h2>
                 </div>
 
                 {companiesLoading ? (
-                  <p className="text-muted-foreground">{t.checkout.loadingShipping}</p>
+                  <div className="flex items-center gap-2 text-muted-foreground py-4">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    {t.checkout?.loadingShipping || "Loading shipping options..."}
+                  </div>
                 ) : availableCompaniesForWilaya.length === 0 ? (
-                  <p className="text-muted-foreground">
-                    {shippingInfo.wilaya ? t.checkout.noCompanies : t.checkout.selectWilayaFirst}
-                  </p>
+                  <div className="bg-muted/30 p-4 rounded-xl text-center border border-dashed border-border">
+                    <p className="text-muted-foreground">
+                      {shippingInfo.wilaya ? (t.checkout?.noCompanies || "No shipping companies available for this wilaya.") : (t.checkout?.selectWilayaFirst || "Please select a wilaya first.")}
+                    </p>
+                  </div>
                 ) : (
                   <RadioGroup
                     value={shippingInfo.companyId}
                     onValueChange={(value) => setShippingInfo({ ...shippingInfo, companyId: value })}
-                    className="grid grid-cols-2 sm:grid-cols-3 gap-3"
+                    className="grid grid-cols-2 sm:grid-cols-3 gap-4"
                   >
                     {availableCompaniesForWilaya.map((company) => {
                       const rate = allRates.find(
                         r => r.company_id === company.id && r.wilaya_code === shippingInfo.wilaya
                       );
+                      const isSelected = shippingInfo.companyId === company.id;
+
                       return (
                         <label
                           key={company.id}
                           htmlFor={`company-${company.id}`}
-                          className={`relative flex flex-col items-center gap-2 p-4 rounded-lg border-2 cursor-pointer text-center transition-all duration-200 hover:scale-105 hover:shadow-md ${shippingInfo.companyId === company.id
-                            ? 'border-primary bg-primary/5 shadow-sm'
-                            : 'border-border hover:border-primary/50'
-                            }`}
+                          className={cn(
+                            "relative flex flex-col items-center gap-3 p-4 rounded-2xl border-2 cursor-pointer text-center transition-all duration-300",
+                            isSelected
+                              ? "border-primary bg-primary/5 shadow-md scale-[1.02]"
+                              : "border-border/50 hover:border-primary/30 bg-card/60 hover:bg-card/80"
+                          )}
                         >
-                          <RadioGroupItem value={company.id} id={`company-${company.id}`} className="absolute top-2 right-2" />
+                          <RadioGroupItem value={company.id} id={`company-${company.id}`} className="absolute top-3 right-3 opacity-0" />
+                          {isSelected && <div className="absolute top-3 right-3 text-primary"><CheckCircle className="h-5 w-5 fill-primary/10" /></div>}
+
                           {company.logo_url ? (
-                            <div className="w-12 h-12 rounded-lg border border-border bg-muted flex items-center justify-center overflow-hidden">
+                            <div className="w-14 h-14 rounded-xl border border-border/50 bg-white p-1 flex items-center justify-center overflow-hidden shadow-sm">
                               <img src={company.logo_url} alt={company.name} className="w-full h-full object-contain" />
                             </div>
                           ) : (
-                            <div className="w-12 h-12 rounded-lg border border-border bg-muted flex items-center justify-center">
+                            <div className="w-14 h-14 rounded-xl border border-border/50 bg-muted flex items-center justify-center shadow-sm">
                               <Truck className="h-6 w-6 text-muted-foreground" />
                             </div>
                           )}
-                          <span className="font-semibold text-sm">{company.name}</span>
-                          {rate && (
-                            <p className="text-xs text-muted-foreground">
-                              {rate.desk_price} / {rate.home_price} DA
-                            </p>
-                          )}
+                          <div>
+                            <span className="font-bold text-sm block mb-1">{company.name}</span>
+                            {rate && (
+                              <div className="text-xs text-muted-foreground bg-muted/60 px-2 py-0.5 rounded-full inline-block">
+                                {rate.desk_price} / {rate.home_price} DA
+                              </div>
+                            )}
+                          </div>
                         </label>
                       );
                     })}
                   </RadioGroup>
                 )}
-                {errors.companyId && <p className="text-sm text-destructive mt-2">{errors.companyId}</p>}
+                {errors.companyId && <p className="text-sm text-destructive mt-2 font-medium">{errors.companyId}</p>}
               </div>
 
               {/* Delivery Type */}
-              <div className="bg-card rounded-xl border border-border p-6">
-                <div className="flex items-center gap-3 mb-6">
-                  <Truck className="h-5 w-5 text-primary" />
-                  <h2 className="text-xl font-bold text-foreground">{t.checkout.deliveryType}</h2>
+              <div className="bg-card/40 backdrop-blur-xl rounded-3xl border border-border/50 p-6 md:p-8 shadow-sm space-y-6">
+                <div className="flex items-center gap-3 border-b border-border/50 pb-4">
+                  <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                    <Building2 className="h-5 w-5" />
+                  </div>
+                  <h2 className="text-xl font-bold text-foreground">{t.checkout?.deliveryType || "Delivery Method"}</h2>
                 </div>
 
                 <RadioGroup
@@ -568,110 +605,130 @@ export default function Checkout() {
                   }
                   className="space-y-4"
                 >
-                  <div className={`flex items-start gap-4 p-4 rounded-lg border-2 transition-colors cursor-pointer ${shippingInfo.deliveryType === 'desk'
-                    ? 'border-primary bg-primary/5'
-                    : 'border-border hover:border-primary/50'
-                    }`}>
+                  <label htmlFor="desk" className={cn(
+                    "flex items-start gap-4 p-5 rounded-2xl border-2 transition-all cursor-pointer",
+                    shippingInfo.deliveryType === 'desk'
+                      ? "border-primary bg-primary/5 shadow-sm"
+                      : "border-border/50 hover:border-primary/30 bg-card/60"
+                  )}>
                     <RadioGroupItem value="desk" id="desk" className="mt-1" />
                     <div className="flex-1">
-                      <Label htmlFor="desk" className="flex items-center gap-2 cursor-pointer">
+                      <div className="flex items-center gap-2 mb-1">
                         <Building2 className="h-5 w-5 text-primary" />
-                        <span className="font-semibold">{t.checkout.deskDelivery}</span>
-                      </Label>
-                      <p className="text-sm text-muted-foreground mt-1">{t.checkout.deskDeliveryDesc}</p>
+                        <span className="font-bold text-lg">{t.checkout?.deskDelivery || "Stop Desk"}</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-2">{t.checkout?.deskDeliveryDesc || "Pick up your package from the shipping company's office."}</p>
                       {currentRate && (
-                        <span className="inline-block mt-2 text-sm font-medium text-primary">
+                        <span className="inline-block text-sm font-bold text-primary bg-primary/10 px-2 py-1 rounded-md">
                           {currentRate.desk_price} DA
                         </span>
                       )}
                     </div>
-                  </div>
+                  </label>
 
-                  <div className={`flex items-start gap-4 p-4 rounded-lg border-2 transition-colors cursor-pointer ${shippingInfo.deliveryType === 'home'
-                    ? 'border-primary bg-primary/5'
-                    : 'border-border hover:border-primary/50'
-                    }`}>
+                  <label htmlFor="home" className={cn(
+                    "flex items-start gap-4 p-5 rounded-2xl border-2 transition-all cursor-pointer",
+                    shippingInfo.deliveryType === 'home'
+                      ? "border-primary bg-primary/5 shadow-sm"
+                      : "border-border/50 hover:border-primary/30 bg-card/60"
+                  )}>
                     <RadioGroupItem value="home" id="home" className="mt-1" />
                     <div className="flex-1">
-                      <Label htmlFor="home" className="flex items-center gap-2 cursor-pointer">
+                      <div className="flex items-center gap-2 mb-1">
                         <Home className="h-5 w-5 text-primary" />
-                        <span className="font-semibold">{t.checkout.homeDelivery}</span>
-                      </Label>
-                      <p className="text-sm text-muted-foreground mt-1">{t.checkout.homeDeliveryDesc}</p>
+                        <span className="font-bold text-lg">{t.checkout?.homeDelivery || "Home Delivery"}</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-2">{t.checkout?.homeDeliveryDesc || "Delivered directly to your doorstep."}</p>
                       {currentRate && (
-                        <span className="inline-block mt-2 text-sm font-medium text-primary">
+                        <span className="inline-block text-sm font-bold text-primary bg-primary/10 px-2 py-1 rounded-md">
                           {currentRate.home_price} DA
                         </span>
                       )}
                     </div>
-                  </div>
+                  </label>
                 </RadioGroup>
                 {errors.deliveryType && (
-                  <p className="text-sm text-destructive mt-2">{errors.deliveryType}</p>
+                  <p className="text-sm text-destructive mt-2 font-medium">{errors.deliveryType}</p>
                 )}
 
                 {shippingInfo.deliveryType === 'home' && (
-                  <div className="mt-4 pt-4 border-t border-border">
-                    <Label htmlFor="address">{t.checkout.deliveryAddress}</Label>
+                  <div className="mt-6 pt-6 border-t border-border/50 animate-in fade-in slide-in-from-top-2">
+                    <Label htmlFor="address" className="text-sm font-semibold mb-2 block">{t.checkout?.deliveryAddress || "Home Address"}</Label>
                     <Input
                       id="address"
                       value={shippingInfo.address}
                       onChange={(e) => setShippingInfo({ ...shippingInfo, address: e.target.value })}
-                      placeholder={t.checkout.addressPlaceholder}
-                      className="mt-2"
+                      placeholder={t.checkout?.addressPlaceholder || "Street address, Building, Apartment..."}
+                      className="h-12 rounded-xl bg-background/50 border-border/50 focus-visible:ring-primary"
                     />
-                    {errors.address && <p className="text-sm text-destructive mt-1">{errors.address}</p>}
+                    {errors.address && <p className="text-sm text-destructive mt-1 font-medium">{errors.address}</p>}
                   </div>
                 )}
               </div>
 
               {/* Payment info */}
-              <div className="bg-card rounded-xl border border-border p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <CheckCircle className="h-5 w-5 text-primary" />
-                  <h2 className="text-xl font-bold text-foreground">{t.checkout.payment}</h2>
+              <div className="bg-card/40 backdrop-blur-xl rounded-3xl border border-border/50 p-6 md:p-8 shadow-sm">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                    <CheckCircle className="h-5 w-5" />
+                  </div>
+                  <h2 className="text-xl font-bold text-foreground">{t.checkout?.payment || "Payment Method"}</h2>
                 </div>
-                <div className="flex items-center gap-3 p-4 bg-success/10 rounded-lg">
-                  <CheckCircle className="h-5 w-5 text-success" />
+                <div className="flex items-center gap-4 p-5 bg-success/5 border border-success/20 rounded-2xl">
+                  <div className="h-12 w-12 rounded-full bg-success/10 flex items-center justify-center shrink-0">
+                    <CheckCircle className="h-6 w-6 text-success" />
+                  </div>
                   <div>
-                    <p className="font-medium text-foreground">{t.checkout.cashOnDelivery}</p>
-                    <p className="text-sm text-muted-foreground">{t.checkout.cashOnDeliveryDesc}</p>
+                    <p className="font-bold text-foreground text-lg">{t.checkout?.cashOnDelivery || "Cash on Delivery"}</p>
+                    <p className="text-sm text-muted-foreground">{t.checkout?.cashOnDeliveryDesc || "Pay when you receive your order."}</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Order summary */}
-            <div className="lg:col-span-1">
-              <div className="bg-card rounded-xl border border-border p-6 sticky top-24">
-                <h2 className="text-xl font-bold text-foreground mb-4">{t.cart.orderSummary}</h2>
+            <div className="lg:col-span-5 relative">
+              <div className="bg-card/40 backdrop-blur-xl rounded-3xl border border-border/50 p-6 md:p-8 shadow-lg sticky top-24">
+                <h2 className="text-xl font-bold text-foreground mb-6 pb-4 border-b border-border/50">
+                  {t.cart?.orderSummary || "Order Summary"}
+                </h2>
 
-                <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
+                <div className="space-y-4 mb-6 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                   {checkoutItems.map((item) => (
-                    <div key={item.product_id || item.pack_id} className="flex gap-3">
-                      <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted flex-shrink-0">
-                        {item.image_url && (
+                    <div key={item.product_id || item.pack_id} className="flex gap-4 p-3 rounded-2xl hover:bg-muted/30 transition-colors">
+                      <div className="w-16 h-16 rounded-xl overflow-hidden bg-muted flex-shrink-0 border border-border/50">
+                        {item.image_url ? (
                           <img src={item.image_url} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <ShoppingBag className="h-6 w-6 text-muted-foreground/50" />
+                          </div>
                         )}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground line-clamp-1">{item.name}</p>
-                        <p className="text-xs text-muted-foreground">{t.packs.qty} {item.quantity}</p>
+                      <div className="flex-1 min-w-0 flex flex-col justify-center">
+                        <p className="text-sm font-bold text-foreground line-clamp-1">{item.name}</p>
+                        <p className="text-xs text-muted-foreground mt-1 bg-muted/50 inline-block px-1.5 py-0.5 rounded-md self-start">
+                          {t.packs?.qty || "Qty"}: {item.quantity}
+                        </p>
                       </div>
-                      <span className="text-sm font-medium">
-                        {(item.price * item.quantity).toFixed(0)} {t.common.da}
-                      </span>
+                      <div className="flex flex-col justify-center text-right">
+                        <span className="text-sm font-bold">
+                          {(item.price * item.quantity).toLocaleString()} <span className="text-xs font-normal text-muted-foreground">DA</span>
+                        </span>
+                      </div>
                     </div>
                   ))}
                 </div>
 
-                <div className="mb-4">
+                <div className="mb-6">
+                  <Label className="text-xs font-semibold text-muted-foreground mb-2 block uppercase tracking-wider">{t.checkout?.promoCode || "Have a promo code?"}</Label>
                   <div className="flex gap-2">
                     <Input
-                      placeholder={t.checkout?.enterPromoCode || "Enter Promo Code"}
+                      placeholder={t.checkout?.enterPromoCode || "Enter Code"}
                       value={couponCode}
                       onChange={(e) => setCouponCode(e.target.value)}
                       disabled={isValidatingCoupon || appliedCoupon !== null}
+                      className="bg-background/50 border-border/50"
                     />
                     {appliedCoupon ? (
                       <Button
@@ -696,45 +753,57 @@ export default function Checkout() {
                       </Button>
                     )}
                   </div>
-                  {couponError && <p className="text-xs text-destructive mt-1">{couponError}</p>}
-                  {appliedCoupon && <p className="text-xs text-success mt-1">Coupon applied!</p>}
+                  {couponError && <p className="text-xs text-destructive mt-2 font-medium flex items-center gap-1"><X className="h-3 w-3" /> {couponError}</p>}
+                  {appliedCoupon && <p className="text-xs text-success mt-2 font-bold flex items-center gap-1"><CheckCircle className="h-3 w-3" /> Coupon applied!</p>}
                 </div>
 
-                <div className="border-t border-border pt-4 space-y-2">
+                <div className="border-t border-border/50 pt-4 space-y-3">
                   <div className="flex justify-between text-muted-foreground">
-                    <span>{t.cart.subtotal}</span>
-                    <span>{itemsTotal.toFixed(0)} {t.common.da}</span>
+                    <span>{t.cart?.subtotal || "Subtotal"}</span>
+                    <span className="font-mono">{itemsTotal.toLocaleString()} {t.common?.da || "DA"}</span>
                   </div>
                   {appliedCoupon && (
-                    <div className="flex justify-between text-success">
+                    <div className="flex justify-between text-success font-medium">
                       <span>{t.common?.discount || "Discount"} ({appliedCoupon.code})</span>
-                      <span>-{discountAmount.toFixed(0)} {t.common.da}</span>
+                      <span>-{discountAmount.toLocaleString()} {t.common?.da || "DA"}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-muted-foreground">
                     <span>
-                      {t.checkout.shippingCost}
-                      {selectedCompany && ` (${selectedCompany.name})`}
+                      {t.checkout?.shippingCost || "Shipping"}
+                      {selectedCompany && <span className="text-xs ml-1 bg-muted px-1.5 py-0.5 rounded-md text-foreground">{selectedCompany.name}</span>}
                     </span>
-                    <span>{shippingCost} {t.common.da}</span>
+                    <span className={!currentRate ? "text-muted-foreground/50 italic" : "font-mono"}>
+                      {currentRate ? `${shippingCost} ${t.common?.da || "DA"}` : "--"}
+                    </span>
                   </div>
-                  <div className="flex justify-between text-lg font-bold text-foreground pt-2 border-t border-border">
-                    <span>{t.cart.total}</span>
-                    <span>{totalWithShipping.toFixed(0)} {t.common.da}</span>
+                  <div className="flex justify-between items-end pt-4 border-t border-border/50 mt-2">
+                    <span className="text-lg font-bold text-foreground">{t.cart?.total || "Total"}</span>
+                    <span className="text-3xl font-extrabold text-primary">{totalWithShipping.toLocaleString()} <span className="text-sm font-medium text-muted-foreground">{t.common?.da || "DA"}</span></span>
                   </div>
                 </div>
 
                 <Button
                   type="submit"
-                  size="lg"
-                  className="w-full mt-6"
+                  size="xl"
+                  className="w-full mt-8 text-lg font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-1"
                   disabled={isProcessing || !shippingInfo.companyId}
                 >
-                  {isProcessing ? t.checkout.processing : t.checkout.confirmOrder}
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      {t.checkout?.processing || "Processing..."}
+                    </>
+                  ) : (
+                    <>
+                      {t.checkout?.confirmOrder || "Confirm Order"}
+                      <ChevronRight className="ml-2 h-5 w-5" />
+                    </>
+                  )}
                 </Button>
 
                 <p className="text-xs text-muted-foreground text-center mt-4">
-                  {t.cart.algeriaOnly}
+                  {t.cart?.algeriaOnly || "Shipping to all 58 Wilayas"}
                 </p>
               </div>
             </div>
