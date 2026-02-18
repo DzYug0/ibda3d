@@ -108,7 +108,15 @@ export default function ProfilePage() {
     navigate('/');
   };
 
-  if (authLoading) return null;
+  if (authLoading) {
+    return (
+      <Layout>
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </Layout>
+    );
+  }
   if (!user) return <Navigate to="/auth" replace />;
 
   const displayInitials = profile.username?.substring(0, 2).toUpperCase() || (user.email?.substring(0, 2).toUpperCase()) || 'U';
@@ -118,7 +126,7 @@ export default function ProfilePage() {
       <div className="min-h-[80vh] bg-muted/30 py-12 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 pointer-events-none" />
 
-        <ScrollReveal className="container mx-auto px-4 max-w-6xl relative z-10">
+        <div className="container mx-auto px-4 max-w-6xl relative z-10">
           <div className="flex flex-col lg:flex-row gap-8">
 
             {/* Sidebar / User Info */}
@@ -294,7 +302,7 @@ export default function ProfilePage() {
               </Tabs>
             </div>
           </div>
-        </ScrollReveal>
+        </div>
       </div>
     </Layout>
   );
