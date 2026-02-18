@@ -230,7 +230,7 @@ export default function Index() {
 
       {/* Featured Products */}
       <section className="py-20 bg-muted/30 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-5 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 pointer-events-none" />
         <ScrollReveal className="container mx-auto px-4 relative z-10">
           <div className="flex justify-between items-end mb-10">
             <div>
