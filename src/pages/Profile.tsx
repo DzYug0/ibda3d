@@ -22,7 +22,9 @@ interface Profile {
   avatar_url: string | null;
 }
 
-export default function ProfilePage() {
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+
+function ProfileContent() {
   const { user, signOut, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const { t } = useLanguage();
@@ -56,9 +58,9 @@ export default function ProfilePage() {
     const { error } = await supabase.from('profiles').update({ username: profile.username }).eq('user_id', user.id);
     setSaving(false);
     if (error) {
-      toast({ title: t.common.error, description: t.profile.updateError, variant: 'destructive' });
+      toast({ title: t.common?.error || 'Error', description: t.profile?.updateError || 'Failed to update profile', variant: 'destructive' });
     } else {
-      toast({ title: t.profile.profileUpdated, description: t.profile.changesSaved });
+      toast({ title: t.profile?.profileUpdated || 'Profile updated', description: t.profile?.changesSaved || 'Changes saved' });
     }
   };
 
@@ -170,7 +172,7 @@ export default function ProfilePage() {
                     onClick={handleSignOut}
                   >
                     <LogOut className="h-4 w-4 mr-2 transition-transform group-hover/btn:-translate-x-1" />
-                    {t.nav.signOut}
+                    {t.nav?.signOut || 'Sign Out'}
                   </Button>
                 </div>
               </div>
@@ -229,7 +231,7 @@ export default function ProfilePage() {
                   <div className="space-y-6">
                     <div className="bg-card/60 backdrop-blur-xl border border-border/50 rounded-3xl p-6 shadow-sm">
                       <div className="mb-6 pb-4 border-b border-border/50">
-                        <h3 className="text-xl font-bold text-foreground">{t.profile.title}</h3>
+                        <h3 className="text-xl font-bold text-foreground">{t.profile?.title || 'My Profile'}</h3>
                         <p className="text-sm text-muted-foreground">Update your public profile information.</p>
                       </div>
 
@@ -253,7 +255,7 @@ export default function ProfilePage() {
 
                             <div className="space-y-3">
                               <Label htmlFor="email" className="flex items-center gap-2 text-sm font-medium">
-                                <Mail className="h-4 w-4 text-primary" /> {t.profile.email}
+                                <Mail className="h-4 w-4 text-primary" /> {t.profile?.email || 'Email'}
                               </Label>
                               <Input
                                 id="email"
@@ -267,7 +269,7 @@ export default function ProfilePage() {
                             <div className="pt-4">
                               <Button onClick={handleSave} disabled={saving} className="w-full sm:w-auto min-w-[140px] rounded-full shadow-lg shadow-primary/20">
                                 {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
-                                {t.profile.saveChanges}
+                                {t.profile?.saveChanges || 'Save Changes'}
                               </Button>
                             </div>
                           </>
@@ -305,5 +307,13 @@ export default function ProfilePage() {
         </div>
       </div>
     </Layout>
+  );
+}
+
+export default function ProfilePage() {
+  return (
+    <ErrorBoundary>
+      <ProfileContent />
+    </ErrorBoundary>
   );
 }
