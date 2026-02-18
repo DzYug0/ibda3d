@@ -53,7 +53,6 @@ export function AdminSidebar({ collapsed, setCollapsed, isOwner }: AdminSidebarP
                 ...(isOwner ? [
                     { icon: Tags, label: 'Marketing', path: '/admin/marketing' },
                     { icon: ImageIcon, label: 'Content', path: '/admin/content' },
-                    { icon: Settings, label: 'Settings', path: '/admin/settings' },
                     { icon: History, label: 'Activity', path: '/admin/activity' },
                 ] : [])
             ]

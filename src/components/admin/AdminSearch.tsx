@@ -103,15 +103,6 @@ export function AdminSearch({ open, setOpen }: AdminSearchProps) {
                     ))}
                 </CommandGroup>
 
-                <CommandSeparator />
-
-                <CommandGroup heading="Settings">
-                    <CommandItem onSelect={() => runCommand(() => navigate("/admin/settings"))}>
-                        <Settings className="mr-2 h-4 w-4" />
-                        <span>Settings</span>
-                        <CommandShortcut>⌘S</CommandShortcut>
-                    </CommandItem>
-                </CommandGroup>
             </CommandList>
         </CommandDialog>
     );

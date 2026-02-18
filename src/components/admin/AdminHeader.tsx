@@ -1,4 +1,4 @@
-import { Bell, Search, PanelLeft, Menu } from 'lucide-react';
+import { Bell, Search, PanelLeft, Menu, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -8,11 +8,19 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
 import { AdminSearch } from './AdminSearch';
 import { useState } from 'react';
+import { useAdminProducts } from '@/hooks/useProducts';
+import { useAdminOrders } from '@/hooks/useOrders';
+import { Link } from 'react-router-dom';
 
 interface AdminHeaderProps {
     collapsed: boolean;
@@ -25,8 +33,30 @@ interface AdminHeaderProps {
 export function AdminHeader({ collapsed, setCollapsed, mobileOpen, setMobileOpen, title }: AdminHeaderProps) {
     const { user, signOut } = useAuth();
     const [searchOpen, setSearchOpen] = useState(false);
-    // Mock notifications for now
-    const notifications = 3;
+
+    const { data: products = [] } = useAdminProducts();
+    const { data: orders = [] } = useAdminOrders();
+
+    const lowStockProducts = products.filter(p => p.stock_quantity <= 5);
+    const pendingOrders = orders.filter(o => o.status === 'pending');
+
+    // Combine notifications
+    const notifications = [
+        ...pendingOrders.map(o => ({
+            id: o.id,
+            title: 'New Order Pending',
+            desc: `Order #${o.id.slice(0, 8)} needs processing`,
+            link: `/admin/orders`,
+            type: 'order'
+        })),
+        ...lowStockProducts.map(p => ({
+            id: p.id,
+            title: 'Low Stock Alert',
+            desc: `${p.name} has only ${p.stock_quantity} left`,
+            link: `/admin/products`,
+            type: 'stock'
+        }))
+    ];
 
     return (
         <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-background/80 px-6 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -63,12 +93,46 @@ export function AdminHeader({ collapsed, setCollapsed, mobileOpen, setMobileOpen
             </div>
 
             <div className="flex items-center gap-3">
-                <Button variant="ghost" size="icon" className="relative">
-                    <Bell className="h-5 w-5" />
-                    {notifications > 0 && (
-                        <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-destructive border border-background" />
-                    )}
-                </Button>
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <Button variant="ghost" size="icon" className="relative">
+                            <Bell className="h-5 w-5" />
+                            {notifications.length > 0 && (
+                                <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-destructive border border-background" />
+                            )}
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80 p-0" align="end">
+                        <div className="p-4 font-medium border-b border-border">Notifications</div>
+                        <div className="max-h-[300px] overflow-y-auto">
+                            {notifications.length === 0 ? (
+                                <div className="p-4 text-center text-sm text-muted-foreground">
+                                    No new notifications
+                                </div>
+                            ) : (
+                                notifications.map((notif, i) => (
+                                    <Link
+                                        key={i}
+                                        to={notif.link}
+                                        className="block p-4 hover:bg-muted/50 border-b border-border last:border-0 transition-colors"
+                                    >
+                                        <div className="flex items-start gap-3">
+                                            {notif.type === 'stock' ? (
+                                                <AlertTriangle className="h-4 w-4 text-orange-500 mt-0.5" />
+                                            ) : (
+                                                <Bell className="h-4 w-4 text-blue-500 mt-0.5" />
+                                            )}
+                                            <div>
+                                                <p className="text-sm font-medium">{notif.title}</p>
+                                                <p className="text-xs text-muted-foreground mt-1">{notif.desc}</p>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                ))
+                            )}
+                        </div>
+                    </PopoverContent>
+                </Popover>
 
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -82,15 +146,12 @@ export function AdminHeader({ collapsed, setCollapsed, mobileOpen, setMobileOpen
                     <DropdownMenuContent className="w-56" align="end" forceMount>
                         <DropdownMenuLabel className="font-normal">
                             <div className="flex flex-col space-y-1">
-                                <p className="text-sm font-medium leading-none">Admin User</p>
+                                <p className="text-sm font-medium leading-none">Admin</p>
                                 <p className="text-xs leading-none text-muted-foreground">
                                     {user?.email}
                                 </p>
                             </div>
                         </DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>Profile</DropdownMenuItem>
-                        <DropdownMenuItem>Settings</DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => signOut()}>
                             Log out
