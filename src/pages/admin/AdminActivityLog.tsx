@@ -313,7 +313,8 @@ export default function AdminActivityLog() {
       </div>
 
       {/* Activity table */}
-      <div className="bg-card/60 backdrop-blur-md rounded-xl border border-border/50 overflow-hidden shadow-sm">
+      {/* Activity table (Desktop) */}
+      <div className="hidden md:block bg-card/60 backdrop-blur-md rounded-xl border border-border/50 overflow-hidden shadow-sm">
         <Table>
           <TableHeader>
             <TableRow>
@@ -374,6 +375,52 @@ export default function AdminActivityLog() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="md:hidden grid grid-cols-1 gap-4">
+        {isLoading ? (
+          Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-24 bg-card/60 rounded-xl border border-border/50 animate-pulse" />
+          ))
+        ) : filteredLogs.length === 0 ? (
+          <div className="text-center py-12 text-muted-foreground">
+            No activity logs found
+          </div>
+        ) : (
+          filteredLogs.map((log) => {
+            const TargetIcon = targetIcons[log.target_type] || Shield;
+            return (
+              <div key={log.id} className="bg-card/60 backdrop-blur-md rounded-xl border border-border/50 p-4 shadow-sm flex flex-col gap-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <div className="p-2 rounded-lg bg-muted/50 border border-border/50">
+                      <TargetIcon className="h-4 w-4 text-primary" />
+                    </div>
+                    <div>
+                      <Badge
+                        variant="outline"
+                        className={`mb-1 ${actionColors[log.action] || 'bg-muted text-muted-foreground'}`}
+                      >
+                        {actionLabels[log.action] || log.action}
+                      </Badge>
+                      <p className="text-xs text-muted-foreground">
+                        by <span className="text-foreground font-medium">{log.actor_name || log.actor_email}</span>
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">
+                    {formatDistanceToNow(new Date(log.created_at), { addSuffix: true })}
+                  </span>
+                </div>
+
+                <div className="pt-3 border-t border-border/50 text-sm">
+                  {formatDetails(log)}
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );

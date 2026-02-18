@@ -295,8 +295,8 @@ export function ProductsTable({
         </Button>
       </div>
 
-      {/* Products table */}
-      <div className="bg-card/60 backdrop-blur-md rounded-xl border border-border/50 overflow-hidden shadow-sm">
+      {/* Products table (Desktop) */}
+      <div className="hidden md:block bg-card/60 backdrop-blur-md rounded-xl border border-border/50 overflow-hidden shadow-sm">
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/30 hover:bg-muted/30">
@@ -463,6 +463,85 @@ export function ProductsTable({
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="md:hidden grid grid-cols-1 gap-4">
+        {isLoading ? (
+          Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-32 skeleton rounded-xl bg-muted/60" />
+          ))
+        ) : filteredProducts.length === 0 ? (
+          <div className="h-32 text-center flex flex-col items-center justify-center text-muted-foreground bg-card/30 rounded-xl border border-dashed border-border/50">
+            <Search className="h-8 w-8 mb-2 opacity-50" />
+            <p>{products.length === 0 ? 'No products found' : 'No matches found'}</p>
+          </div>
+        ) : (
+          filteredProducts.map((product) => (
+            <div
+              key={product.id}
+              className={`bg-card/60 backdrop-blur-md rounded-xl border border-border/50 p-4 shadow-sm ${selectedIds.has(product.id) ? 'border-primary/50 bg-primary/5' : ''}`}
+            >
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="h-16 w-16 rounded-lg overflow-hidden bg-muted flex-shrink-0 border border-border/50">
+                    {product.image_url ? (
+                      <img
+                        src={product.image_url}
+                        alt={product.name}
+                        loading="lazy"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-muted">
+                        <span className="text-[10px]">No Img</span>
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-foreground line-clamp-1">{product.name}</h3>
+                    <p className="text-xs text-muted-foreground font-mono mb-1">{product.slug}</p>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-primary">{product.price.toLocaleString()} DA</span>
+                      <Badge variant="outline" className="text-[10px] h-5 px-1.5">
+                        Qty: {product.stock_quantity}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+                <Checkbox
+                  checked={selectedIds.has(product.id)}
+                  onCheckedChange={() => toggleSelectOne(product.id)}
+                />
+              </div>
+
+              <div className="flex items-center justify-between pt-3 border-t border-border/50">
+                <div className="flex gap-1.5">
+                  <Badge variant={product.is_active ? 'default' : 'secondary'} className={`text-[10px] h-5 px-1.5 ${product.is_active ? 'bg-emerald-500/15 text-emerald-600' : ''}`}>
+                    {product.is_active ? 'Active' : 'Inactive'}
+                  </Badge>
+                  {product.is_featured && (
+                    <Badge variant="secondary" className="text-[10px] h-5 px-1.5 bg-amber-500/15 text-amber-600">
+                      Featured
+                    </Badge>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-1">
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit(product)}>
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onDuplicate(product)}>
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={() => onDelete(product.id, product.name)}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       <BulkEditProductDialog

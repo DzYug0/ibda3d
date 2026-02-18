@@ -305,7 +305,8 @@ export default function AdminOrders() {
         </div>
       </div>
 
-      <div className="bg-card/60 backdrop-blur-md rounded-xl border border-border/50 overflow-hidden shadow-sm">
+      {/* Orders Table (Desktop) */}
+      <div className="hidden md:block bg-card/60 backdrop-blur-md rounded-xl border border-border/50 overflow-hidden shadow-sm">
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/30 hover:bg-muted/30">
@@ -433,6 +434,107 @@ export default function AdminOrders() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="md:hidden grid grid-cols-1 gap-4">
+        {isLoading ? (
+          Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-40 skeleton rounded-xl bg-muted/60" />
+          ))
+        ) : filteredOrders.length === 0 ? (
+          <div className="h-32 text-center flex flex-col items-center justify-center text-muted-foreground bg-card/30 rounded-xl border border-dashed border-border/50">
+            <Search className="h-8 w-8 mb-2 opacity-50" />
+            <p>No orders match your filters</p>
+          </div>
+        ) : (
+          filteredOrders.map((order) => {
+            const parsed = parseNotes(order.notes);
+            return (
+              <div
+                key={order.id}
+                className={`bg-card/60 backdrop-blur-md rounded-xl border border-border/50 p-4 shadow-sm ${selectedIds.has(order.id) ? 'border-primary/50 bg-primary/5' : ''}`}
+              >
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex items-center gap-3">
+                    <Checkbox
+                      checked={selectedIds.has(order.id)}
+                      onCheckedChange={() => toggleSelectOne(order.id)}
+                    />
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-sm font-bold text-primary">#{order.id.slice(0, 8)}</span>
+                        <span className="text-xs text-muted-foreground">• {format(new Date(order.created_at), 'MMM dd')}</span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-1">
+                        {parsed.name ? (
+                          <span className="text-sm font-medium text-foreground">{parsed.name}</span>
+                        ) : <span className="text-sm text-muted-foreground italic">Guest</span>}
+                      </div>
+                    </div>
+                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className={`h-6 px-2 text-[10px] border ${statusColors[order.status] || 'bg-muted text-muted-foreground border-border'}`}>
+                        {statuses.find(s => s.value === order.status)?.label || order.status}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      {statuses.map((s) => (
+                        <DropdownMenuItem key={s.value} onClick={() => handleStatusChange(order.id, s.value as OrderStatus)}>
+                          <div className={`w-2 h-2 rounded-full mr-2 ${statusColors[s.value].split(' ')[0].replace('/10', '')}`} />
+                          {s.label}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+
+                <div className="bg-muted/30 rounded-lg p-3 mb-3 text-sm space-y-1">
+                  {order.items?.slice(0, 3).map((item: any, idx: number) => (
+                    <div key={idx} className="flex justify-between text-muted-foreground">
+                      <span className="truncate max-w-[200px]">{item.product_name}</span>
+                      <span className="font-mono text-xs">x{item.quantity}</span>
+                    </div>
+                  ))}
+                  {(order.items?.length || 0) > 3 && (
+                    <div className="text-xs text-muted-foreground pt-1 italic">
+                      +{order.items!.length - 3} more items...
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                  <div className="font-bold text-foreground text-lg">
+                    {order.total_amount.toLocaleString()} DA
+                  </div>
+                  <div className="flex gap-2">
+                    <OrderDetailsDialog
+                      order={order}
+                      trigger={
+                        <Button variant="outline" size="sm" className="h-8">
+                          Details
+                        </Button>
+                      }
+                    />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => {
+                        if (confirm('Are you sure you want to delete this order?')) {
+                          deleteOrder.mutate(order.id);
+                        }
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );

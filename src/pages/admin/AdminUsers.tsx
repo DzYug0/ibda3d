@@ -352,8 +352,8 @@ export default function AdminUsers() {
         </div>
       </div>
 
-      {/* Users table */}
-      <div className="bg-card/60 backdrop-blur-md rounded-xl border border-border/50 overflow-hidden shadow-sm">
+      {/* Users table (Desktop) */}
+      <div className="hidden md:block bg-card/60 backdrop-blur-md rounded-xl border border-border/50 overflow-hidden shadow-sm">
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/30 hover:bg-muted/30">
@@ -505,6 +505,145 @@ export default function AdminUsers() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="md:hidden grid grid-cols-1 gap-4">
+        {isLoading ? (
+          Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-40 skeleton rounded-xl bg-muted/60" />
+          ))
+        ) : filteredUsers.length === 0 ? (
+          <div className="h-32 text-center flex flex-col items-center justify-center text-muted-foreground bg-card/30 rounded-xl border border-dashed border-border/50">
+            <Search className="h-8 w-8 mb-2 opacity-50" />
+            <p>No users found</p>
+          </div>
+        ) : (
+          filteredUsers.map((user) => {
+            const RoleIcon = roleIcons[user.role];
+            const isCurrentUser = user.id === currentUser?.id;
+            const canEdit = isOwner || (currentUserRole === 'admin' && user.role === 'user');
+
+            return (
+              <div
+                key={user.id}
+                className="bg-card/60 backdrop-blur-md rounded-xl border border-border/50 p-4 shadow-sm"
+              >
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className={`h-10 w-10 rounded-full flex items-center justify-center ${roleColors[user.role].replace('border-primary/20', 'bg-primary/20')}`}>
+                      <RoleIcon className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-foreground">@{user.username || 'No username'}</span>
+                        {isCurrentUser && <Badge variant="secondary" className="text-[10px] h-4 px-1">You</Badge>}
+                      </div>
+                      <p className="text-xs text-muted-foreground">{user.email}</p>
+                    </div>
+                  </div>
+                  {user.is_banned ? (
+                    <Badge variant="destructive" className="h-6">Banned</Badge>
+                  ) : (
+                    <Badge variant="outline" className="h-6 bg-emerald-500/10 text-emerald-600 border-emerald-500/20">Active</Badge>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground mb-3 bg-muted/30 p-2 rounded-lg">
+                  <div>
+                    <span className="block text-xs uppercase opacity-70">Joined</span>
+                    <span className="font-medium text-foreground">{new Date(user.created_at).toLocaleDateString()}</span>
+                  </div>
+                  <div>
+                    <span className="block text-xs uppercase opacity-70">LTV</span>
+                    <span className="font-medium text-foreground">{user.ltv ? `${user.ltv.toLocaleString()} DA` : '0 DA'}</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-2 pt-2 border-t border-border/50">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setDetailsUser(user)}
+                    className="w-full justify-center"
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    View Details
+                  </Button>
+
+                  {!isCurrentUser && canEdit && (
+                    <div className="flex items-center gap-2">
+                      <Select
+                        value={user.role}
+                        onValueChange={(value) => handleRoleChange(user.id, value as AppRole)}
+                        disabled={updateRoleMutation.isPending}
+                      >
+                        <SelectTrigger className="w-full h-9 text-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {isOwner && <SelectItem value="owner">Owner</SelectItem>}
+                          <SelectItem value="admin">Admin</SelectItem>
+                          <SelectItem value="user">User</SelectItem>
+                        </SelectContent>
+                      </Select>
+
+                      {isOwner && !isCurrentUser && (
+                        <>
+                          {user.is_banned ? (
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => manageUserMutation.mutate({ action: 'unban', userId: user.id, userEmail: user.email })}
+                              disabled={manageUserMutation.isPending}
+                              className="h-9 w-9 border-success/30 text-success hover:bg-success/10 hover:text-success shrink-0"
+                            >
+                              <ShieldOff className="h-4 w-4" />
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => { setBanTarget(user); setBanReason(''); setBanDialogOpen(true); }}
+                              disabled={manageUserMutation.isPending}
+                              className="h-9 w-9 text-destructive hover:bg-destructive/10 shrink-0"
+                            >
+                              <Ban className="h-4 w-4" />
+                            </Button>
+                          )}
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0" disabled={manageUserMutation.isPending}>
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete User</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to permanently delete <strong>{user.email}</strong>? This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => manageUserMutation.mutate({ action: 'delete', userId: user.id, userEmail: user.email })}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
 
       {/* Role explanation */}

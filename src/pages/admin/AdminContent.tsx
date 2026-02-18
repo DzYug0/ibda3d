@@ -192,7 +192,8 @@ export default function AdminContent() {
                 </Button>
             </div>
 
-            <div className="bg-card/60 backdrop-blur-md rounded-xl border border-border/50 overflow-hidden shadow-sm">
+            {/* Banners Table (Desktop) */}
+            <div className="hidden md:block bg-card/60 backdrop-blur-md rounded-xl border border-border/50 overflow-hidden shadow-sm">
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -219,7 +220,7 @@ export default function AdminContent() {
                             banners.map((banner) => (
                                 <TableRow key={banner.id}>
                                     <TableCell>
-                                        <div className="w-24 h-12 bg-muted rounded overflow-hidden">
+                                        <div className="w-24 h-12 bg-muted rounded overflow-hidden border border-border/50">
                                             <img
                                                 src={banner.image_url}
                                                 alt={banner.title}
@@ -269,6 +270,80 @@ export default function AdminContent() {
                         )}
                     </TableBody>
                 </Table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden grid grid-cols-1 gap-4">
+                {isLoading ? (
+                    Array.from({ length: 3 }).map((_, i) => (
+                        <div key={i} className="h-32 bg-card/60 rounded-xl border border-border/50 animate-pulse" />
+                    ))
+                ) : banners.length === 0 ? (
+                    <div className="text-center py-12 text-muted-foreground">
+                        No banners found
+                    </div>
+                ) : (
+                    banners.map((banner) => (
+                        <div key={banner.id} className="bg-card/60 backdrop-blur-md rounded-xl border border-border/50 overflow-hidden shadow-sm flex flex-col">
+                            {/* Banner Image Preview */}
+                            <div className="h-32 w-full bg-muted relative">
+                                <img
+                                    src={banner.image_url}
+                                    alt={banner.title}
+                                    className="w-full h-full object-cover"
+                                />
+                                <div className="absolute top-2 right-2 flex gap-1">
+                                    <Button
+                                        variant="secondary"
+                                        size="icon"
+                                        onClick={() => handleEdit(banner)}
+                                        className="h-8 w-8 shadow-sm bg-background/80 backdrop-blur-sm hover:bg-background"
+                                    >
+                                        <Pencil className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                        variant="destructive"
+                                        size="icon"
+                                        className="h-8 w-8 shadow-sm"
+                                        onClick={() => {
+                                            if (confirm('Delete this banner?')) deleteMutation.mutate(banner.id);
+                                        }}
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                                <Badge
+                                    variant={banner.is_active ? 'default' : 'secondary'}
+                                    className="absolute top-2 left-2 shadow-sm text-[10px] px-1.5 h-5 pointer-events-none"
+                                >
+                                    {banner.is_active ? 'Active' : 'Inactive'}
+                                </Badge>
+                            </div>
+
+                            <div className="p-4 flex flex-col gap-2">
+                                <div>
+                                    <h3 className="font-semibold text-foreground">{banner.title}</h3>
+                                    {banner.link_url && (
+                                        <div className="flex items-center text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                                            <LinkIcon className="h-3 w-3 mr-1 shrink-0" />
+                                            {banner.link_url}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="flex items-center justify-between text-xs pt-2 border-t border-border/50 mt-1">
+                                    <div className="flex items-center gap-1.5">
+                                        <Layout className="h-3.5 w-3.5 text-muted-foreground" />
+                                        <span className="capitalize">{banner.location}</span>
+                                    </div>
+                                    <div className="text-muted-foreground">
+                                        Order: <span className="font-medium text-foreground">{banner.display_order}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                )}
             </div>
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
