@@ -182,6 +182,22 @@ export default function Cart() {
           </div>
         </div>
       </div>
+      {/* Mobile Sticky Checkout Bar */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-lg border-t border-border/50 lg:hidden z-50 animate-in slide-in-from-bottom duration-300">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col">
+            <span className="text-xs text-muted-foreground">{t.cart?.total || "Total"}:</span>
+            <span className="text-xl font-bold text-primary">{cartTotal.toLocaleString()} DA</span>
+          </div>
+          <Button
+            size="lg"
+            className="flex-1 rounded-full shadow-lg font-bold"
+            onClick={() => navigate('/checkout')}
+          >
+            {t.cart?.placeOrder || "Checkout"} <ArrowRight className="ms-2 h-4 w-4" />
+          </Button>
+        </div>
+      </div>
     </Layout>
   );
 }

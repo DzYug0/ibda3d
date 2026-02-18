@@ -41,8 +41,43 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
     );
   }
 
+  // Touch navigation
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      goToNext();
+    } else if (isRightSwipe) {
+      goToPrevious();
+    }
+  };
+
   return (
-    <div className="space-y-4 w-full max-w-full" onKeyDown={handleKeyDown} tabIndex={0}>
+    <div
+      className="space-y-4 w-full max-w-full"
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
       {/* Main Image */}
       <div className="relative group aspect-square rounded-3xl overflow-hidden bg-muted/30 border border-border/50 shadow-sm">
         <img

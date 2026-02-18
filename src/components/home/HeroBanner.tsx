@@ -113,7 +113,7 @@ export function HeroBanner({ banners }: { banners: Banner[] }) {
                 <CarouselContent>
                     {banners.map((banner, index) => (
                         <CarouselItem key={banner.id} className="relative w-full">
-                            <div className="relative w-full aspect-[21/9] min-h-[400px] md:min-h-[500px] lg:min-h-[600px] overflow-hidden bg-muted">
+                            <div className="relative w-full aspect-[4/5] sm:aspect-[16/9] md:aspect-[21/9] min-h-[500px] sm:min-h-[400px] md:min-h-[500px] lg:min-h-[600px] overflow-hidden bg-muted">
                                 <OptimizedImage
                                     src={banner.image_url}
                                     alt={banner.title}
@@ -122,12 +122,12 @@ export function HeroBanner({ banners }: { banners: Banner[] }) {
                                     className="absolute inset-0 w-full h-full object-cover"
                                 />
                                 {/* Overlay Gradient */}
-                                <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent sm:bg-gradient-to-r sm:from-black/60 sm:to-transparent" />
 
-                                <div className="absolute inset-0 flex items-center">
+                                <div className="absolute inset-0 flex items-end sm:items-center pb-16 sm:pb-0">
                                     <div className="container mx-auto px-4">
-                                        <div className="max-w-2xl animate-slide-up">
-                                            <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 text-white leading-tight">
+                                        <div className="max-w-2xl animate-slide-up text-center sm:text-left mx-auto sm:mx-0">
+                                            <h2 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-4 sm:mb-6 text-white leading-tight drop-shadow-lg">
                                                 {banner.title}
                                             </h2>
                                             {banner.link_url && (
