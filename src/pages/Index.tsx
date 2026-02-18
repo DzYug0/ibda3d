@@ -127,7 +127,7 @@ export default function Index() {
             </div>
 
             <Carousel opts={{ align: "center", loop: false }} className="w-full max-w-6xl mx-auto">
-              <CarouselContent className="-ml-6 py-8">
+              <CarouselContent className="-ml-6 py-8 justify-center">
                 {featuredPacks.map(pack => {
                   const individualTotal = pack.items?.reduce((sum, item) => sum + (item.product?.price || 0) * item.quantity, 0) || 0;
                   const savings = individualTotal > pack.price ? individualTotal - pack.price : 0;
@@ -144,7 +144,7 @@ export default function Index() {
                   }
 
                   return (
-                    <CarouselItem key={pack.id} className="pl-6 basis-full md:basis-1/2 lg:basis-1/3">
+                    <CarouselItem key={pack.id} className="pl-6 basis-full md:basis-1/2 lg:basis-1/3 max-w-md">
                       <Link to={`/packs/${pack.slug}`} className="block h-full group">
                         <div className="bg-card/40 backdrop-blur-md rounded-3xl overflow-hidden shadow-xl border border-border/50 h-full flex flex-col hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 relative">
                           {/* Floating Badge */}
@@ -222,8 +222,9 @@ export default function Index() {
                   );
                 })}
               </CarouselContent>
-              <CarouselPrevious className="left-0 md:-left-8 bg-background/50 hover:bg-background border-0 backdrop-blur-md" />
-              <CarouselNext className="right-0 md:-right-8 bg-background/50 hover:bg-background border-0 backdrop-blur-md" />
+              <div className="flex justify-center mt-8">
+                <CarouselDots />
+              </div>
             </Carousel>
           </ScrollReveal>
         </section>
