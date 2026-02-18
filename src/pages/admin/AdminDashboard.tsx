@@ -100,22 +100,22 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stats grid */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {stats.map((stat, i) => (
           <div
             key={stat.label}
-            className="bg-card/60 backdrop-blur-md rounded-2xl border border-border/50 p-6 shadow-sm hover:shadow-md transition-all duration-300 group"
+            className="bg-card/60 backdrop-blur-md rounded-2xl border border-border/50 p-4 sm:p-6 shadow-sm hover:shadow-md transition-all duration-300 group"
             style={{ animationDelay: `${i * 100}ms` }}
           >
-            <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.color} group-hover:scale-110 transition-transform duration-300`}>
-                <stat.icon className="h-6 w-6" />
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4 text-center sm:text-left">
+              <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center ${stat.color} group-hover:scale-110 transition-transform duration-300`}>
+                <stat.icon className="h-5 w-5 sm:h-6 sm:w-6" />
               </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
-                <p className="text-2xl font-bold text-foreground tracking-tight">{stat.value}</p>
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground truncate">{stat.label}</p>
+                <p className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">{stat.value}</p>
                 {stat.subtext && (
-                  <p className="text-xs text-muted-foreground mt-1">{stat.subtext}</p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1 truncate max-w-[100px] sm:max-w-none">{stat.subtext}</p>
                 )}
               </div>
             </div>
