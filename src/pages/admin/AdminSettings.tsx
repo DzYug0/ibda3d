@@ -11,6 +11,9 @@ import { Separator } from '@/components/ui/separator';
 
 interface StoreSettings {
     store_name: string;
+    store_address: string;
+    store_city: string;
+    store_country: string;
     contact_email: string;
     contact_phone: string;
     social_facebook: string;
@@ -23,6 +26,9 @@ interface StoreSettings {
 
 const DEFAULT_SETTINGS: StoreSettings = {
     store_name: 'Ibda3D',
+    store_address: '',
+    store_city: '',
+    store_country: 'Algeria',
     contact_email: '',
     contact_phone: '',
     social_facebook: '',
@@ -145,6 +151,35 @@ export default function AdminSettings() {
                                 id="store_name"
                                 value={settings.store_name}
                                 onChange={(e) => handleChange('store_name', e.target.value)}
+                                className="bg-background/50"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="store_address">Address Line</Label>
+                            <Input
+                                id="store_address"
+                                value={settings.store_address}
+                                onChange={(e) => handleChange('store_address', e.target.value)}
+                                className="bg-background/50"
+                                placeholder="123 Main St"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="store_city">City</Label>
+                            <Input
+                                id="store_city"
+                                value={settings.store_city}
+                                onChange={(e) => handleChange('store_city', e.target.value)}
+                                className="bg-background/50"
+                                placeholder="Algiers"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="store_country">Country</Label>
+                            <Input
+                                id="store_country"
+                                value={settings.store_country}
+                                onChange={(e) => handleChange('store_country', e.target.value)}
                                 className="bg-background/50"
                             />
                         </div>

@@ -1,6 +1,8 @@
 import React from 'react';
 import { format } from 'date-fns';
 import logo from '@/assets/logo.png';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 interface OrderInvoiceProps {
     order: any;
@@ -8,9 +10,29 @@ interface OrderInvoiceProps {
 
 export const OrderInvoice = React.forwardRef<HTMLDivElement, OrderInvoiceProps>(
     ({ order }, ref) => {
+        // Fetch store settings
+        const { data: settings } = useQuery({
+            queryKey: ['store-settings-invoice'],
+            queryFn: async () => {
+                const { data, error } = await supabase
+                    .from('store_settings')
+                    .select('*');
+
+                if (error) throw error;
+
+                const settingsMap: Record<string, any> = {};
+                data.forEach(item => {
+                    // @ts-ignore
+                    const val = item.value;
+                    settingsMap[item.key] = (val && typeof val === 'object' && 'val' in val) ? val.val : val;
+                });
+                return settingsMap;
+            },
+        });
+
         // Basic note parsing to get customer details
         const parseNotes = (notes: string | null) => {
-            if (!notes) return { name: null, phone: null, address: null, company: null };
+            if (!notes) return { name: null, phone: null, address: null, company: null, shipping: null };
             const extract = (key: string) => {
                 const match = notes.match(new RegExp(`${key}:\\s*([^|]+)`));
                 return match ? match[1].trim() : null;
@@ -25,16 +47,29 @@ export const OrderInvoice = React.forwardRef<HTMLDivElement, OrderInvoiceProps>(
         };
 
         const customer = parseNotes(order.notes);
+        const storeName = settings?.store_name || 'Ibda3D Store';
+        const storeAddress = settings?.store_address || '123 3D Print Street';
+        const storeCity = settings?.store_city || 'Algiers';
+        const storeCountry = settings?.store_country || 'Algeria';
+        const storeEmail = settings?.contact_email || 'contact@ibda3d.com';
+        const storePhone = settings?.contact_phone || '+213 555 123 456';
 
         return (
-            <div ref={ref} className="p-8 bg-white text-black min-h-[1000px] w-full max-w-[800px] mx-auto print:mx-0 print:w-full print:max-w-none print:min-h-0">
+            <div ref={ref} className="p-8 bg-white text-black min-h-[1000px] w-full max-w-[800px] mx-auto print:mx-0 print:w-full print:max-w-none print:min-h-0 font-sans">
+                <style type="text/css" media="print">
+                    {`
+                        @page { size: auto; margin: 20mm; }
+                        body { -webkit-print-color-adjust: exact; }
+                    `}
+                </style>
+
                 {/* Header */}
                 <div className="flex justify-between items-start mb-8 border-b pb-6">
                     <div className="flex items-center gap-4">
                         {/* Logo placeholder if image fails */}
                         <div className="h-16 w-auto flex items-center justify-center">
-                            <img src={logo} alt="Ibda3D Logo" className="h-full object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
-                            <span className="text-2xl font-bold ml-2">Ibda3D</span>
+                            <img src={logo} alt={storeName} className="h-full object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                            <span className="text-2xl font-bold ml-2 text-gray-900">{storeName}</span>
                         </div>
                     </div>
                     <div className="text-right">
@@ -58,14 +93,13 @@ export const OrderInvoice = React.forwardRef<HTMLDivElement, OrderInvoiceProps>(
                         </div>
                     </div>
                     <div>
-                        {/* Can add From details here if needed */}
                         <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 border-b pb-2">From</h3>
                         <div className="space-y-1 text-sm text-gray-700">
-                            <p className="font-bold text-gray-900">Ibda3D Store</p>
-                            <p>123 3D Print Street</p>
-                            <p>Algiers, Algeria</p>
-                            <p>contact@ibda3d.com</p>
-                            <p>+213 555 123 456</p>
+                            <p className="font-bold text-gray-900">{storeName}</p>
+                            <p>{storeAddress}</p>
+                            <p>{storeCity}, {storeCountry}</p>
+                            <p>{storeEmail}</p>
+                            <p>{storePhone}</p>
                         </div>
                     </div>
                 </div>
@@ -135,7 +169,7 @@ export const OrderInvoice = React.forwardRef<HTMLDivElement, OrderInvoiceProps>(
                 {/* Footer */}
                 <div className="mt-20 pt-8 border-t border-gray-100 text-center text-sm text-gray-400">
                     <p>Thank you for your business!</p>
-                    <p className="mt-1">For any inquiries, please contact support@ibda3d.com</p>
+                    <p className="mt-1">For any inquiries, please contact {storeEmail}</p>
                 </div>
             </div>
         );
