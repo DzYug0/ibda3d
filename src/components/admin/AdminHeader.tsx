@@ -11,6 +11,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
+import { AdminSearch } from './AdminSearch';
+import { useState } from 'react';
 
 interface AdminHeaderProps {
     collapsed: boolean;
@@ -22,6 +24,7 @@ interface AdminHeaderProps {
 
 export function AdminHeader({ collapsed, setCollapsed, mobileOpen, setMobileOpen, title }: AdminHeaderProps) {
     const { user, signOut } = useAuth();
+    const [searchOpen, setSearchOpen] = useState(false);
     // Mock notifications for now
     const notifications = 3;
 
@@ -48,7 +51,10 @@ export function AdminHeader({ collapsed, setCollapsed, mobileOpen, setMobileOpen
             </Button>
 
             <div className="flex-1 flex justify-center max-w-xl mx-auto">
-                <div className="relative w-full max-w-md hidden sm:block">
+                <div
+                    className="relative w-full max-w-md hidden sm:block"
+                    onClick={() => setSearchOpen(true)}
+                >
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <div className="h-9 w-full rounded-md border border-input bg-muted/50 pl-9 pr-4 text-sm text-muted-foreground flex items-center cursor-text hover:bg-muted/80 transition-colors">
                         Search products, orders... (Ctrl+K)
@@ -92,6 +98,8 @@ export function AdminHeader({ collapsed, setCollapsed, mobileOpen, setMobileOpen
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
+
+            <AdminSearch open={searchOpen} setOpen={setSearchOpen} />
         </header>
     );
 }
