@@ -65,115 +65,114 @@ export function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
 
                 urls.push(publicUrl);
             }
-        }
         } catch (error: any) {
-        console.error('Error uploading images:', error);
-        toast.error(`Failed to upload images: ${error.message || 'Unknown error'}`);
-        throw error; // Stop submission
-    } finally {
-        setIsUploading(false);
-    }
+            console.error('Error uploading images:', error);
+            toast.error(`Failed to upload images: ${error.message || 'Unknown error'}`);
+            throw error; // Stop submission
+        } finally {
+            setIsUploading(false);
+        }
 
-    return urls;
-};
+        return urls;
+    };
 
-const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (rating === 0) return;
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (rating === 0) return;
 
-    try {
-        const imageUrls = await uploadImages();
+        try {
+            const imageUrls = await uploadImages();
 
-        submitReview({ productId, rating, comment, imageUrls }, {
-            onSuccess: () => {
-                setRating(0);
-                setComment('');
-                setFiles([]);
-                onSuccess?.();
-            }
-        });
-    } catch (error) {
-        // Error handled in uploadImages
-    }
-};
+            submitReview({ productId, rating, comment, imageUrls }, {
+                onSuccess: () => {
+                    setRating(0);
+                    setComment('');
+                    setFiles([]);
+                    onSuccess?.();
+                }
+            });
+        } catch (error) {
+            // Error handled in uploadImages
+        }
+    };
 
-if (!user) {
-    return (
-        <div className="bg-muted/30 p-6 rounded-xl text-center border border-dashed border-border">
-            <p className="text-muted-foreground mb-4">{t.reviews?.loginToReview || "Please log in to leave a review."}</p>
-            <Link to="/auth">
-                <Button variant="outline">{t.auth.signInBtn}</Button>
-            </Link>
-        </div>
-    );
-}
-
-return (
-    <form onSubmit={handleSubmit} className="space-y-4 bg-card p-6 rounded-xl border border-border">
-        <h3 className="font-semibold text-lg">{t.reviews?.writeReview || "Write a Review"}</h3>
-
-        <div className="space-y-2">
-            <Label>{t.reviews?.rating || "Rating"}</Label>
-            <StarRating
-                rating={rating}
-                max={5}
-                size={24}
-                interactive
-                onRatingChange={setRating}
-            />
-            {rating === 0 && <p className="text-xs text-muted-foreground animate-pulse">Select stars to rate</p>}
-        </div>
-
-        <div className="space-y-2">
-            <Label htmlFor="comment">{t.reviews?.comment || "Comment"}</Label>
-            <Textarea
-                id="comment"
-                placeholder={t.reviews?.commentPlaceholder || "Share your experience..."}
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                className="min-h-[100px]"
-            />
-        </div>
-
-        <div className="space-y-2">
-            <Label>Photos (Optional, max 3)</Label>
-            <div className="flex flex-wrap gap-4">
-                {files.map((file, index) => (
-                    <div key={index} className="relative w-20 h-20 border rounded-md overflow-hidden group">
-                        <img
-                            src={URL.createObjectURL(file)}
-                            alt="Preview"
-                            className="w-full h-full object-cover"
-                        />
-                        <button
-                            type="button"
-                            onClick={() => removeFile(index)}
-                            className="absolute top-0 right-0 p-1 bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                            <X size={12} />
-                        </button>
-                    </div>
-                ))}
-                {files.length < 3 && (
-                    <label className="w-20 h-20 border border-dashed rounded-md flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors">
-                        <ImagePlus className="w-6 h-6 text-muted-foreground" />
-                        <span className="text-[10px] text-muted-foreground mt-1">Add Photo</span>
-                        <input
-                            type="file"
-                            className="hidden"
-                            accept="image/*"
-                            multiple
-                            onChange={handleFileChange}
-                        />
-                    </label>
-                )}
+    if (!user) {
+        return (
+            <div className="bg-muted/30 p-6 rounded-xl text-center border border-dashed border-border">
+                <p className="text-muted-foreground mb-4">{t.reviews?.loginToReview || "Please log in to leave a review."}</p>
+                <Link to="/auth">
+                    <Button variant="outline">{t.auth.signInBtn}</Button>
+                </Link>
             </div>
-        </div>
+        );
+    }
 
-        <Button type="submit" disabled={isPending || isUploading || rating === 0}>
-            {(isPending || isUploading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isPending || isUploading ? ("Submitting...") : (t.reviews?.submit || "Submit Review")}
-        </Button>
-    </form>
-);
+    return (
+        <form onSubmit={handleSubmit} className="space-y-4 bg-card p-6 rounded-xl border border-border">
+            <h3 className="font-semibold text-lg">{t.reviews?.writeReview || "Write a Review"}</h3>
+
+            <div className="space-y-2">
+                <Label>{t.reviews?.rating || "Rating"}</Label>
+                <StarRating
+                    rating={rating}
+                    max={5}
+                    size={24}
+                    interactive
+                    onRatingChange={setRating}
+                />
+                {rating === 0 && <p className="text-xs text-muted-foreground animate-pulse">Select stars to rate</p>}
+            </div>
+
+            <div className="space-y-2">
+                <Label htmlFor="comment">{t.reviews?.comment || "Comment"}</Label>
+                <Textarea
+                    id="comment"
+                    placeholder={t.reviews?.commentPlaceholder || "Share your experience..."}
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    className="min-h-[100px]"
+                />
+            </div>
+
+            <div className="space-y-2">
+                <Label>Photos (Optional, max 3)</Label>
+                <div className="flex flex-wrap gap-4">
+                    {files.map((file, index) => (
+                        <div key={index} className="relative w-20 h-20 border rounded-md overflow-hidden group">
+                            <img
+                                src={URL.createObjectURL(file)}
+                                alt="Preview"
+                                className="w-full h-full object-cover"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => removeFile(index)}
+                                className="absolute top-0 right-0 p-1 bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                                <X size={12} />
+                            </button>
+                        </div>
+                    ))}
+                    {files.length < 3 && (
+                        <label className="w-20 h-20 border border-dashed rounded-md flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors">
+                            <ImagePlus className="w-6 h-6 text-muted-foreground" />
+                            <span className="text-[10px] text-muted-foreground mt-1">Add Photo</span>
+                            <input
+                                type="file"
+                                className="hidden"
+                                accept="image/*"
+                                multiple
+                                onChange={handleFileChange}
+                            />
+                        </label>
+                    )}
+                </div>
+            </div>
+
+            <Button type="submit" disabled={isPending || isUploading || rating === 0}>
+                {(isPending || isUploading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isPending || isUploading ? ("Submitting...") : (t.reviews?.submit || "Submit Review")}
+            </Button>
+        </form>
+    );
 }
