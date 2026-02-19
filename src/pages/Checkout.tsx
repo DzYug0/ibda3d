@@ -853,7 +853,7 @@ export default function Checkout() {
           </div>
       </div>
     </form>
-      </div >
+    </div >
 
     {/* Mobile Sticky Place Order Bar */ }
     < div className = "fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-lg border-t border-border/50 lg:hidden z-50 animate-in slide-in-from-bottom duration-300" >
@@ -878,7 +878,7 @@ export default function Checkout() {
           )}
         </Button>
       </div>
-      </div >
-    </Layout >
-  );
+    </div >
+  </Layout >
+);
 }
