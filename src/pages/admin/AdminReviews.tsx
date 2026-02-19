@@ -139,6 +139,23 @@ export default function AdminReviews() {
                                 <p className="text-sm text-muted-foreground line-clamp-4 italic">
                                     "{review.comment || 'No comment provided'}"
                                 </p>
+
+                                {review.image_urls && review.image_urls.length > 0 && (
+                                    <div className="mt-3 flex gap-2 overflow-x-auto pb-2">
+                                        {review.image_urls.map((url, index) => (
+                                            <a
+                                                key={index}
+                                                href={url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="relative h-16 w-16 flex-shrink-0 rounded-md overflow-hidden border border-border cursor-pointer hover:opacity-80 transition-opacity"
+                                            >
+                                                <img src={url} alt={`Review attachment ${index + 1}`} className="h-full w-full object-cover" />
+                                                <ExternalLink className="absolute top-1 right-1 h-3 w-3 text-white drop-shadow-md opacity-0 group-hover:opacity-100" />
+                                            </a>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="pt-4 border-t border-border/50 flex justify-between items-center mt-auto">

@@ -76,6 +76,15 @@ export function ReviewList({ productId }: ReviewListProps) {
                                     {review.comment}
                                 </p>
                             )}
+                            {review.image_urls && review.image_urls.length > 0 && (
+                                <div className="mt-3 flex gap-2 overflow-x-auto pb-2">
+                                    {review.image_urls.map((url, index) => (
+                                        <div key={index} className="relative h-20 w-20 flex-shrink-0 rounded-lg overflow-hidden border border-border cursor-pointer hover:opacity-90 transition-opacity">
+                                            <img src={url} alt={`Review attachment ${index + 1}`} className="h-full w-full object-cover" />
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                 ))}

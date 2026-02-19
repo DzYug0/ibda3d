@@ -12,6 +12,7 @@ export interface Review {
     comment: string | null;
     status: 'pending' | 'approved' | 'rejected';
     created_at: string;
+    image_urls?: string[] | null;
     user?: {
         username: string | null;
         avatar_url: string | null;
@@ -43,7 +44,7 @@ export function useSubmitReview() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async ({ productId, rating, comment }: { productId: string; rating: number; comment: string }) => {
+        mutationFn: async ({ productId, rating, comment, imageUrls }: { productId: string; rating: number; comment: string; imageUrls?: string[] }) => {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('User not authenticated');
 
@@ -54,6 +55,7 @@ export function useSubmitReview() {
                     user_id: user.id,
                     rating,
                     comment,
+                    image_urls: imageUrls || [],
                     status: 'pending'
                 });
 

@@ -206,6 +206,33 @@ export type Database = {
         }
         Relationships: []
       }
+      legal_pages: {
+        Row: {
+          content: string
+          id: string
+          is_active: boolean
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          id?: string
+          is_active?: boolean
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          id?: string
+          is_active?: boolean
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           created_at: string
@@ -505,6 +532,7 @@ export type Database = {
           comment: string | null
           created_at: string
           id: string
+          image_urls: string[] | null
           product_id: string
           rating: number
           status: "pending" | "approved" | "rejected"
@@ -514,6 +542,7 @@ export type Database = {
           comment?: string | null
           created_at?: string
           id?: string
+          image_urls?: string[] | null
           product_id: string
           rating: number
           status?: "pending" | "approved" | "rejected"
@@ -523,6 +552,7 @@ export type Database = {
           comment?: string | null
           created_at?: string
           id?: string
+          image_urls?: string[] | null
           product_id?: string
           rating?: number
           status?: "pending" | "approved" | "rejected"
