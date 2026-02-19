@@ -302,7 +302,6 @@ export type Database = {
           created_at: string
           id: string
           notes: string | null
-          phone: string | null
           shipping_address: string | null
           shipping_city: string | null
           shipping_country: string | null
@@ -329,7 +328,6 @@ export type Database = {
           created_at?: string
           id?: string
           notes?: string | null
-          phone?: string | null
           shipping_address?: string | null
           shipping_city?: string | null
           shipping_country?: string | null
@@ -534,6 +532,7 @@ export type Database = {
           comment: string | null
           created_at: string
           id: string
+          image_urls: string[] | null
           product_id: string
           rating: number
           status: "pending" | "approved" | "rejected"
@@ -543,6 +542,7 @@ export type Database = {
           comment?: string | null
           created_at?: string
           id?: string
+          image_urls?: string[] | null
           product_id: string
           rating: number
           status?: "pending" | "approved" | "rejected"
@@ -552,6 +552,7 @@ export type Database = {
           comment?: string | null
           created_at?: string
           id?: string
+          image_urls?: string[] | null
           product_id?: string
           rating?: number
           status?: "pending" | "approved" | "rejected"
@@ -582,7 +583,6 @@ export type Database = {
           banned_at: string | null
           created_at: string
           email: string | null
-          full_name: string | null
           username: string | null
           id: string
           is_banned: boolean
@@ -597,7 +597,6 @@ export type Database = {
           banned_at?: string | null
           created_at?: string
           email?: string | null
-          full_name?: string | null
           username?: string | null
           id?: string
           is_banned?: boolean
@@ -612,7 +611,6 @@ export type Database = {
           banned_at?: string | null
           created_at?: string
           email?: string | null
-          full_name?: string | null
           username?: string | null
           id?: string
           is_banned?: boolean
@@ -784,13 +782,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      validate_coupon: {
-        Args: {
-          coupon_code: string
-          cart_total: number
-        }
-        Returns: Json
-      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -800,13 +791,6 @@ export type Database = {
       }
       is_admin_or_owner: { Args: { _user_id: string }; Returns: boolean }
       is_owner: { Args: { _user_id: string }; Returns: boolean }
-      get_order_status: {
-        Args: {
-          p_order_id: string
-          p_phone: string
-        }
-        Returns: Json
-      }
     }
     Enums: {
       app_role: "admin" | "user" | "owner"
