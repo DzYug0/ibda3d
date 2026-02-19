@@ -19,6 +19,7 @@ import Packs from "./pages/Packs";
 import PackDetail from "./pages/PackDetail";
 import Checkout from "./pages/Checkout";
 import Orders from "./pages/Orders";
+import TrackOrder from "./pages/TrackOrder";
 import Profile from "./pages/Profile";
 import Wishlist from "./pages/Wishlist";
 import NotFound from "./pages/NotFound";
@@ -69,6 +70,7 @@ const App = () => (
                   <Route path="/packs/:slug" element={<PackDetail />} />
                   <Route path="/checkout" element={<Checkout />} />
                   <Route path="/orders" element={<Orders />} />
+                  <Route path="/track-order" element={<TrackOrder />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/wishlist" element={<Wishlist />} />
 
