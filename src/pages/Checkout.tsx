@@ -398,7 +398,6 @@ export default function Checkout() {
           city: selectedWilaya?.name || '',
           country: 'Algeria',
           zip: shippingInfo.wilaya,
-          phone: shippingInfo.phone,
         },
         notes: `${deliveryNote} | Company: ${selectedCompany?.name} | Name: ${shippingInfo.fullName} | Phone: ${shippingInfo.phone} | Shipping: ${shippingCost} DA`,
         couponCode: appliedCoupon ? appliedCoupon.code : null,

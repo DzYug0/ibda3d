@@ -107,7 +107,6 @@ export function useCreateOrder() {
         city: string;
         country: string;
         zip: string;
-        phone: string;
       };
       notes?: string;
       couponCode?: string | null;
@@ -133,7 +132,6 @@ export function useCreateOrder() {
         shipping_city: shippingInfo.city,
         shipping_country: shippingInfo.country || 'Algeria', // Fallback
         shipping_zip: shippingInfo.zip,
-        phone: shippingInfo.phone,
         notes: notes || '',
         // coupon_code: couponCode // If schema has this
       };

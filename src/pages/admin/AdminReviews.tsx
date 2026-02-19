@@ -136,16 +136,17 @@ export default function AdminReviews() {
                                     </Link>
                                 )}
 
+                                <p className="text-sm text-muted-foreground line-clamp-4 italic">
                                     "{review.comment || 'No comment provided'}"
                                 </p>
 
                                 {review.image_urls && review.image_urls.length > 0 && (
                                     <div className="mt-3 flex gap-2 overflow-x-auto pb-2">
                                         {review.image_urls.map((url, index) => (
-                                            <a 
-                                                key={index} 
-                                                href={url} 
-                                                target="_blank" 
+                                            <a
+                                                key={index}
+                                                href={url}
+                                                target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="relative h-16 w-16 flex-shrink-0 rounded-md overflow-hidden border border-border cursor-pointer hover:opacity-80 transition-opacity"
                                             >
@@ -192,10 +193,9 @@ export default function AdminReviews() {
                                 </Button>
                             </div>
                         </div>
-            ))}
+                    ))}
+                </div>
+            )}
         </div>
-    )
-}
-        </div >
     );
 }
