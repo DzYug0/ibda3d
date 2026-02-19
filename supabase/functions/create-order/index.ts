@@ -184,33 +184,6 @@ Deno.serve(async (req) => {
       })
     }
 
-    // ... (previous code)
-
-    // Send confirmation email (Fire and forget provided we use waitUntil if available, but Deno deploy often just awaits)
-    // For critical emails, we should await or use a background worker.
-    // Let's await it to be safe, it only adds ~500ms.
-
-    try {
-      if (order.user_id) { // Or if we have an email in shipping info? 
-        // We need the email! 
-        // The current create-order didn't take an email address in the body, only userId.
-        // We should fetch the user's email if possible, or require it in the request.
-
-        let email = "";
-
-        if (userId) {
-          const { data: { user } } = await supabase.auth.admin.getUserById(userId);
-          email = user?.email || "";
-        }
-
-        // If we don't have an email, we can't send.
-        // The checkout form *does* have phone, but maybe not email for guests.
-        // We should probably explicitly pass 'email' in the request body from Checkout.tsx.
-      }
-    } catch (e) {
-      console.error("Failed to prepare email:", e);
-    }
-
     return new Response(JSON.stringify({
       success: true,
       order: { id: order.id, total_amount: order.total_amount, status: order.status }
@@ -220,7 +193,10 @@ Deno.serve(async (req) => {
     })
 
   } catch (error) {
-    // ...
+    console.error('Error:', error)
+    return new Response(JSON.stringify({ error: 'Internal error' }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    })
   }
 })
-
