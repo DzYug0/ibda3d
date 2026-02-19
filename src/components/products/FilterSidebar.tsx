@@ -60,7 +60,7 @@ export function FilterSidebar({
                     <Filter className="h-5 w-5 text-primary" />
                     {t.common?.filters || "Filters"}
                 </h3>
-                {(selectedCategories.length > 0 || priceRange[0] > 0 || priceRange[1] < 100000 || inStock) && (
+                {(selectedCategories.length > 0 || priceRange[0] > 0 || priceRange[1] < 20000 || inStock) && (
                     <Button
                         variant="ghost"
                         size="sm"
@@ -97,10 +97,10 @@ export function FilterSidebar({
                         </div>
 
                         <Slider
-                            defaultValue={[0, 100000]}
+                            defaultValue={[0, 20000]}
                             value={priceRange}
-                            max={100000}
-                            step={500}
+                            max={20000}
+                            step={100}
                             minStepsBetweenThumbs={1}
                             onValueChange={(value) => {
                                 onPriceChange(value as [number, number]);

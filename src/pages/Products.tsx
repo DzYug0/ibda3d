@@ -29,7 +29,7 @@ export default function Products() {
   const searchQuery = searchParams.get('search') || '';
   const sortParam = searchParams.get('sort') || 'newest';
   const minPriceParam = Number(searchParams.get('minPrice')) || 0;
-  const maxPriceParam = Number(searchParams.get('maxPrice')) || 100000;
+  const maxPriceParam = Number(searchParams.get('maxPrice')) || 20000;
   const inStockParam = searchParams.get('inStock') === 'true';
 
   const selectedSlugs = useMemo(() => categoryParam ? categoryParam.split(',').filter(Boolean) : [], [categoryParam]);
@@ -104,7 +104,7 @@ export default function Products() {
     updateParams({ minPrice: range[0].toString(), maxPrice: range[1].toString() });
   };
 
-  const activeFilterCount = selectedSlugs.length + (inStockParam ? 1 : 0) + (minPriceParam > 0 || maxPriceParam < 100000 ? 1 : 0);
+  const activeFilterCount = selectedSlugs.length + (inStockParam ? 1 : 0) + (minPriceParam > 0 || maxPriceParam < 20000 ? 1 : 0);
 
   return (
     <Layout>
@@ -152,7 +152,7 @@ export default function Products() {
                   <X className="h-3 w-3" />
                 </Badge>
               )}
-              {(minPriceParam > 0 || maxPriceParam < 100000) && (
+              {(minPriceParam > 0 || maxPriceParam < 20000) && (
                 <Badge variant="default" className="gap-1 cursor-pointer" onClick={() => updateParams({ minPrice: null, maxPrice: null })}>
                   Price: {minPriceParam} - {maxPriceParam}
                   <X className="h-3 w-3" />
