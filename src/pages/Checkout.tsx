@@ -3,6 +3,7 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { MapPin, CheckCircle, Truck, Building2, Home, Loader2, X, ChevronRight, ShoppingBag } from 'lucide-react';
 import { z } from 'zod';
+import { trackPixelEvent } from '@/components/analytics/FacebookPixel';
 import { Layout } from '@/components/layout/Layout';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Button } from '@/components/ui/button';
@@ -212,8 +213,22 @@ export default function Checkout() {
     }
     // Fallback for direct URL buyNow which might still be used externally or via old links
     if (buyNowItem) return [buyNowItem];
+    if (buyNowItem) return [buyNowItem];
     return [];
   }, [cartItems, buyNowItem]);
+
+  // Track InitiateCheckout
+  useEffect(() => {
+    if (checkoutItems.length > 0) {
+      trackPixelEvent('InitiateCheckout', {
+        content_ids: checkoutItems.map(i => i.product_id || i.pack_id),
+        content_type: 'product',
+        value: checkoutItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
+        currency: 'DZD',
+        num_items: checkoutItems.reduce((sum, item) => sum + item.quantity, 0)
+      });
+    }
+  }, [checkoutItems.length]); // Track only when items are loaded
 
   const itemsTotal = checkoutItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -406,6 +421,16 @@ export default function Checkout() {
       }
 
       setOrderPlaced(true);
+
+      // Track Purchase
+      trackPixelEvent('Purchase', {
+        content_ids: items.map(i => i.product_id || i.pack_id),
+        content_type: 'product',
+        value: totalWithShipping,
+        currency: 'DZD',
+        num_items: items.reduce((sum, item) => sum + item.quantity, 0)
+      });
+
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch {
       // Error handled by mutation

@@ -20,6 +20,7 @@ import { useProductReviews } from '@/hooks/useReviews';
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { trackPixelEvent } from "@/components/analytics/FacebookPixel";
 
 export default function ProductDetail() {
   const { slug } = useParams();
@@ -55,6 +56,19 @@ export default function ProductDetail() {
       setSelectedOptions(defaults);
     }
   }, [productOptions, selectedOptions]);
+
+  // Track Facebook Pixel ViewContent
+  useEffect(() => {
+    if (product) {
+      trackPixelEvent('ViewContent', {
+        content_name: product.name,
+        content_ids: [product.id],
+        content_type: 'product',
+        value: product.price,
+        currency: 'DZD'
+      });
+    }
+  }, [product]);
 
 
   if (isLoading) return (

@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 import {
     LayoutDashboard, Package, FolderOpen, ShoppingBag, Users, History,
     PanelLeftClose, PanelLeft, Tag, Layout, Settings,
-    Star, Truck, Boxes, LogOut, ChevronLeft
+    Star, Truck, Boxes, LogOut, ChevronLeft, BarChart3
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -22,6 +22,7 @@ export const baseNavItems = [
 ];
 
 export const ownerOnlyItems = [
+    { icon: BarChart3, label: 'Analytics', path: '/admin/analytics' },
     { icon: Tag, label: 'Marketing', path: '/admin/marketing' },
     { icon: Layout, label: 'Content', path: '/admin/content' },
     { icon: Settings, label: 'Settings', path: '/admin/settings' },

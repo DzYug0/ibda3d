@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { Save, Store, Mail, Phone, Facebook, Instagram, Twitter, AlertTriangle } from 'lucide-react';
+import { Save, Store, Mail, Phone, Facebook, Instagram, Twitter, AlertTriangle, Activity } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 interface StoreSettings {
@@ -19,6 +19,7 @@ interface StoreSettings {
     social_facebook: string;
     social_instagram: string;
     social_twitter: string;
+    facebook_pixel_id: string;
     maintenance_mode: boolean;
     maintenance_message: string;
     shipping_free_threshold: number;
@@ -34,6 +35,7 @@ const DEFAULT_SETTINGS: StoreSettings = {
     social_facebook: '',
     social_instagram: '',
     social_twitter: '',
+    facebook_pixel_id: '',
     maintenance_mode: false,
     maintenance_message: 'We are currently performing scheduled maintenance. We will be back shortly.',
     shipping_free_threshold: 0,
@@ -253,6 +255,32 @@ export default function AdminSettings() {
                                 onChange={(e) => handleChange('social_twitter', e.target.value)}
                                 className="bg-background/50"
                             />
+                        </div>
+                    </div>
+
+                    {/* Marketing & Analytics */}
+                    <div className="bg-card/60 backdrop-blur-md rounded-xl border border-border/50 p-6 space-y-4 shadow-sm hover:shadow-md transition-all duration-300">
+                        <div className="flex items-center gap-2 mb-4">
+                            <div className="h-8 w-8 rounded-lg bg-indigo-500/10 flex items-center justify-center">
+                                <Activity className="h-4 w-4 text-indigo-500" />
+                            </div>
+                            <h2 className="text-xl font-semibold">Marketing & Analytics</h2>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="facebook_pixel">Facebook Pixel ID</Label>
+                                <Input
+                                    id="facebook_pixel"
+                                    placeholder="1234567890"
+                                    value={settings.facebook_pixel_id}
+                                    onChange={(e) => handleChange('facebook_pixel_id', e.target.value)}
+                                    className="bg-background/50"
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                    Enter your Facebook Pixel ID to track page views and events.
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>

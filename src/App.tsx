@@ -33,10 +33,13 @@ import AdminPacks from "./pages/admin/AdminPacks";
 import AdminMarketing from "./pages/admin/AdminMarketing";
 import AdminContent from "./pages/admin/AdminContent";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import NotFound from "./pages/NotFound";
 import { ScrollToTop } from "./components/ScrollToTop";
 
 import { HelmetProvider } from "react-helmet-async";
+import { FacebookPixel } from "./components/analytics/FacebookPixel";
+import { AnalyticsTracker } from "./components/analytics/AnalyticsTracker";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +54,8 @@ const App = () => (
             <AuthProvider>
               <LanguageProvider>
                 <ScrollToTop />
+                <FacebookPixel />
+                <AnalyticsTracker />
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/auth" element={<Auth />} />
@@ -79,6 +84,7 @@ const App = () => (
                     <Route path="content" element={<AdminContent />} />
                     <Route path="settings" element={<AdminSettings />} />
                     <Route path="activity" element={<AdminActivityLog />} />
+                    <Route path="analytics" element={<AdminAnalytics />} />
                   </Route>
 
                   {/* Catch-all */}
