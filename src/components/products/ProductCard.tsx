@@ -7,6 +7,7 @@ import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { WishlistButton } from './WishlistButton';
+import { useCartDrawer } from '@/contexts/CartDrawerContext';
 import type { Product } from '@/hooks/useProducts';
 
 interface ProductCardProps {
@@ -17,6 +18,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const { user } = useAuth();
   const { addToCart } = useCart();
   const { t, language } = useLanguage();
+  const { openCartDrawer } = useCartDrawer();
   const hasDiscount = product.compare_at_price && product.compare_at_price > product.price;
   const discountPercent = hasDiscount
     ? Math.round(((product.compare_at_price! - product.price) / product.compare_at_price!) * 100)
@@ -29,6 +31,7 @@ export function ProductCard({ product }: ProductCardProps) {
       productId: product.id,
       productDetails: product
     });
+    openCartDrawer();
   };
 
   const displayCategories = product.categories && product.categories.length > 0

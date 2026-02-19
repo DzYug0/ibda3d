@@ -11,6 +11,7 @@ import { SearchDialog } from '@/components/SearchDialog';
 import logo from '@/assets/logo.png';
 
 import { MobileMenu } from './MobileMenu';
+import { CartDrawer } from './CartDrawer';
 
 export function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -52,17 +53,10 @@ export function Header() {
             </Button>
             <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
 
-            {/* Cart Button - Visible to everyone */}
-            <Link to="/cart">
-              <Button variant="ghost" size="icon" className="relative hidden md:flex">
-                <ShoppingCart className="h-5 w-5" />
-                {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-bounce-in">
-                    {cartCount}
-                  </span>
-                )}
-              </Button>
-            </Link>
+            {/* Cart Drawer - Visible to everyone */}
+            <div className="hidden md:flex">
+              <CartDrawer />
+            </div>
 
             {user ? (
               <>

@@ -9,12 +9,14 @@ import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
+import { useCartDrawer } from '@/contexts/CartDrawerContext';
 
 // PackCard Component
 function PackCard({ pack }: { pack: ReturnType<typeof usePacks>['data'] extends (infer T)[] ? T : never }) {
   const { user } = useAuth();
   const { addPackToCart } = useCart();
   const { t } = useLanguage();
+  const { openCartDrawer } = useCartDrawer();
   const [quantity, setQuantity] = useState(1);
   const navigate = useNavigate();
 
@@ -39,6 +41,7 @@ function PackCard({ pack }: { pack: ReturnType<typeof usePacks>['data'] extends 
       quantity,
       packDetails: pack
     });
+    openCartDrawer();
   };
 
   return (
