@@ -595,7 +595,7 @@ export default function Checkout() {
                     return (
                       <label
                         key={company.id}
-                        htmlFor={`company-${company.id}`}
+                        htmlFor={company -}
                         className={cn(
                           "relative flex flex-col items-center gap-3 p-4 rounded-2xl border-2 cursor-pointer text-center transition-all duration-300",
                           isSelected
@@ -603,7 +603,7 @@ export default function Checkout() {
                             : "border-border/50 hover:border-primary/30 bg-card/60 hover:bg-card/80"
                         )}
                       >
-                        <RadioGroupItem value={company.id} id={`company-${company.id}`} className="absolute top-3 right-3 opacity-0" />
+                        <RadioGroupItem value={company.id} id={company -} className="absolute top-3 right-3 opacity-0" />
                         {isSelected && <div className="absolute top-3 right-3 text-primary"><CheckCircle className="h-5 w-5 fill-primary/10" /></div>}
 
                         {company.logo_url ? (
@@ -816,7 +816,7 @@ export default function Checkout() {
                     {selectedCompany && <span className="text-xs ml-1 bg-muted px-1.5 py-0.5 rounded-md text-foreground">{selectedCompany.name}</span>}
                   </span>
                   <span className={!currentRate ? "text-muted-foreground/50 italic" : "font-mono"}>
-                    {currentRate ? `${shippingCost} ${t.common?.da || "DA"}` : "--"}
+                    {currentRate ? ${shippingCost}  : "--"}
                   </span>
                 </div>
                 <div className="flex justify-between items-end pt-4 border-t border-border/50 mt-2">
