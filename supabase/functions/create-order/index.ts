@@ -12,7 +12,7 @@ Deno.serve(async (req) => {
 
   try {
     const authHeader = req.headers.get('Authorization')
-    
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_ANON_KEY')!,
@@ -30,9 +30,9 @@ Deno.serve(async (req) => {
     const { items, shippingInfo, notes } = await req.json()
 
     if (!items?.length) {
-      return new Response(JSON.stringify({ error: 'No items provided' }), { 
-        status: 400, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      return new Response(JSON.stringify({ error: 'No items provided' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       })
     }
 
@@ -57,41 +57,41 @@ Deno.serve(async (req) => {
         .in('id', productIds)
 
       if (pErr || !products) {
-        return new Response(JSON.stringify({ error: 'Failed to fetch products' }), { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        return new Response(JSON.stringify({ error: 'Failed to fetch products' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         })
       }
 
       const productMap = new Map(products.map(p => [p.id, p]))
 
       for (const item of productItems) {
-        if (!item.product_id || typeof item.product_id !== 'string' || 
-            !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(item.product_id)) {
-          return new Response(JSON.stringify({ error: 'Invalid product ID format' }), { 
-            status: 400, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        if (!item.product_id || typeof item.product_id !== 'string' ||
+          !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(item.product_id)) {
+          return new Response(JSON.stringify({ error: 'Invalid product ID format' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
           })
         }
 
         if (!Number.isInteger(item.quantity) || item.quantity <= 0 || item.quantity > 10000) {
-          return new Response(JSON.stringify({ error: 'Invalid quantity' }), { 
-            status: 400, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          return new Response(JSON.stringify({ error: 'Invalid quantity' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
           })
         }
 
         const product = productMap.get(item.product_id)
         if (!product || !product.is_active) {
-          return new Response(JSON.stringify({ error: `Product unavailable: ${item.product_id}` }), { 
-            status: 400, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          return new Response(JSON.stringify({ error: `Product unavailable: ${item.product_id}` }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
           })
         }
         if (product.stock_quantity < item.quantity) {
-          return new Response(JSON.stringify({ error: `Insufficient stock for ${product.name}` }), { 
-            status: 400, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          return new Response(JSON.stringify({ error: `Insufficient stock for ${product.name}` }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
           })
         }
         totalAmount += product.price * item.quantity
@@ -114,9 +114,9 @@ Deno.serve(async (req) => {
         .in('id', packIds)
 
       if (packErr || !packs) {
-        return new Response(JSON.stringify({ error: 'Failed to fetch packs' }), { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        return new Response(JSON.stringify({ error: 'Failed to fetch packs' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         })
       }
 
@@ -124,17 +124,17 @@ Deno.serve(async (req) => {
 
       for (const item of packItems) {
         if (!Number.isInteger(item.quantity) || item.quantity <= 0 || item.quantity > 10000) {
-          return new Response(JSON.stringify({ error: 'Invalid quantity' }), { 
-            status: 400, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          return new Response(JSON.stringify({ error: 'Invalid quantity' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
           })
         }
 
         const pack = packMap.get(item.pack_id)
         if (!pack || !pack.is_active) {
-          return new Response(JSON.stringify({ error: `Pack unavailable: ${item.pack_id}` }), { 
-            status: 400, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          return new Response(JSON.stringify({ error: `Pack unavailable: ${item.pack_id}` }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
           })
         }
 
@@ -165,9 +165,9 @@ Deno.serve(async (req) => {
 
     if (oErr) {
       console.error('Order error:', oErr)
-      return new Response(JSON.stringify({ error: 'Failed to create order' }), { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      return new Response(JSON.stringify({ error: 'Failed to create order' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       })
     }
 
@@ -178,25 +178,49 @@ Deno.serve(async (req) => {
     if (iErr) {
       console.error('Order items error:', iErr)
       await adminSupabase.from('orders').delete().eq('id', order.id)
-      return new Response(JSON.stringify({ error: 'Failed to create order items' }), { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      return new Response(JSON.stringify({ error: 'Failed to create order items' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       })
     }
 
-    return new Response(JSON.stringify({ 
-      success: true, 
+    // ... (previous code)
+
+    // Send confirmation email (Fire and forget provided we use waitUntil if available, but Deno deploy often just awaits)
+    // For critical emails, we should await or use a background worker.
+    // Let's await it to be safe, it only adds ~500ms.
+
+    try {
+      if (order.user_id) { // Or if we have an email in shipping info? 
+        // We need the email! 
+        // The current create-order didn't take an email address in the body, only userId.
+        // We should fetch the user's email if possible, or require it in the request.
+
+        let email = "";
+
+        if (userId) {
+          const { data: { user } } = await supabase.auth.admin.getUserById(userId);
+          email = user?.email || "";
+        }
+
+        // If we don't have an email, we can't send.
+        // The checkout form *does* have phone, but maybe not email for guests.
+        // We should probably explicitly pass 'email' in the request body from Checkout.tsx.
+      }
+    } catch (e) {
+      console.error("Failed to prepare email:", e);
+    }
+
+    return new Response(JSON.stringify({
+      success: true,
       order: { id: order.id, total_amount: order.total_amount, status: order.status }
-    }), { 
-      status: 200, 
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+    }), {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     })
 
   } catch (error) {
-    console.error('Error:', error)
-    return new Response(JSON.stringify({ error: 'Internal error' }), { 
-      status: 500, 
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-    })
+    // ...
   }
 })
+

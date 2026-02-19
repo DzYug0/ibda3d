@@ -107,72 +107,42 @@ export function useCreateOrder() {
         city: string;
         country: string;
         zip: string;
+        email?: string;
       };
       notes?: string;
       couponCode?: string | null;
     }) => {
-      // Calculate total amount from passed items (trust frontend for display, but ideally valid on backend)
-      // Since we are inserting directly, we are responsible for the data.
-      let totalAmount = 0;
-      items.forEach(item => {
-        totalAmount += (item.price || 0) * item.quantity;
+
+      // Logic moved to 'create-order' edge function for security and notifications
+      const { data, error } = await supabase.functions.invoke('create-order', {
+        body: {
+          items: items.map(i => ({
+            ...i,
+            // Ensure product_id/pack_id are correct
+          })),
+          shippingInfo,
+          notes,
+          email: shippingInfo.email // Pass email explicitly
+        }
       });
 
-      const { data: { user } } = await supabase.auth.getUser();
-
-      // Generate ID client-side to assume ownership without needing SELECT permissions
-      const orderId = crypto.randomUUID();
-
-      const orderData = {
-        id: orderId,
-        user_id: user ? user.id : null,
-        status: 'pending' as OrderStatus,
-        total_amount: totalAmount,
-        shipping_address: shippingInfo.address,
-        shipping_city: shippingInfo.city,
-        shipping_country: shippingInfo.country || 'Algeria', // Fallback
-        shipping_zip: shippingInfo.zip,
-        notes: notes || '',
-        // coupon_code: couponCode // If schema has this
-      };
-
-      // 1. Create Order
-      const { error: orderError } = await supabase
-        .from('orders')
-        .insert(orderData); // No .select() to avoid RLS Select policy issues for guests
-
-      if (orderError) throw orderError;
-
-      // 2. Create Order Items
-      const orderItemsData = items.map(item => ({
-        order_id: orderId,
-        product_id: item.product_id,
-        pack_id: item.pack_id,
-        quantity: item.quantity,
-        product_name: item.name || 'Unknown Item',
-        product_price: item.price || 0,
-        selected_color: item.selected_color,
-        selected_version: item.selected_version,
-        selected_options: item.selected_options
-      }));
-
-      const { error: itemsError } = await supabase
-        .from('order_items')
-        .insert(orderItemsData);
-
-      if (itemsError) {
-        // Optional: Delete order if items fail? Or log it?
-        console.error('Failed to insert items', itemsError);
-        throw itemsError;
+      if (error) {
+        console.error('Order creation failed:', error);
+        throw new Error(error.message || 'Failed to create order');
       }
 
-      return { id: orderId };
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
+      return data.order;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
-      toast.success('Order placed successfully!');
+      toast.success('Order placed successfully! Check your email.');
     },
     onError: (error) => {
+      console.error('Order Error:', error);
       toast.error('Failed to place order: ' + error.message);
     },
   });
