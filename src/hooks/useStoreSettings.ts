@@ -8,6 +8,7 @@ export interface StoreSettings {
     social_facebook: string;
     social_instagram: string;
     social_twitter: string;
+    facebook_pixel_id: string;
     maintenance_mode: boolean;
     maintenance_message: string;
     shipping_free_threshold: number;
@@ -20,6 +21,7 @@ const DEFAULT_SETTINGS: StoreSettings = {
     social_facebook: '#',
     social_instagram: '#',
     social_twitter: '#',
+    facebook_pixel_id: '',
     maintenance_mode: false,
     maintenance_message: 'We are currently performing scheduled maintenance. We will be back shortly.',
     shipping_free_threshold: 0,

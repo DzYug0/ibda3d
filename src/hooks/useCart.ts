@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { trackPixelEvent } from '@/components/analytics/FacebookPixel';
 
 interface CartItem {
   id: string;
@@ -198,9 +199,17 @@ export function useCart() {
         await new Promise(r => setTimeout(r, 100));
       }
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       toast.success('Added to cart!');
+
+      // Track Facebook Pixel
+      trackPixelEvent('AddToCart', {
+        content_ids: [variables.productId],
+        content_type: 'product',
+        value: variables.productDetails?.price,
+        currency: 'DZD'
+      });
     },
     onError: (err) => {
       toast.error('Failed to add to cart');
@@ -267,9 +276,18 @@ export function useCart() {
         await new Promise(r => setTimeout(r, 100));
       }
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       toast.success('Added to cart!');
+
+      // Track Facebook Pixel
+      trackPixelEvent('AddToCart', {
+        content_ids: [variables.packId],
+        content_type: 'product',
+        content_name: variables.packDetails?.name,
+        value: variables.packDetails?.price,
+        currency: 'DZD'
+      });
     },
     onError: () => {
       toast.error('Failed to add to cart');
