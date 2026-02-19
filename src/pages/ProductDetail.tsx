@@ -13,6 +13,7 @@ import { ReviewList } from '@/components/products/ReviewList';
 import { ReviewForm } from '@/components/products/ReviewForm';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { useCartDrawer } from '@/contexts/CartDrawerContext';
 import { SEO } from '@/components/SEO';
 import type { ProductOption } from '@/components/admin/ProductOptionsEditor';
 import { useProductReviews } from '@/hooks/useReviews';
@@ -28,6 +29,7 @@ export default function ProductDetail() {
   const { user } = useAuth();
   const { addToCart } = useCart();
   const { t, language } = useLanguage();
+  const { openCartDrawer } = useCartDrawer();
   const navigate = useNavigate();
 
   const [quantity, setQuantity] = useState(1);
@@ -115,7 +117,7 @@ export default function ProductDetail() {
       selectedOptions: Object.keys(selectedOptions).length > 0 ? selectedOptions : undefined,
       productDetails: product
     });
-    toast.success((t.cart as any)?.added || "Added to cart");
+    openCartDrawer();
   };
 
   const handleBuyNow = () => {

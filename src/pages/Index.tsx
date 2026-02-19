@@ -25,6 +25,7 @@ import { useBanners } from '@/hooks/useContent';
 import { HeroBanner } from '@/components/home/HeroBanner';
 import { PromoBanner } from '@/components/home/PromoBanner';
 import { useStoreSettings } from '@/hooks/useStoreSettings';
+import { useCartDrawer } from '@/contexts/CartDrawerContext';
 
 export default function Index() {
   const { data: featuredProducts = [], isLoading: productsLoading } = useFeaturedProducts();
@@ -34,6 +35,7 @@ export default function Index() {
   const { addToCart, addPackToCart } = useCart();
   const { t, language } = useLanguage();
   const { data: settings } = useStoreSettings();
+  const { openCartDrawer } = useCartDrawer();
 
   /* Fetch Banners */
   const { data: banners = [] } = useBanners();
@@ -210,6 +212,7 @@ export default function Index() {
                                   e.preventDefault();
                                   e.stopPropagation();
                                   addPackToCart.mutate({ packId: pack.id, packDetails: pack });
+                                  openCartDrawer();
                                 }}
                               >
                                 <ShoppingCart className="h-5 w-5" />
