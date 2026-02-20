@@ -21,6 +21,28 @@
     ],
     "rewrites": [
         {
+            "source": "/products/(?<slug>[^/]+)",
+            "has": [
+                {
+                    "type": "header",
+                    "key": "User-Agent",
+                    "value": ".*(WhatsApp|bot|facebookexternalhit|Twitterbot|Pinterest|Googlebot|Baiduspider|YandexBot).*"
+                }
+            ],
+            "destination": "/api/og?type=product&slug=$slug"
+        },
+        {
+            "source": "/packs/(?<slug>[^/]+)",
+            "has": [
+                {
+                    "type": "header",
+                    "key": "User-Agent",
+                    "value": ".*(WhatsApp|bot|facebookexternalhit|Twitterbot|Pinterest|Googlebot|Baiduspider|YandexBot).*"
+                }
+            ],
+            "destination": "/api/og?type=pack&slug=$slug"
+        },
+        {
             "source": "/sitemap.xml",
             "destination": "https://zgunrxduxkleoogrmdzs.supabase.co/functions/v1/sitemap"
         },
