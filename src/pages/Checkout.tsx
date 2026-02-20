@@ -52,6 +52,7 @@ interface Coupon {
 
 const shippingSchema = z.object({
   fullName: z.string().trim().min(3, 'Please enter your full name').max(100, 'Name must be less than 100 characters'),
+  email: z.string().trim().email('Please enter a valid email address').optional().or(z.literal('')),
   wilaya: z.string().min(1, 'Please select a wilaya'),
   companyId: z.string().min(1, 'Please select a shipping company'),
   deliveryType: z.enum(['desk', 'home'], { required_error: 'Please choose a delivery type' }),
@@ -84,6 +85,7 @@ export default function Checkout() {
   const [savedAddresses, setSavedAddresses] = useState<UserAddress[]>([]);
   const [shippingInfo, setShippingInfo] = useState({
     fullName: '',
+    email: '',
     wilaya: '',
     companyId: '',
     deliveryType: 'desk' as DeliveryType,
@@ -149,18 +151,17 @@ export default function Checkout() {
     // Fetch profile first for fallback
     supabase
       .from('profiles')
-      .select('full_name, phone, address')
+      .select('full_name, phone, address') // Assuming email might be fetched from auth instead or if added later
       .eq('user_id', user.id)
       .single()
       .then(({ data }) => {
-        if (data && !shippingInfo.fullName) {
-          setShippingInfo((prev) => ({
-            ...prev,
-            fullName: data.full_name || prev.fullName,
-            phone: data.phone || prev.phone,
-            address: data.address || prev.address,
-          }));
-        }
+        setShippingInfo((prev) => ({
+          ...prev,
+          email: user.email || prev.email,
+          fullName: data?.full_name || prev.fullName,
+          phone: data?.phone || prev.phone,
+          address: data?.address || prev.address,
+        }));
       });
 
     // Fetch addresses
@@ -398,6 +399,7 @@ export default function Checkout() {
           city: selectedWilaya?.name || '',
           country: 'Algeria',
           zip: shippingInfo.wilaya,
+          email: shippingInfo.email || undefined,
         },
         notes: `${deliveryNote} | Company: ${selectedCompany?.name} | Name: ${shippingInfo.fullName} | Phone: ${shippingInfo.phone} | Shipping: ${shippingCost} DA`,
         couponCode: appliedCoupon ? appliedCoupon.code : null,
@@ -503,6 +505,19 @@ export default function Checkout() {
                       className="h-12 rounded-xl bg-background/50 border-border/50 focus-visible:ring-primary"
                     />
                     {errors.fullName && <p className="text-sm text-destructive mt-1 font-medium">{errors.fullName}</p>}
+                  </div>
+
+                  <div>
+                    <Label htmlFor="email" className="text-sm font-semibold mb-2 block">{t.checkout?.email || "Email Address"} <span className="text-muted-foreground font-normal text-xs ml-1">({t.checkout?.optional || "Optional, for order tracking"})</span></Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={shippingInfo.email}
+                      onChange={(e) => setShippingInfo({ ...shippingInfo, email: e.target.value })}
+                      placeholder={t.checkout?.enterEmail || "Enter your email for shipping updates"}
+                      className="h-12 rounded-xl bg-background/50 border-border/50 focus-visible:ring-primary"
+                    />
+                    {errors.email && <p className="text-sm text-destructive mt-1 font-medium">{errors.email}</p>}
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-6">

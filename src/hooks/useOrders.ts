@@ -14,6 +14,7 @@ export interface Order {
   shipping_city: string | null;
   shipping_country: string | null;
   shipping_zip: string | null;
+  email: string | null;
   notes: string | null;
   created_at: string;
   updated_at: string;
@@ -77,7 +78,7 @@ export function useAdminOrders() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as Order[];
+      return data as unknown as Order[];
     },
   });
 }
@@ -107,6 +108,7 @@ export function useCreateOrder() {
         city: string;
         country: string;
         zip: string;
+        email?: string;
       };
       notes?: string;
       couponCode?: string | null;
@@ -132,6 +134,7 @@ export function useCreateOrder() {
         shipping_city: shippingInfo.city,
         shipping_country: shippingInfo.country || 'Algeria', // Fallback
         shipping_zip: shippingInfo.zip,
+        email: shippingInfo.email || null,
         notes: notes || '',
         // coupon_code: couponCode // If schema has this
       };
