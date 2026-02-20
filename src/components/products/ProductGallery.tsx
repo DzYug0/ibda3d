@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, ZoomIn, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { ImageLightbox } from '@/components/ui/ImageLightbox';
 import { cn } from '@/lib/utils';
 
 interface ProductGalleryProps {
@@ -26,11 +26,12 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
   // Keyboard navigation
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
+      // Only handle if lightbox is NOT open
+      if (isZoomed) return;
       if (e.key === 'ArrowLeft') goToPrevious();
       if (e.key === 'ArrowRight') goToNext();
-      if (e.key === 'Escape') setIsZoomed(false);
     },
-    [goToPrevious, goToNext]
+    [goToPrevious, goToNext, isZoomed]
   );
 
   if (images.length === 0) {
@@ -155,49 +156,14 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
       )}
 
       {/* Lightbox / Zoom Dialog */}
-      <Dialog open={isZoomed} onOpenChange={setIsZoomed}>
-        <DialogContent className="max-w-[100vw] h-[100vh] p-0 border-none bg-black/95 backdrop-blur-xl duration-300">
-          {/* Lightbox content - unchanged logic but styled */}
-          <div className="relative w-full h-full flex items-center justify-center">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-4 right-4 z-50 text-white hover:bg-white/10 rounded-full h-12 w-12"
-              onClick={() => setIsZoomed(false)}
-            >
-              <X className="h-6 w-6" />
-            </Button>
-
-            <img
-              src={images[selectedIndex]}
-              alt={`${productName} - Full size`}
-              className="max-w-full max-h-[90vh] object-contain shadow-2xl"
-            />
-
-            {/* Same Nav controls but for lightbox (white text) */}
-            {hasMultipleImages && (
-              <>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/10 rounded-full h-14 w-14"
-                  onClick={goToPrevious}
-                >
-                  <ChevronLeft className="h-8 w-8" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/10 rounded-full h-14 w-14"
-                  onClick={goToNext}
-                >
-                  <ChevronRight className="h-8 w-8" />
-                </Button>
-              </>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Lightbox */}
+      <ImageLightbox
+        images={images}
+        initialIndex={selectedIndex}
+        isOpen={isZoomed}
+        onClose={() => setIsZoomed(false)}
+        title={`${productName} Gallery`}
+      />
     </div>
   );
 }
