@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useProductReviews } from '@/hooks/useReviews';
 import { StarRating } from './StarRating';
 import { RatingDistribution } from './RatingDistribution';
@@ -6,6 +7,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { CheckCircle2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { ImageLightbox } from '@/components/ui/ImageLightbox';
 
 interface ReviewListProps {
     productId: string;
@@ -14,6 +16,16 @@ interface ReviewListProps {
 export function ReviewList({ productId }: ReviewListProps) {
     const { data: reviews, isLoading } = useProductReviews(productId);
     const { t } = useLanguage();
+
+    const [lightboxImages, setLightboxImages] = useState<string[]>([]);
+    const [lightboxIndex, setLightboxIndex] = useState(0);
+    const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+
+    const openLightbox = (images: string[], index: number) => {
+        setLightboxImages(images);
+        setLightboxIndex(index);
+        setIsLightboxOpen(true);
+    };
 
     if (isLoading) {
         return <div className="space-y-4">
@@ -79,7 +91,11 @@ export function ReviewList({ productId }: ReviewListProps) {
                             {review.image_urls && review.image_urls.length > 0 && (
                                 <div className="mt-3 flex gap-2 overflow-x-auto pb-2">
                                     {review.image_urls.map((url, index) => (
-                                        <div key={index} className="relative h-20 w-20 flex-shrink-0 rounded-lg overflow-hidden border border-border cursor-pointer hover:opacity-90 transition-opacity">
+                                        <div
+                                            key={index}
+                                            className="relative h-20 w-20 flex-shrink-0 rounded-lg overflow-hidden border border-border cursor-pointer hover:opacity-90 transition-opacity"
+                                            onClick={() => openLightbox(review.image_urls!, index)}
+                                        >
                                             <img src={url} alt={`Review attachment ${index + 1}`} className="h-full w-full object-cover" />
                                         </div>
                                     ))}
@@ -89,6 +105,14 @@ export function ReviewList({ productId }: ReviewListProps) {
                     </div>
                 ))}
             </div>
+
+            <ImageLightbox
+                images={lightboxImages}
+                initialIndex={lightboxIndex}
+                isOpen={isLightboxOpen}
+                onClose={() => setIsLightboxOpen(false)}
+                title="Review Photos"
+            />
         </div>
     );
 }
