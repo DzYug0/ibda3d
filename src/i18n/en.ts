@@ -145,6 +145,9 @@ export const en = {
     deliveryInfo: 'Delivery Information',
     fullName: 'Full Name',
     enterFullName: 'Enter your full name',
+    email: 'Email Address',
+    optional: 'Optional, for order tracking',
+    enterEmail: 'Enter your email for shipping updates',
     selectWilaya: 'Select your wilaya',
     chooseWilaya: 'Choose a wilaya...',
     phoneNumber: 'Phone Number',
@@ -173,6 +176,7 @@ export const en = {
     continueShopping: 'Continue Shopping',
     cartEmpty: 'Your cart is empty',
     viewProducts: 'View Products',
+    promoCode: 'Have a promo code?',
     enterPromoCode: 'Enter Promo Code',
   },
 
