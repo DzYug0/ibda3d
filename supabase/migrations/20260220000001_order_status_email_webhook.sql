@@ -1,5 +1,5 @@
 -- Create the pg_net extension if it doesn't exist
-CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions;
+CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA net;
 
 -- Create the trigger function that calls the Edge Function using pg_net
 CREATE OR REPLACE FUNCTION public.handle_order_status_change()
@@ -38,7 +38,7 @@ BEGIN
         );
 
         -- Make the async HTTP POST request using pg_net
-        PERFORM extensions.http_post(
+        PERFORM net.http_post(
             url := edge_function_url,
             headers := headers,
             body := payload
