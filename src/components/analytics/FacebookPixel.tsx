@@ -37,7 +37,7 @@ export const FacebookPixel = () => {
     const location = useLocation();
     const activePixelId = settings?.facebook_pixel_id?.trim() || '1057631003921366';
     const isFirstMount = useRef(true);
-    const lastInitializedPixel = useRef<string | null>(null);
+    const lastInitializedPixel = useRef<string | null>('1057631003921366');
 
     // Initialize / Update Pixel
     useEffect(() => {
