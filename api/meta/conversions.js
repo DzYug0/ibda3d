@@ -69,7 +69,7 @@ export default async function handler(req, res) {
         const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || 'https://zgunrxduxkleoogrmdzs.supabase.co';
         const supabaseKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || 'sb_publishable_PJGcQgFmB-4FpEoGA7id2Q_pZS0L621';
 
-        let pixelId = process.env.META_PIXEL_ID || process.env.VITE_FACEBOOK_PIXEL_ID || null;
+        let pixelId = req.body?.pixel_id || process.env.META_PIXEL_ID || process.env.VITE_FACEBOOK_PIXEL_ID || null;
         let accessToken = process.env.META_ACCESS_TOKEN || process.env.FB_ACCESS_TOKEN || null;
         let testEventCode = reqTestCode || process.env.META_TEST_EVENT_CODE || null;
 

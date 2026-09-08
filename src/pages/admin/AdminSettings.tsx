@@ -86,9 +86,21 @@ export default function AdminSettings() {
 
             if (error) throw error;
         },
-        onSuccess: async () => {
+        onSuccess: async (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['store-settings'] });
             queryClient.invalidateQueries({ queryKey: ['store-settings-public'] });
+
+            // Immediately update localStorage and browser fbq instance
+            if (variables.facebook_pixel_id) {
+                const trimmedId = variables.facebook_pixel_id.trim();
+                try {
+                    localStorage.setItem('ibda3d_pixel_id', trimmedId);
+                } catch (e) {}
+                if (typeof window !== 'undefined' && window.fbq) {
+                    window.fbq('init', trimmedId);
+                    window.fbq('track', 'PageView');
+                }
+            }
 
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {

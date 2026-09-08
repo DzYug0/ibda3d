@@ -35,15 +35,20 @@ export function getFbc(): string | null {
 export const FacebookPixel = () => {
     const { data: settings } = useStoreSettings();
     const location = useLocation();
-    const pixelId = settings?.facebook_pixel_id || '4419480575029641';
+    const activePixelId = settings?.facebook_pixel_id?.trim() || '1057631003921366';
     const isFirstMount = useRef(true);
+    const lastInitializedPixel = useRef<string | null>(null);
 
     // Initialize / Update Pixel
     useEffect(() => {
-        if (!pixelId) return;
+        if (!activePixelId) return;
 
-        // Standard Facebook Pixel initialization code (if not already loaded by index.html)
         if (typeof window !== 'undefined') {
+            try {
+                localStorage.setItem('ibda3d_pixel_id', activePixelId);
+            } catch (e) {}
+
+            // Standard Facebook Pixel initialization code (if not already loaded by index.html)
             if (!window.fbq) {
                 !function (f: any, b: any, e: any, v: any, n?: any, t?: any, s?: any) {
                     if (f.fbq) return; n = f.fbq = function () {
@@ -58,9 +63,13 @@ export const FacebookPixel = () => {
                     'https://connect.facebook.net/en_US/fbevents.js');
             }
 
-            window.fbq('init', pixelId);
+            // Re-init if pixel changed or first initialization
+            if (lastInitializedPixel.current !== activePixelId) {
+                window.fbq('init', activePixelId);
+                lastInitializedPixel.current = activePixelId;
+            }
         }
-    }, [pixelId]);
+    }, [activePixelId]);
 
     // Track PageView on route change (avoid duplicate PageView on first load since index.html already fired it)
     useEffect(() => {
@@ -72,7 +81,7 @@ export const FacebookPixel = () => {
         if (typeof window !== 'undefined' && window.fbq) {
             window.fbq('track', 'PageView');
         }
-    }, [location.pathname, pixelId]);
+    }, [location.pathname, activePixelId]);
 
     return null;
 };
@@ -102,6 +111,7 @@ export const trackPixelEvent = (
 export interface CAPIEventPayload {
     eventName: string;
     eventId?: string;
+    pixelId?: string;
     userData?: {
         email?: string;
         phone?: string;
@@ -129,6 +139,7 @@ export interface CAPIEventPayload {
 export const sendCAPIEvent = async ({
     eventName,
     eventId,
+    pixelId,
     userData = {},
     customData = {}
 }: CAPIEventPayload) => {
@@ -138,9 +149,19 @@ export const sendCAPIEvent = async ({
         const fbp = getFbp();
         const fbc = getFbc();
 
+        let resolvedPixelId = pixelId;
+        if (!resolvedPixelId) {
+            try {
+                resolvedPixelId = localStorage.getItem('ibda3d_pixel_id') || '1057631003921366';
+            } catch (e) {
+                resolvedPixelId = '1057631003921366';
+            }
+        }
+
         const payload = {
             event_name: eventName,
             event_id: eventId,
+            pixel_id: resolvedPixelId,
             event_source_url: window.location.href,
             user_data: {
                 ...userData,

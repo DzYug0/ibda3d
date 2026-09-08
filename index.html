@@ -42,6 +42,15 @@
 
   <!-- Meta Pixel Code -->
   <script>
+    var defaultPixelId = '1057631003921366';
+    var activePixelId = defaultPixelId;
+    try {
+      var storedPixelId = localStorage.getItem('ibda3d_pixel_id');
+      if (storedPixelId && storedPixelId.trim()) {
+        activePixelId = storedPixelId.trim();
+      }
+    } catch (e) {}
+
     !function(f,b,e,v,n,t,s)
     {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
     n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -50,7 +59,7 @@
     t.src=v;s=b.getElementsByTagName(e)[0];
     s.parentNode.insertBefore(t,s)}(window, document,'script',
     'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', '4419480575029641');
+    fbq('init', activePixelId);
     fbq('track', 'PageView');
   </script>
   <!-- End Meta Pixel Code -->
@@ -59,7 +68,7 @@
 <body>
   <!-- Meta Pixel noscript fallback -->
   <noscript><img height="1" width="1" style="display:none"
-    src="https://www.facebook.com/tr?id=4419480575029641&ev=PageView&noscript=1"
+    src="https://www.facebook.com/tr?id=1057631003921366&ev=PageView&noscript=1"
     alt=""
   /></noscript>
   <div id="root"></div>

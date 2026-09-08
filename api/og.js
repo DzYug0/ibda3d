@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     let price = null;
     let compareAtPrice = null;
     let inStock = true;
-    let pixelId = '4419480575029641';
+    let pixelId = '1057631003921366';
 
     const headers = {
         'apikey': supabaseKey,
