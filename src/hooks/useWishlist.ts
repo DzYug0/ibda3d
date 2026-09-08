@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { trackPixelEvent } from '@/components/analytics/FacebookPixel';
 
 export function useWishlist() {
     const { user } = useAuth();
@@ -21,9 +22,10 @@ export function useWishlist() {
           product:products (
             id,
             name,
-            price,
-            image_url,
             slug,
+            price,
+            compare_at_price,
+            image_url,
             stock_quantity
           )
         `)
@@ -31,14 +33,10 @@ export function useWishlist() {
 
             if (error) {
                 console.error('Error fetching wishlist:', error);
-                throw error;
+                return [];
             }
 
-            if (!data) return [];
-
-            return data
-                .map(item => item.product)
-                .filter((product: any) => product && product.id);
+            return data?.map((item: any) => item.product).filter(Boolean) || [];
         },
         enabled: !!user,
     });
@@ -61,9 +59,13 @@ export function useWishlist() {
 
             if (error) throw error;
         },
-        onSuccess: () => {
+        onSuccess: (_data, productId) => {
             queryClient.invalidateQueries({ queryKey: ['wishlist'] });
             toast.success('Added to wishlist');
+            trackPixelEvent('AddToWishlist', {
+                content_ids: [productId],
+                content_type: 'product'
+            });
         },
         onError: (error) => {
             toast.error('Failed to add to wishlist: ' + error.message);

@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 
 import { useLanguage } from '@/i18n/LanguageContext';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { trackPixelEvent } from '@/components/analytics/FacebookPixel';
 import logo from '@/assets/logo.png';
 
 const emailSchema = z.string().email('Please enter a valid email address');
@@ -62,6 +63,9 @@ export default function Auth() {
           toast.error(error.message.includes('already registered') ? 'This email is already registered.' : error.message);
         } else {
           toast.success('Account created! Please check your email.');
+        trackPixelEvent('CompleteRegistration', {
+          status: true
+        });
         }
       } else {
         const { error } = await signIn(email, password);

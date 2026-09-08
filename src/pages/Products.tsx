@@ -1,6 +1,6 @@
 import { useSearchParams } from 'react-router-dom';
 import { Filter, X, ArrowUpDown } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { ProductGrid } from '@/components/products/ProductGrid';
 import { FilterSidebar } from '@/components/products/FilterSidebar';
@@ -18,6 +18,7 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { SEO } from '@/components/SEO';
 import { useBanners } from '@/hooks/useContent';
 import { SidebarBanner } from '@/components/products/SidebarBanner';
+import { trackPixelEvent } from '@/components/analytics/FacebookPixel';
 
 export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -76,6 +77,16 @@ export default function Products() {
     inStock: inStockParam,
     sort: sortParam
   });
+
+  // Track Meta Pixel Search event
+  useEffect(() => {
+    if (searchQuery && searchQuery.trim()) {
+      trackPixelEvent('Search', {
+        search_string: searchQuery.trim(),
+        content_category: categoryParam || undefined
+      });
+    }
+  }, [searchQuery, categoryParam]);
 
 
   // Handlers

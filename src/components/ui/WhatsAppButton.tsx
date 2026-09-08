@@ -1,6 +1,7 @@
 import { useStoreSettings } from '@/hooks/useStoreSettings';
 import { cn } from '@/lib/utils';
 import { MessageCircle } from 'lucide-react';
+import { trackPixelEvent } from '@/components/analytics/FacebookPixel';
 
 export function WhatsAppButton() {
     const { data: settings } = useStoreSettings();
@@ -17,6 +18,9 @@ export function WhatsAppButton() {
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => {
+                trackPixelEvent('Contact', { method: 'WhatsApp' });
+            }}
             className={cn(
                 "fixed bottom-6 right-6 z-[100]",
                 "flex items-center justify-center",
