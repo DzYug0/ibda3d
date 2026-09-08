@@ -145,12 +145,23 @@ export default function ProductDetail() {
         description={product.description || `Buy ${product.name} at Ibda3D. Best price in Algeria.`}
         image={product.image_url || undefined}
         type="product"
+        productData={{
+          id: product.id,
+          price: product.price,
+          compareAtPrice: product.compare_at_price,
+          currency: 'DZD',
+          availability: product.stock_quantity > 0 ? 'in stock' : 'out of stock',
+          brand: 'Ibda3D',
+          condition: 'new'
+        }}
         schema={{
           "@context": "https://schema.org",
           "@type": "Product",
           "name": product.name,
           "image": images,
           "description": product.description,
+          "sku": product.id,
+          "productID": product.id,
           "brand": {
             "@type": "Brand",
             "name": "Ibda3D"

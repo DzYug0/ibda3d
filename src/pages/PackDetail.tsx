@@ -11,6 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { trackPixelEvent } from '@/components/analytics/FacebookPixel';
+import { SEO } from '@/components/SEO';
 
 export default function PackDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -84,6 +85,42 @@ export default function PackDetail() {
 
   return (
     <Layout>
+      <SEO
+        title={pack.name}
+        description={pack.description || `Buy ${pack.name} pack at Ibda3D. Best price in Algeria.`}
+        image={pack.image_url || undefined}
+        type="product"
+        productData={{
+          id: pack.id,
+          price: pack.price,
+          compareAtPrice: pack.compare_at_price,
+          currency: 'DZD',
+          availability: 'in stock',
+          brand: 'Ibda3D',
+          condition: 'new'
+        }}
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "Product",
+          "name": pack.name,
+          "image": galleryImages,
+          "description": pack.description,
+          "sku": pack.id,
+          "productID": pack.id,
+          "brand": {
+            "@type": "Brand",
+            "name": "Ibda3D"
+          },
+          "offers": {
+            "@type": "Offer",
+            "url": window.location.href,
+            "priceCurrency": "DZD",
+            "price": pack.price,
+            "availability": "https://schema.org/InStock",
+            "itemCondition": "https://schema.org/NewCondition"
+          }
+        }}
+      />
       <div className="min-h-screen bg-muted/30 pb-20">
         <div className="container mx-auto px-4 py-8">
           <nav className="mb-8">

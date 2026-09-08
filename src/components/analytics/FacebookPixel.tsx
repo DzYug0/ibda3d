@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useStoreSettings } from '@/hooks/useStoreSettings';
 
@@ -35,33 +35,44 @@ export function getFbc(): string | null {
 export const FacebookPixel = () => {
     const { data: settings } = useStoreSettings();
     const location = useLocation();
-    const pixelId = settings?.facebook_pixel_id;
+    const pixelId = settings?.facebook_pixel_id || '4419480575029641';
+    const isFirstMount = useRef(true);
 
-    // Initialize Pixel
+    // Initialize / Update Pixel
     useEffect(() => {
         if (!pixelId) return;
 
-        // Standard Facebook Pixel initialization code
-        !function (f: any, b: any, e: any, v: any, n?: any, t?: any, s?: any) {
-            if (f.fbq) return; n = f.fbq = function () {
-                n.callMethod ?
-                n.callMethod.apply(n, arguments) : n.queue.push(arguments)
-            };
-            if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
-            n.queue = []; t = b.createElement(e); t.async = !0;
-            t.src = v; s = b.getElementsByTagName(e)[0];
-            s.parentNode.insertBefore(t, s)
-        }(window, document, 'script',
-            'https://connect.facebook.net/en_US/fbevents.js');
+        // Standard Facebook Pixel initialization code (if not already loaded by index.html)
+        if (typeof window !== 'undefined') {
+            if (!window.fbq) {
+                !function (f: any, b: any, e: any, v: any, n?: any, t?: any, s?: any) {
+                    if (f.fbq) return; n = f.fbq = function () {
+                        n.callMethod ?
+                        n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+                    };
+                    if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
+                    n.queue = []; t = b.createElement(e); t.async = !0;
+                    t.src = v; s = b.getElementsByTagName(e)[0];
+                    s.parentNode.insertBefore(t, s)
+                }(window, document, 'script',
+                    'https://connect.facebook.net/en_US/fbevents.js');
+            }
 
-        window.fbq('init', pixelId);
+            window.fbq('init', pixelId);
+        }
     }, [pixelId]);
 
-    // Track PageView on route change
+    // Track PageView on route change (avoid duplicate PageView on first load since index.html already fired it)
     useEffect(() => {
-        if (!pixelId) return;
-        window.fbq('track', 'PageView');
-    }, [location, pixelId]);
+        if (isFirstMount.current) {
+            isFirstMount.current = false;
+            return;
+        }
+
+        if (typeof window !== 'undefined' && window.fbq) {
+            window.fbq('track', 'PageView');
+        }
+    }, [location.pathname, pixelId]);
 
     return null;
 };

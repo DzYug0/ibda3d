@@ -88,6 +88,7 @@ export default function AdminSettings() {
         },
         onSuccess: async () => {
             queryClient.invalidateQueries({ queryKey: ['store-settings'] });
+            queryClient.invalidateQueries({ queryKey: ['store-settings-public'] });
 
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {

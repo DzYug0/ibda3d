@@ -7,6 +7,15 @@ interface SEOProps {
     url?: string;
     type?: string;
     schema?: Record<string, any>;
+    productData?: {
+        id: string;
+        price: number;
+        compareAtPrice?: number | null;
+        currency?: string;
+        availability?: 'in stock' | 'out of stock';
+        condition?: string;
+        brand?: string;
+    };
 }
 
 export function SEO({
@@ -15,7 +24,8 @@ export function SEO({
     image = "/og-image.png",
     url,
     type = "website",
-    schema
+    schema,
+    productData
 }: SEOProps) {
     const siteTitle = "Ibda3D";
     const fullTitle = `${title} | ${siteTitle}`;
@@ -30,11 +40,31 @@ export function SEO({
             <link rel="canonical" href={currentUrl} />
 
             {/* Open Graph / Facebook */}
-            <meta property="og:type" content={type} />
+            <meta property="og:type" content={type === 'product' ? 'product' : 'website'} />
             <meta property="og:url" content={currentUrl} />
             <meta property="og:title" content={fullTitle} />
             <meta property="og:description" content={description} />
             <meta property="og:image" content={fullImage} />
+            <meta property="og:site_name" content="Ibda3D" />
+
+            {/* Meta Commerce Manager Catalog Microdata Tags */}
+            {type === 'product' && productData && (
+                <>
+                    <meta property="product:brand" content={productData.brand || "Ibda3D"} />
+                    <meta property="product:availability" content={productData.availability || "in stock"} />
+                    <meta property="product:condition" content={productData.condition || "new"} />
+                    <meta property="product:price:amount" content={productData.price.toString()} />
+                    <meta property="product:price:currency" content={productData.currency || "DZD"} />
+                    <meta property="product:retailer_item_id" content={productData.id} />
+                    <meta property="product:item_group_id" content={productData.id} />
+                    {productData.compareAtPrice && productData.compareAtPrice > productData.price && (
+                        <>
+                            <meta property="product:sale_price:amount" content={productData.price.toString()} />
+                            <meta property="product:sale_price:currency" content={productData.currency || "DZD"} />
+                        </>
+                    )}
+                </>
+            )}
 
             {/* Twitter */}
             <meta property="twitter:card" content="summary_large_image" />
