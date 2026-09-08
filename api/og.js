@@ -174,11 +174,12 @@ export default async function handler(req, res) {
   src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
   /></noscript>
   <!-- End Meta Pixel Code -->
-
-  <meta http-equiv="refresh" content="0;url=/${type === 'product' ? 'products' : type === 'pack' ? 'packs' : ''}/${slug || ''}">
 </head>
 <body>
-  <p>Redirecting to <a href="/${type === 'product' ? 'products' : type === 'pack' ? 'packs' : ''}/${slug || ''}">${escapeHtml(title)}</a>...</p>
+  <h1>${escapeHtml(title)}</h1>
+  <p>${escapeHtml(description)}</p>
+  <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(title)}" />
+  ${isProduct ? `<p>Price: ${price} DZD</p>` : ''}
 </body>
 </html>`;
 

@@ -42,15 +42,6 @@
 
   <!-- Meta Pixel Code -->
   <script>
-    var defaultPixelId = '1057631003921366';
-    var activePixelId = defaultPixelId;
-    try {
-      var storedPixelId = localStorage.getItem('ibda3d_pixel_id');
-      if (storedPixelId && storedPixelId.trim()) {
-        activePixelId = storedPixelId.trim();
-      }
-    } catch (e) {}
-
     !function(f,b,e,v,n,t,s)
     {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
     n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -59,8 +50,17 @@
     t.src=v;s=b.getElementsByTagName(e)[0];
     s.parentNode.insertBefore(t,s)}(window, document,'script',
     'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', activePixelId);
+    fbq('init', '1057631003921366');
     fbq('track', 'PageView');
+
+    // Dynamic Admin Dashboard override (if changed in Admin Settings)
+    try {
+      var customPixelId = localStorage.getItem('ibda3d_pixel_id');
+      if (customPixelId && customPixelId.trim() && customPixelId.trim() !== '1057631003921366') {
+        fbq('init', customPixelId.trim());
+        fbq('track', 'PageView');
+      }
+    } catch (e) {}
   </script>
   <!-- End Meta Pixel Code -->
 </head>
