@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ChevronLeft, Package, ShoppingCart, Minus, Plus } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
@@ -10,6 +10,7 @@ import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
+import { trackPixelEvent } from '@/components/analytics/FacebookPixel';
 
 export default function PackDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -18,6 +19,19 @@ export default function PackDetail() {
   const { addPackToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
   const { t, language } = useLanguage();
+
+  // Track Facebook Pixel ViewContent
+  useEffect(() => {
+    if (pack) {
+      trackPixelEvent('ViewContent', {
+        content_name: pack.name,
+        content_ids: [pack.id],
+        content_type: 'product',
+        value: pack.price,
+        currency: 'DZD'
+      });
+    }
+  }, [pack]);
 
   if (isLoading) {
     return (

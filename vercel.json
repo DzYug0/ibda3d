@@ -47,6 +47,14 @@
             "destination": "https://zgunrxduxkleoogrmdzs.supabase.co/functions/v1/sitemap"
         },
         {
+            "source": "/meta-feed.xml",
+            "destination": "/api/meta/product-feed"
+        },
+        {
+            "source": "/api/meta/:path*",
+            "destination": "/api/meta/:path*"
+        },
+        {
             "source": "/(.*)",
             "destination": "/index.html"
         }

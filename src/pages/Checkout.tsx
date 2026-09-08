@@ -3,7 +3,7 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { MapPin, CheckCircle, Truck, Building2, Home, Loader2, X, ChevronRight, ShoppingBag } from 'lucide-react';
 import { z } from 'zod';
-import { trackPixelEvent } from '@/components/analytics/FacebookPixel';
+import { trackPixelEvent, sendCAPIEvent } from '@/components/analytics/FacebookPixel';
 import { Layout } from '@/components/layout/Layout';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Button } from '@/components/ui/button';
@@ -390,7 +390,7 @@ export default function Checkout() {
         ? 'Desk delivery (Desk Stop)'
         : 'Home delivery';
 
-      await createOrder.mutateAsync({
+      const orderResult = await createOrder.mutateAsync({
         items,
         shippingInfo: {
           address: shippingInfo.deliveryType === 'home'
@@ -404,6 +404,8 @@ export default function Checkout() {
         notes: `${deliveryNote} | Company: ${selectedCompany?.name} | Name: ${shippingInfo.fullName} | Phone: ${shippingInfo.phone} | Shipping: ${shippingCost} DA`,
         couponCode: appliedCoupon ? appliedCoupon.code : null,
       });
+
+      const orderId = orderResult?.id;
 
       // Clear cart for both users and guests
       if (cartItems.length > 0) {
@@ -424,13 +426,45 @@ export default function Checkout() {
 
       setOrderPlaced(true);
 
-      // Track Purchase
+      const contentIds = items.map(i => i.product_id || i.pack_id).filter(Boolean) as string[];
+      const contentsData = items.map(i => ({
+        id: (i.product_id || i.pack_id) as string,
+        quantity: i.quantity,
+        item_price: i.price
+      }));
+
+      // 1. Client-side Meta Pixel with eventID for deduplication
       trackPixelEvent('Purchase', {
-        content_ids: items.map(i => i.product_id || i.pack_id),
+        content_ids: contentIds,
         content_type: 'product',
         value: totalWithShipping,
         currency: 'DZD',
         num_items: items.reduce((sum, item) => sum + item.quantity, 0)
+      }, {
+        eventID: orderId
+      });
+
+      // 2. Server-side Meta Conversions API (CAPI) with matching event_id
+      sendCAPIEvent({
+        eventName: 'Purchase',
+        eventId: orderId,
+        userData: {
+          email: shippingInfo.email || undefined,
+          phone: shippingInfo.phone,
+          firstName: shippingInfo.fullName?.split(' ')[0] || shippingInfo.fullName,
+          lastName: shippingInfo.fullName?.split(' ').slice(1).join(' ') || undefined,
+          city: selectedWilaya?.name,
+          zip: shippingInfo.wilaya,
+          country: 'dz'
+        },
+        customData: {
+          value: totalWithShipping,
+          currency: 'DZD',
+          content_ids: contentIds,
+          content_type: 'product',
+          contents: contentsData,
+          num_items: items.reduce((sum, item) => sum + item.quantity, 0)
+        }
       });
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
