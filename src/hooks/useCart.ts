@@ -204,10 +204,18 @@ export function useCart() {
       toast.success('Added to cart!');
 
       // Track Facebook Pixel
+      const pPrice = variables.productDetails?.price || 0;
+      const pQty = variables.quantity || 1;
       trackPixelEvent('AddToCart', {
+        content_name: variables.productDetails?.name,
         content_ids: [variables.productId],
         content_type: 'product',
-        value: variables.productDetails?.price,
+        contents: [{
+          id: variables.productId,
+          quantity: pQty,
+          item_price: pPrice
+        }],
+        value: pPrice * pQty,
         currency: 'DZD'
       });
     },
@@ -281,11 +289,18 @@ export function useCart() {
       toast.success('Added to cart!');
 
       // Track Facebook Pixel
+      const pkPrice = variables.packDetails?.price || 0;
+      const pkQty = variables.quantity || 1;
       trackPixelEvent('AddToCart', {
+        content_name: variables.packDetails?.name,
         content_ids: [variables.packId],
         content_type: 'product',
-        content_name: variables.packDetails?.name,
-        value: variables.packDetails?.price,
+        contents: [{
+          id: variables.packId,
+          quantity: pkQty,
+          item_price: pkPrice
+        }],
+        value: pkPrice * pkQty,
         currency: 'DZD'
       });
     },

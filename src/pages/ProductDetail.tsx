@@ -66,6 +66,11 @@ export default function ProductDetail() {
         content_name: product.name,
         content_ids: [product.id],
         content_type: 'product',
+        contents: [{
+          id: product.id,
+          quantity: 1,
+          item_price: product.price
+        }],
         value: product.price,
         currency: 'DZD'
       });

@@ -221,9 +221,16 @@ export default function Checkout() {
   // Track InitiateCheckout
   useEffect(() => {
     if (checkoutItems.length > 0) {
+      const contentIds = checkoutItems.map(i => i.product_id || i.pack_id).filter(Boolean) as string[];
+      const contentsData = checkoutItems.map(i => ({
+        id: (i.product_id || i.pack_id) as string,
+        quantity: i.quantity,
+        item_price: i.price
+      }));
       trackPixelEvent('InitiateCheckout', {
-        content_ids: checkoutItems.map(i => i.product_id || i.pack_id),
+        content_ids: contentIds,
         content_type: 'product',
+        contents: contentsData,
         value: checkoutItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
         currency: 'DZD',
         num_items: checkoutItems.reduce((sum, item) => sum + item.quantity, 0)
@@ -437,6 +444,7 @@ export default function Checkout() {
       trackPixelEvent('Purchase', {
         content_ids: contentIds,
         content_type: 'product',
+        contents: contentsData,
         value: totalWithShipping,
         currency: 'DZD',
         num_items: items.reduce((sum, item) => sum + item.quantity, 0)

@@ -28,6 +28,11 @@ export default function PackDetail() {
         content_name: pack.name,
         content_ids: [pack.id],
         content_type: 'product',
+        contents: [{
+          id: pack.id,
+          quantity: 1,
+          item_price: pack.price
+        }],
         value: pack.price,
         currency: 'DZD'
       });

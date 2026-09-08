@@ -168,7 +168,7 @@ export default async function handler(req, res) {
   'https://connect.facebook.net/en_US/fbevents.js');
   fbq('init', '${pixelId}');
   fbq('track', 'PageView');
-  ${isProduct ? `fbq('track', 'ViewContent', { content_ids: ['${itemId}'], content_type: 'product', value: ${price}, currency: 'DZD' });` : ''}
+  ${isProduct ? `fbq('track', 'ViewContent', { content_ids: ['${itemId}'], content_type: 'product', contents: [{ id: '${itemId}', quantity: 1, item_price: ${price} }], value: ${price}, currency: 'DZD' });` : ''}
   </script>
   <noscript><img height="1" width="1" style="display:none"
   src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
