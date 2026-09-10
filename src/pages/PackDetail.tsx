@@ -11,6 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { trackPixelEvent } from '@/components/analytics/FacebookPixel';
+import { trackProductView } from '@/lib/unifiedAnalytics';
 import { SEO } from '@/components/SEO';
 
 export default function PackDetail() {
@@ -21,20 +22,14 @@ export default function PackDetail() {
   const [quantity, setQuantity] = useState(1);
   const { t, language } = useLanguage();
 
-  // Track Facebook Pixel ViewContent
+  // Track Unified Analytics ViewContent
   useEffect(() => {
     if (pack) {
-      trackPixelEvent('ViewContent', {
-        content_name: pack.name,
-        content_ids: [pack.id],
-        content_type: 'product',
-        contents: [{
-          id: pack.id,
-          quantity: 1,
-          item_price: pack.price
-        }],
-        value: pack.price,
-        currency: 'DZD'
+      trackProductView({
+        id: pack.id,
+        name: pack.name,
+        price: pack.price,
+        category: 'Packs'
       });
     }
   }, [pack]);

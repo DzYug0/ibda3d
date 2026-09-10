@@ -19,6 +19,7 @@ import { SEO } from '@/components/SEO';
 import { useBanners } from '@/hooks/useContent';
 import { SidebarBanner } from '@/components/products/SidebarBanner';
 import { trackPixelEvent } from '@/components/analytics/FacebookPixel';
+import { trackProductSearch } from '@/lib/unifiedAnalytics';
 
 export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -78,13 +79,10 @@ export default function Products() {
     sort: sortParam
   });
 
-  // Track Meta Pixel Search event
+  // Track Unified Analytics Search event (GA4 + Meta)
   useEffect(() => {
     if (searchQuery && searchQuery.trim()) {
-      trackPixelEvent('Search', {
-        search_string: searchQuery.trim(),
-        content_category: categoryParam || undefined
-      });
+      trackProductSearch(searchQuery.trim(), categoryParam || undefined);
     }
   }, [searchQuery, categoryParam]);
 

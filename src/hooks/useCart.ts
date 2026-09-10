@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { trackPixelEvent } from '@/components/analytics/FacebookPixel';
+import { trackAddToCartEvent, trackRemoveFromCartEvent } from '@/lib/unifiedAnalytics';
 
 interface CartItem {
   id: string;
@@ -203,20 +204,15 @@ export function useCart() {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       toast.success('Added to cart!');
 
-      // Track Facebook Pixel
+      // Track Unified Analytics (GA4, Meta Pixel & CAPI, Internal Funnel)
       const pPrice = variables.productDetails?.price || 0;
       const pQty = variables.quantity || 1;
-      trackPixelEvent('AddToCart', {
-        content_name: variables.productDetails?.name,
-        content_ids: [variables.productId],
-        content_type: 'product',
-        contents: [{
-          id: variables.productId,
-          quantity: pQty,
-          item_price: pPrice
-        }],
-        value: pPrice * pQty,
-        currency: 'DZD'
+      trackAddToCartEvent({
+        id: variables.productId,
+        name: variables.productDetails?.name || 'Product',
+        price: pPrice,
+        quantity: pQty,
+        variant: variables.selectedColor || variables.selectedVersion || undefined
       });
     },
     onError: (err) => {
@@ -288,20 +284,15 @@ export function useCart() {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       toast.success('Added to cart!');
 
-      // Track Facebook Pixel
+      // Track Unified Analytics (GA4, Meta Pixel & CAPI, Internal Funnel)
       const pkPrice = variables.packDetails?.price || 0;
       const pkQty = variables.quantity || 1;
-      trackPixelEvent('AddToCart', {
-        content_name: variables.packDetails?.name,
-        content_ids: [variables.packId],
-        content_type: 'product',
-        contents: [{
-          id: variables.packId,
-          quantity: pkQty,
-          item_price: pkPrice
-        }],
-        value: pkPrice * pkQty,
-        currency: 'DZD'
+      trackAddToCartEvent({
+        id: variables.packId,
+        name: variables.packDetails?.name || 'Pack',
+        price: pkPrice,
+        quantity: pkQty,
+        category: 'Packs'
       });
     },
     onError: () => {
@@ -334,11 +325,26 @@ export function useCart() {
 
   const removeFromCart = useMutation({
     mutationFn: async (itemId: string) => {
+      // Find item before deletion for analytics tracking
+      const itemToRemove = cartItems.find(i => i.id === itemId);
+
       if (user) {
         const { error } = await supabase.from('cart_items').delete().eq('id', itemId);
         if (error) throw error;
       } else {
         setLocalCart(localCart.filter(item => item.id !== itemId));
+      }
+
+      if (itemToRemove) {
+        const pId = itemToRemove.product_id || itemToRemove.pack_id || itemId;
+        const pName = itemToRemove.product?.name || itemToRemove.pack?.name || 'Item';
+        const pPrice = itemToRemove.product?.price || itemToRemove.pack?.price || 0;
+        trackRemoveFromCartEvent({
+          id: pId,
+          name: pName,
+          price: pPrice,
+          quantity: itemToRemove.quantity
+        });
       }
     },
     onSuccess: () => {

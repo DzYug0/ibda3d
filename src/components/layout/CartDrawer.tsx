@@ -1,9 +1,11 @@
+import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, ShoppingBag, Minus, Plus, Trash2, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/hooks/useCart';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useCartDrawer } from '@/contexts/CartDrawerContext';
+import { trackViewCartEvent } from '@/lib/unifiedAnalytics';
 import {
     Sheet,
     SheetContent,
@@ -20,6 +22,18 @@ export function CartDrawer() {
     const { cartItems, cartTotal, cartCount, updateQuantity, removeFromCart } = useCart();
     const navigate = useNavigate();
     const { t, language } = useLanguage();
+
+    useEffect(() => {
+        if (isCartDrawerOpen && cartItems.length > 0) {
+            const items = cartItems.map(item => ({
+                id: item.product_id || item.pack_id || item.id,
+                name: item.product?.name || item.pack?.name || 'Item',
+                price: item.product?.price || item.pack?.price || 0,
+                quantity: item.quantity
+            }));
+            trackViewCartEvent(items, cartTotal);
+        }
+    }, [isCartDrawerOpen]);
 
     return (
         <Sheet open={isCartDrawerOpen} onOpenChange={setIsCartDrawerOpen}>

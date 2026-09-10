@@ -294,6 +294,49 @@ export default function AdminSettings() {
                                     Enter your Facebook Pixel ID to track page views and events.
                                 </p>
                             </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="ga_measurement_id">Google Analytics 4 Measurement ID</Label>
+                                <Input
+                                    id="ga_measurement_id"
+                                    placeholder="G-XXXXXXXXXX"
+                                    value={settings.ga_measurement_id || ''}
+                                    onChange={(e) => handleChange('ga_measurement_id', e.target.value)}
+                                    className="bg-background/50"
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                    Your GA4 Measurement ID (or set via VITE_GA_MEASUREMENT_ID).
+                                </p>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="meta_conversions_api_token">Meta Conversions API Token</Label>
+                                <Input
+                                    id="meta_conversions_api_token"
+                                    type="password"
+                                    placeholder="EAAG..."
+                                    value={settings.meta_conversions_api_token || ''}
+                                    onChange={(e) => handleChange('meta_conversions_api_token', e.target.value)}
+                                    className="bg-background/50"
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                    Server-side access token for reliable CAPI event delivery.
+                                </p>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="meta_test_event_code">Meta CAPI Test Event Code (Optional)</Label>
+                                <Input
+                                    id="meta_test_event_code"
+                                    placeholder="TEST12345"
+                                    value={settings.meta_test_event_code || ''}
+                                    onChange={(e) => handleChange('meta_test_event_code', e.target.value)}
+                                    className="bg-background/50"
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                    Use this to test server-side events in Meta Events Manager.
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>

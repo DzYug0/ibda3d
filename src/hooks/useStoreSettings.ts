@@ -11,6 +11,7 @@ export interface StoreSettings {
     facebook_pixel_id: string;
     meta_conversions_api_token?: string;
     meta_test_event_code?: string;
+    ga_measurement_id?: string;
     maintenance_mode: boolean;
     maintenance_message: string;
     shipping_free_threshold: number;
@@ -26,6 +27,7 @@ const DEFAULT_SETTINGS: StoreSettings = {
     facebook_pixel_id: '',
     meta_conversions_api_token: '',
     meta_test_event_code: '',
+    ga_measurement_id: '',
     maintenance_mode: false,
     maintenance_message: 'We are currently performing scheduled maintenance. We will be back shortly.',
     shipping_free_threshold: 0,

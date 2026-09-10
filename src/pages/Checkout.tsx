@@ -4,6 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { MapPin, CheckCircle, Truck, Building2, Home, Loader2, X, ChevronRight, ShoppingBag } from 'lucide-react';
 import { z } from 'zod';
 import { trackPixelEvent, sendCAPIEvent } from '@/components/analytics/FacebookPixel';
+import { trackInitiateCheckoutEvent, trackPurchaseEvent } from '@/lib/unifiedAnalytics';
+import { getStoredUTMParams, formatUTMForOrderNotes } from '@/lib/utm';
 import { Layout } from '@/components/layout/Layout';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Button } from '@/components/ui/button';
@@ -218,25 +220,23 @@ export default function Checkout() {
     return [];
   }, [cartItems, buyNowItem]);
 
-  // Track InitiateCheckout
+  // Track InitiateCheckout (Unified Analytics: GA4, Meta Pixel & CAPI, Internal Funnel)
   useEffect(() => {
     if (checkoutItems.length > 0) {
-      const contentIds = checkoutItems.map(i => i.product_id || i.pack_id).filter(Boolean) as string[];
-      const contentsData = checkoutItems.map(i => ({
+      const trackingItems = checkoutItems.map(i => ({
         id: (i.product_id || i.pack_id) as string,
-        quantity: i.quantity,
-        item_price: i.price
+        name: i.name,
+        price: i.price,
+        quantity: i.quantity
       }));
-      trackPixelEvent('InitiateCheckout', {
-        content_ids: contentIds,
-        content_type: 'product',
-        contents: contentsData,
-        value: checkoutItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
-        currency: 'DZD',
-        num_items: checkoutItems.reduce((sum, item) => sum + item.quantity, 0)
+      const totalVal = checkoutItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      trackInitiateCheckoutEvent(trackingItems, totalVal, {
+        email: shippingInfo.email || undefined,
+        phone: shippingInfo.phone || undefined,
+        fullName: shippingInfo.fullName || undefined
       });
     }
-  }, [checkoutItems.length]); // Track only when items are loaded
+  }, [checkoutItems.length]);
 
   const itemsTotal = checkoutItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -397,6 +397,13 @@ export default function Checkout() {
         ? 'Desk delivery (Desk Stop)'
         : 'Home delivery';
 
+      const utm = getStoredUTMParams();
+      const utmNotes = formatUTMForOrderNotes(utm);
+      const orderNotes = [
+        `${deliveryNote} | Company: ${selectedCompany?.name} | Name: ${shippingInfo.fullName} | Phone: ${shippingInfo.phone} | Shipping: ${shippingCost} DA`,
+        utmNotes
+      ].filter(Boolean).join(' | ');
+
       const orderResult = await createOrder.mutateAsync({
         items,
         shippingInfo: {
@@ -408,8 +415,9 @@ export default function Checkout() {
           zip: shippingInfo.wilaya,
           email: shippingInfo.email || undefined,
         },
-        notes: `${deliveryNote} | Company: ${selectedCompany?.name} | Name: ${shippingInfo.fullName} | Phone: ${shippingInfo.phone} | Shipping: ${shippingCost} DA`,
+        notes: orderNotes,
         couponCode: appliedCoupon ? appliedCoupon.code : null,
+        utm,
       });
 
       const orderId = orderResult?.id;
@@ -433,45 +441,25 @@ export default function Checkout() {
 
       setOrderPlaced(true);
 
-      const contentIds = items.map(i => i.product_id || i.pack_id).filter(Boolean) as string[];
-      const contentsData = items.map(i => ({
+      // Unified Purchase Tracking (GA4, Meta Pixel with deduplication, Meta CAPI, Internal Funnel)
+      const purchaseItems = items.map(i => ({
         id: (i.product_id || i.pack_id) as string,
-        quantity: i.quantity,
-        item_price: i.price
+        name: i.name || 'Product',
+        price: i.price || 0,
+        quantity: i.quantity
       }));
 
-      // 1. Client-side Meta Pixel with eventID for deduplication
-      trackPixelEvent('Purchase', {
-        content_ids: contentIds,
-        content_type: 'product',
-        contents: contentsData,
-        value: totalWithShipping,
-        currency: 'DZD',
-        num_items: items.reduce((sum, item) => sum + item.quantity, 0)
-      }, {
-        eventID: orderId
-      });
-
-      // 2. Server-side Meta Conversions API (CAPI) with matching event_id
-      sendCAPIEvent({
-        eventName: 'Purchase',
-        eventId: orderId,
-        userData: {
+      trackPurchaseEvent({
+        id: orderId,
+        totalWithShipping,
+        shippingCost,
+        items: purchaseItems,
+        shippingInfo: {
           email: shippingInfo.email || undefined,
           phone: shippingInfo.phone,
-          firstName: shippingInfo.fullName?.split(' ')[0] || shippingInfo.fullName,
-          lastName: shippingInfo.fullName?.split(' ').slice(1).join(' ') || undefined,
+          fullName: shippingInfo.fullName,
           city: selectedWilaya?.name,
-          zip: shippingInfo.wilaya,
-          country: 'dz'
-        },
-        customData: {
-          value: totalWithShipping,
-          currency: 'DZD',
-          content_ids: contentIds,
-          content_type: 'product',
-          contents: contentsData,
-          num_items: items.reduce((sum, item) => sum + item.quantity, 0)
+          wilaya: shippingInfo.wilaya
         }
       });
 

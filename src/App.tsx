@@ -41,6 +41,7 @@ import { ScrollToTop } from "./components/ScrollToTop";
 import { HelmetProvider } from "react-helmet-async";
 import { FacebookPixel } from "./components/analytics/FacebookPixel";
 import { AnalyticsTracker } from "./components/analytics/AnalyticsTracker";
+import { GoogleAnalytics } from "./components/analytics/GoogleAnalytics";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +59,7 @@ const App = () => (
                   <ScrollToTop />
                   <FacebookPixel />
                   <AnalyticsTracker />
+                  <GoogleAnalytics />
                   <Routes>
                     <Route path="/" element={<Index />} />
                     <Route path="/auth" element={<Auth />} />

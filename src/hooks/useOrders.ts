@@ -112,6 +112,13 @@ export function useCreateOrder() {
       };
       notes?: string;
       couponCode?: string | null;
+      utm?: {
+        utm_source?: string | null;
+        utm_medium?: string | null;
+        utm_campaign?: string | null;
+        utm_content?: string | null;
+        utm_term?: string | null;
+      } | null;
     }) => {
       // Calculate total amount from passed items (trust frontend for display, but ideally valid on backend)
       // Since we are inserting directly, we are responsible for the data.
@@ -125,7 +132,7 @@ export function useCreateOrder() {
       // Generate ID client-side to assume ownership without needing SELECT permissions
       const orderId = crypto.randomUUID();
 
-      const orderData = {
+      const orderData: any = {
         id: orderId,
         user_id: user ? user.id : null,
         status: 'pending' as OrderStatus,
@@ -139,10 +146,24 @@ export function useCreateOrder() {
         // coupon_code: couponCode // If schema has this
       };
 
-      // 1. Create Order
-      const { error: orderError } = await supabase
+      if (utm) {
+        if (utm.utm_source) orderData.utm_source = utm.utm_source;
+        if (utm.utm_medium) orderData.utm_medium = utm.utm_medium;
+        if (utm.utm_campaign) orderData.utm_campaign = utm.utm_campaign;
+        if (utm.utm_content) orderData.utm_content = utm.utm_content;
+        if (utm.utm_term) orderData.utm_term = utm.utm_term;
+      }
+
+      // 1. Create Order (with fallback if UTM columns are not yet migrated in Supabase)
+      let { error: orderError } = await supabase
         .from('orders')
-        .insert(orderData); // No .select() to avoid RLS Select policy issues for guests
+        .insert(orderData);
+
+      if (orderError && (orderError.message?.includes('utm') || (orderError as any).code === 'PGRST204')) {
+        const { utm_source, utm_medium, utm_campaign, utm_content, utm_term, ...fallbackOrderData } = orderData;
+        const retryResult = await supabase.from('orders').insert(fallbackOrderData);
+        orderError = retryResult.error;
+      }
 
       if (orderError) throw orderError;
 

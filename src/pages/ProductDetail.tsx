@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { trackPixelEvent } from "@/components/analytics/FacebookPixel";
+import { trackProductView } from "@/lib/unifiedAnalytics";
 
 export default function ProductDetail() {
   const { slug } = useParams();
@@ -59,20 +60,13 @@ export default function ProductDetail() {
     }
   }, [productOptions, selectedOptions]);
 
-  // Track Facebook Pixel ViewContent
+  // Track Unified Analytics (GA4, Meta Pixel, Internal Funnel)
   useEffect(() => {
     if (product) {
-      trackPixelEvent('ViewContent', {
-        content_name: product.name,
-        content_ids: [product.id],
-        content_type: 'product',
-        contents: [{
-          id: product.id,
-          quantity: 1,
-          item_price: product.price
-        }],
-        value: product.price,
-        currency: 'DZD'
+      trackProductView({
+        id: product.id,
+        name: product.name,
+        price: product.price,
       });
     }
   }, [product]);
